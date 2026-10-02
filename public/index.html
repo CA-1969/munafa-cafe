@@ -210,7 +210,7 @@
 
   <!-- GENERATE BUTTON -->
   <button class="gen-btn" id="genBtn" onclick="runShow()">
-    📻 <span id="genBtnText">Morning Brief Suniye</span> — <span id="todayDate"></span>
+    📻 Morning Brief Suniye — <span id="todayDate"></span>
   </button>
 
   <!-- NOW PLAYING VISUAL (during playback — NO text script here) -->
@@ -354,7 +354,7 @@ function applyUI(){
     document.getElementById("sub-"+m).textContent=u.subs[i];
   });
   const mi=MIDS.indexOf(activeModule);
-  document.getElementById("genBtnText").textContent=u.genBtn[mi];
+  const _td=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}); document.getElementById("genBtn").innerHTML="📻 "+u.genBtn[mi]+" — "+_td;
   document.getElementById("tab-listen").textContent=u.listen;
   document.getElementById("tab-script").textContent=u.script;
   document.getElementById("playBtn").innerHTML=playing&&!paused?u.pause:playing&&paused?u.resume:u.play;
@@ -391,7 +391,7 @@ function setModule(m){
   const gb=document.getElementById("genBtn");
   const mi=MIDS.indexOf(m);
   if(m==="company")gb.style.display="none";
-  else{gb.style.display="flex";document.getElementById("genBtnText").textContent=UI[lang].genBtn[mi];}
+  else{gb.style.display="flex";gb.innerHTML="📻 "+UI[lang].genBtn[MIDS.indexOf(m)]+" — "+new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});}
   document.getElementById("showArea").style.display="none";
   document.getElementById("emptyState").style.display="block";
   document.getElementById("statusArea").innerHTML="";
@@ -501,7 +501,8 @@ async function runShow(){
   }finally{
     document.getElementById("genBtn").disabled=false;
     const mi=MIDS.indexOf(activeModule);
-    document.getElementById("genBtn").innerHTML=`📻 <span id="genBtnText">${UI[lang].genBtn[mi]}</span> — <span id="todayDate">${document.getElementById("todayDate").textContent}</span>`;
+    const todayTxt=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});
+    document.getElementById("genBtn").innerHTML="📻 "+UI[lang].genBtn[mi]+" — "+todayTxt;
   }
 }
 
