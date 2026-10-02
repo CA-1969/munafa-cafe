@@ -100,6 +100,19 @@
   .err-retry{color:var(--red);font-size:12px;text-decoration:underline;background:none;border:none;cursor:pointer;margin-top:6px;}
   .loading-box{margin-top:12px;display:flex;align-items:center;gap:10px;border-radius:12px;padding:14px;background:var(--card);border:1px solid var(--border);}
   .loading-text{color:var(--sub);font-size:13px;}
+  /* LANG TOGGLE */
+  .lang-toggle{display:flex;align-items:center;gap:8px;margin-top:16px;}
+  .lang-btn{padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--sub);transition:all .15s;}
+  .lang-btn.active{background:var(--gold);color:#0D1117;border-color:var(--gold);}
+
+  /* VIDEO BACKGROUND */
+  .video-bg{position:relative;width:100%;border-radius:14px;overflow:hidden;margin-top:16px;background:#000;display:none;}
+  .video-bg video{width:100%;height:220px;object-fit:cover;opacity:0.55;}
+  .video-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+  .video-now-playing{background:#00000088;border-radius:10px;padding:8px 16px;font-size:13px;color:var(--gold);font-weight:700;text-align:center;max-width:90%;}
+  .video-progress{width:80%;height:3px;background:#ffffff33;border-radius:2px;overflow:hidden;}
+  .video-progress-bar{height:100%;background:var(--gold);width:0%;transition:width 0.5s linear;}
+
   footer{max-width:720px;margin:32px auto 0;padding:0 16px;}
   .footer-inner{border-radius:14px;padding:14px;background:var(--card);border:1px solid var(--border);display:flex;gap:10px;}
   .footer-text{font-size:11px;color:var(--sub);line-height:1.7;}
@@ -151,9 +164,27 @@
     </div>
   </div>
 
+  <!-- LANGUAGE TOGGLE -->
+  <div class="lang-toggle">
+    <span style="font-size:12px;color:var(--sub);">भाषा / Language:</span>
+    <button class="lang-btn active" id="btnHi" onclick="setLang('hi')">हिंदी</button>
+    <button class="lang-btn" id="btnEn" onclick="setLang('en')">English</button>
+  </div>
+
   <button class="gen-btn" id="genBtn" onclick="runShow()">
     📻 Morning Brief Suniye — <span id="todayDate"></span>
   </button>
+
+  <!-- VIDEO BACKGROUND (shown during playback) -->
+  <div class="video-bg" id="videoBg">
+    <video id="bgVideo" autoplay muted loop playsinline>
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4"/>
+    </video>
+    <div class="video-overlay">
+      <div class="video-now-playing" id="videoNowPlaying">▶ Ab sun rahe hain...</div>
+      <div class="video-progress"><div class="video-progress-bar" id="videoBar"></div></div>
+    </div>
+  </div>
 
   <div id="statusArea"></div>
 
@@ -210,8 +241,8 @@
 <script>
 const WA = "917983091525";
 const VOICE_IDS = {
-  anchor:  { id:"g0k4YO6pc9QkUXdyUT52", model:"eleven_multilingual_v2", cfg:{ stability:0.38, similarity_boost:0.85, style:0.45, use_speaker_boost:true } },
-  advisor: { id:"Y8AULI9gwzMzFX41r7IP", model:"eleven_multilingual_v2", cfg:{ stability:0.50, similarity_boost:0.83, style:0.30, use_speaker_boost:true } },
+  anchor:  { id:"g0k4YO6pc9QkUXdyUT52", model:"eleven_multilingual_v2", cfg:{ stability:0.62, similarity_boost:0.88, style:0.35, use_speaker_boost:true } },
+  advisor: { id:"Y8AULI9gwzMzFX41r7IP", model:"eleven_multilingual_v2", cfg:{ stability:0.68, similarity_boost:0.86, style:0.22, use_speaker_boost:true } },
 };
 
 let activeModule="morning", currentShow=null, turns=[], cursor=-1;
@@ -244,15 +275,44 @@ function setModule(m){
 
 function quickCompany(n){document.getElementById("companyInput").value=n;runShow();}
 
-const RULES=`Style: Hinglish — Hindi flow, English financial terms as-is (SIP,NAV,FII,DII,EBITDA,crude). Anurag=confident 24yr anchor: punchy short lines, sets each frame. Deepa=warm advisor: connects numbers to what listener should think about their SIP or portfolio. Zero tips, zero target prices. End: Anurag closes reminding this is information only not investment advice. Return ONLY compact JSON. No prose. No fences. Strings under 40 words.`;
+/* ── LANGUAGE TOGGLE ── */
+let lang = "hi"; // "hi" = Hindi | "en" = English/Hinglish
+
+const RULES = {
+  hi: `भाषा: शुद्ध हिंदी। वित्तीय शब्द जैसे SIP, NAV, FII, DII, Nifty, Sensex, EBITDA, crude अंग्रेज़ी में रखें — बाकी सब हिंदी में लिखें। अनुराग = आत्मविश्वासी एंकर: छोटे-पंचदार वाक्य, हर बात को फ्रेम करते हैं। दीपा = सलाहकार: हर नंबर को निवेशक के SIP या पोर्टफोलियो से जोड़ती हैं। कोई tip नहीं, कोई target price नहीं। अंत में अनुराग कहें कि यह केवल जानकारी है, निवेश सलाह नहीं। केवल JSON लौटाएं। कोई prose नहीं। हर string 40 शब्दों से कम।`,
+  en: `Style: Hinglish — Hindi flow, English financial terms as-is (SIP,NAV,FII,DII,EBITDA,crude). Anurag=confident 24yr anchor: punchy short lines. Deepa=warm advisor: connects numbers to listener's SIP or portfolio. Zero tips, zero target prices. End: Anurag reminds this is information only not investment advice. Return ONLY compact JSON. No prose. No fences. Strings under 40 words.`
+};
 
 function getPrompt(){
-  const d=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});
-  const co=document.getElementById("companyInput").value.trim()||"Reliance Industries";
-  if(activeModule==="morning")return `Today is ${d}. Write a MunaFa Café morning briefing in Hinglish. Cover: Nifty and Sensex levels and direction, top 2 sector moves, FII/DII flows, one global factor impacting India today, one SIP investor takeaway. ${RULES} {"module":"morning","headline":"","subline":"","turns":[{"who":"Anurag","text":""},{"who":"Deepa","text":""}],"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Max 3 keyNumbers.`;
-  if(activeModule==="company")return `Write a MunaFa Café company segment on "${co}" in Hinglish. Cover: what the business does in one line, latest result or announcement, one key risk, what long-term investors track. ${RULES} {"module":"company","company":"${co}","headline":"","subline":"","turns":[{"who":"Anurag","text":""},{"who":"Deepa","text":""}],"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Max 3 keyNumbers.`;
-  if(activeModule==="macro")return `Write a MunaFa Café world economics segment in Hinglish. Cover: US Fed rates direction, crude oil and India impact, dollar-rupee, one EM development relevant to Indian investors. ${RULES} {"module":"macro","headline":"","subline":"","turns":[{"who":"Anurag","text":""},{"who":"Deepa","text":""}],"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Max 4 keyNumbers.`;
-  return `Write a MunaFa Café market news roundup in Hinglish. Cover 3-4 significant developments from past 24 hours — name company or sector and specific development each time. ${RULES} {"module":"news","headline":"","subline":"","turns":[{"who":"Anurag","text":""},{"who":"Deepa","text":""}],"keyNumbers":[],"disclaimer":""} 10-12 turns.`;
+  const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});
+  const co = document.getElementById("companyInput").value.trim() || "Reliance Industries";
+  const r = RULES[lang];
+  const names = lang === "hi" ? '{"who":"अनुराग","text":""},{"who":"दीपा","text":""}' : '{"who":"Anurag","text":""},{"who":"Deepa","text":""}';
+  const anchName = lang === "hi" ? "अनुराग" : "Anurag";
+  const advName  = lang === "hi" ? "दीपा"   : "Deepa";
+
+  if(activeModule==="morning"){
+    const instr = lang==="hi"
+      ? `आज की तारीख ${d} है। MunaFa Café की सुबह की ब्रीफिंग लिखें। कवर करें: Nifty और Sensex के स्तर और दिशा, शीर्ष 2 सेक्टर की चाल, FII/DII प्रवाह, भारत को प्रभावित करने वाला एक वैश्विक कारक, SIP निवेशकों के लिए एक सीख।`
+      : `Today is ${d}. Write a MunaFa Café morning briefing in Hinglish. Cover: Nifty and Sensex levels, top 2 sector moves, FII/DII flows, one global factor impacting India, one SIP investor takeaway.`;
+    return `${instr} ${r} {"module":"morning","headline":"","subline":"","turns":[${names}],"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Max 3 keyNumbers.`;
+  }
+  if(activeModule==="company"){
+    const instr = lang==="hi"
+      ? `"${co}" कंपनी पर MunaFa Café का सेगमेंट लिखें। कवर करें: व्यवसाय एक पंक्ति में, नवीनतम परिणाम या घोषणा, एक प्रमुख जोखिम, दीर्घकालिक निवेशक क्या देखते हैं।`
+      : `Write a MunaFa Café company segment on "${co}". Cover: what it does in one line, latest result or announcement, one key risk, what long-term investors track.`;
+    return `${instr} ${r} {"module":"company","company":"${co}","headline":"","subline":"","turns":[${names}],"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Max 3 keyNumbers.`;
+  }
+  if(activeModule==="macro"){
+    const instr = lang==="hi"
+      ? `MunaFa Café का विश्व अर्थव्यवस्था सेगमेंट लिखें। कवर करें: US Fed दरें, crude oil और भारत पर असर, dollar-rupee, भारतीय निवेशकों के लिए एक उभरता बाज़ार विकास।`
+      : `Write a MunaFa Café world economics segment. Cover: US Fed rates, crude oil and India impact, dollar-rupee, one EM development for Indian investors.`;
+    return `${instr} ${r} {"module":"macro","headline":"","subline":"","turns":[${names}],"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Max 4 keyNumbers.`;
+  }
+  const instr = lang==="hi"
+    ? `MunaFa Café की बाज़ार समाचार राउंडअप लिखें। पिछले 24 घंटों की 3-4 महत्वपूर्ण घटनाएं — हर बार कंपनी या सेक्टर और विशिष्ट घटना का नाम लें।`
+    : `Write a MunaFa Café market news roundup. Cover 3-4 significant developments from past 24 hours — name company or sector and specific development each time.`;
+  return `${instr} ${r} {"module":"news","headline":"","subline":"","turns":[${names}],"keyNumbers":[],"disclaimer":""} 10-12 turns.`;
 }
 
 function repairJson(t){
@@ -335,7 +395,7 @@ function renderShow(data){
   renderTurns();
   const sd=document.getElementById("scriptDiv"); sd.innerHTML="";
   turns.forEach(t=>{
-    const isA=t.who==="Anurag";
+    const isA=t.who==="Anurag"||t.who==="अनुराग";
     sd.innerHTML+=`<div class="script-turn${isA?"":" advisor"}"><div class="script-who" style="color:${isA?"var(--gold)":"var(--green)"}">${t.who} — ${isA?"Anchor":"Advisor"}</div><div class="script-text">${t.text}</div></div>`;
   });
   if(data.disclaimer)sd.innerHTML+=`<div class="disclaimer-box">${data.disclaimer}</div>`;
@@ -368,6 +428,7 @@ function playFrom(i){
   if(!turns.length)return;
   hardStop(); stopFlag=false; playing=true; paused=false;
   updatePlayBtn(); setElMsg("","");
+  if(turns[i])showVideo(turns[i].text);
   speakEL(i);
 }
 
@@ -376,7 +437,7 @@ function hardStop(){
   if(currentAudio){currentAudio.pause();currentAudio=null;}
   if(window.speechSynthesis)window.speechSynthesis.cancel();
   playing=false;paused=false;cursor=-1;loadingTurn=-1;
-  updatePlayBtn(); renderTurns();
+  updatePlayBtn(); renderTurns(); hideVideo();
 }
 
 function togglePause(){
@@ -394,7 +455,7 @@ function speakBrowser(i){
   if(stopFlag)return;
   if(i>=turns.length){done();return;}
   cursor=i;renderTurns();
-  const t=turns[i],isA=t.who==="Anurag";
+  const t=turns[i],isA=t.who==="Anurag"||t.who==="अनुराग";
   const u=new SpeechSynthesisUtterance(t.text);
   const voices=window.speechSynthesis.getVoices();
   const ind=voices.filter(v=>/IN$/i.test(v.lang));
@@ -410,11 +471,12 @@ async function speakEL(i){
   if(stopFlag)return;
   if(i>=turns.length){done();return;}
   cursor=i;loadingTurn=i;renderTurns();
-  const t=turns[i],isA=t.who==="Anurag";
+  const t=turns[i],isA=t.who==="Anurag"||t.who==="अनुराग";
   try{
     const url=await callTTS(t.text,isA?"anchor":"advisor");
     if(stopFlag)return;
     loadingTurn=-1;renderTurns();
+    if(turns[i])showVideo(turns[i].text);
     const audio=new Audio(url);
     audio.playbackRate=playRate;
     currentAudio=audio;
@@ -428,7 +490,7 @@ async function speakEL(i){
   }
 }
 
-function done(){playing=false;cursor=-1;loadingTurn=-1;updatePlayBtn();renderTurns();}
+function done(){playing=false;cursor=-1;loadingTurn=-1;updatePlayBtn();renderTurns();hideVideo();}
 function onSpeed(v){playRate=parseFloat(v);document.getElementById("speedVal").textContent=playRate.toFixed(2)+"x";if(currentAudio)currentAudio.playbackRate=playRate;}
 function setElMsg(text,cls){const el=document.getElementById("elMsg");if(!text){el.style.display="none";return;}el.style.display="block";el.textContent=text;el.className="el-msg"+(cls?" "+cls:"");}
 function copyShare(){
@@ -440,6 +502,35 @@ function showError(text,retry){document.getElementById("statusArea").innerHTML=`
 function clearStatus(){document.getElementById("statusArea").innerHTML="";}
 window.speechSynthesis&&window.speechSynthesis.addEventListener("voiceschanged",()=>window.speechSynthesis.getVoices());
 setTimeout(()=>window.speechSynthesis&&window.speechSynthesis.getVoices(),500);
+
+/* ── LANGUAGE TOGGLE ── */
+function setLang(l){
+  lang=l;
+  document.getElementById("btnHi").classList.toggle("active",l==="hi");
+  document.getElementById("btnEn").classList.toggle("active",l==="en");
+  // update generate button label
+  const m=MODULE_META[activeModule];
+  document.getElementById("genBtn").innerHTML=`📻 ${m.label} Suniye — ${document.getElementById("todayDate").textContent}`;
+}
+
+/* ── VIDEO BACKGROUND ── */
+let videoTimer=null;
+function showVideo(turnText){
+  const bg=document.getElementById("videoBg");
+  const np=document.getElementById("videoNowPlaying");
+  bg.style.display="block";
+  np.textContent="🎙 "+turnText.slice(0,60)+(turnText.length>60?"...":"");
+  // scroll video into view smoothly
+  bg.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function hideVideo(){
+  document.getElementById("videoBg").style.display="none";
+  if(videoTimer){clearInterval(videoTimer);videoTimer=null;}
+  document.getElementById("videoBar").style.width="0%";
+}
+function updateVideoProgress(pct){
+  document.getElementById("videoBar").style.width=Math.min(100,pct)+"%";
+}
 </script>
 </body>
 </html>
