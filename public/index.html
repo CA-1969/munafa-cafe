@@ -376,10 +376,19 @@ applyUI();
 
 /* ─── LANGUAGE ─── */
 function setLang(l){
+  if(lang===l)return; // already selected
   lang=l;
   document.getElementById("btnHi").classList.toggle("active",l==="hi");
   document.getElementById("btnEn").classList.toggle("active",l==="en");
   applyUI();
+  // If a show is already loaded, regenerate it in the new language
+  if(currentShow){
+    document.getElementById("showArea").style.display="none";
+    document.getElementById("emptyState").style.display="block";
+    currentShow=null;turns=[];
+    hardStop();hideNP();
+    runShow();
+  }
 }
 
 /* ─── MODULES ─── */
