@@ -100,14 +100,16 @@
   .err-retry{color:var(--red);font-size:12px;text-decoration:underline;background:none;border:none;cursor:pointer;margin-top:6px;}
   .loading-box{margin-top:12px;display:flex;align-items:center;gap:10px;border-radius:12px;padding:14px;background:var(--card);border:1px solid var(--border);}
   .loading-text{color:var(--sub);font-size:13px;}
+  @keyframes gradAnim{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
   /* LANG TOGGLE */
   .lang-toggle{display:flex;align-items:center;gap:8px;margin-top:16px;}
   .lang-btn{padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--sub);transition:all .15s;}
   .lang-btn.active{background:var(--gold);color:#0D1117;border-color:var(--gold);}
 
   /* VIDEO BACKGROUND */
-  .video-bg{position:relative;width:100%;border-radius:14px;overflow:hidden;margin-top:16px;background:#000;display:none;}
-  .video-bg video{width:100%;height:220px;object-fit:cover;opacity:0.55;}
+  .video-bg{position:relative;width:100%;border-radius:14px;overflow:hidden;margin-top:16px;background:linear-gradient(135deg,#0D1117,#1C2820,#2A2210);display:none;}
+  .video-bg video{width:100%;height:200px;object-fit:cover;opacity:0.60;}
   .video-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
   .video-now-playing{background:#00000088;border-radius:10px;padding:8px 16px;font-size:13px;color:var(--gold);font-weight:700;text-align:center;max-width:90%;}
   .video-progress{width:80%;height:3px;background:#ffffff33;border-radius:2px;overflow:hidden;}
@@ -178,7 +180,9 @@
   <!-- VIDEO BACKGROUND (shown during playback) -->
   <div class="video-bg" id="videoBg">
     <video id="bgVideo" autoplay muted loop playsinline>
-      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4"/>
+      <source src="https://videos.pexels.com/video-files/3044491/3044491-uhd_2560_1440_25fps.mp4" type="video/mp4"/>
+      <source src="https://videos.pexels.com/video-files/7947463/7947463-hd_1920_1080_25fps.mp4" type="video/mp4"/>
+      <source src="https://videos.pexels.com/video-files/3773486/3773486-hd_1920_1080_25fps.mp4" type="video/mp4"/>
     </video>
     <div class="video-overlay">
       <div class="video-now-playing" id="videoNowPlaying">▶ Ab sun rahe hain...</div>
@@ -520,8 +524,15 @@ function showVideo(turnText){
   const np=document.getElementById("videoNowPlaying");
   bg.style.display="block";
   np.textContent="🎙 "+turnText.slice(0,60)+(turnText.length>60?"...":"");
-  // scroll video into view smoothly
   bg.scrollIntoView({behavior:"smooth",block:"nearest"});
+  // Try to play video, fallback to animated gradient
+  const vid=document.getElementById("bgVideo");
+  vid.play().catch(()=>{
+    vid.style.display="none";
+    bg.style.background="linear-gradient(135deg,#0D1117 0%,#1a2a1a 30%,#2A2210 60%,#0D1117 100%)";
+    bg.style.backgroundSize="400% 400%";
+    bg.style.animation="gradAnim 4s ease infinite";
+  });
 }
 function hideVideo(){
   document.getElementById("videoBg").style.display="none";
