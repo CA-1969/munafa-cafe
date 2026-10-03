@@ -1,7 +1,13 @@
 {
   "version": 2,
+  "functions": {
+    "api/claude.js": { "maxDuration": 60 },
+    "api/gemini.js": { "maxDuration": 60 },
+    "api/gpt.js":    { "maxDuration": 60 },
+    "api/tts.js":    { "maxDuration": 60 }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/public/index.html" }
+    { "source": "/(.*)",     "destination": "/public/index.html" }
   ]
 }
