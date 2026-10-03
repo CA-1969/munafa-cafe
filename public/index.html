@@ -440,37 +440,61 @@ function parseJson(raw){
 
 /* ─── TRIPLE API WITH FALLBACK ─── */
 async function callApi(prompt){
-  // Try Claude first
-  try{
-    const r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,
-        tools:[{type:"web_search_20250305",name:"web_search"}],
-        messages:[{role:"user",content:prompt}]})});
-    const d=await r.json();
-    if(d&&Array.isArray(d.content)){
-      const txt=d.content.filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
-      if(txt){activeApi="claude";updateApiBadge();return txt;}
+  const apis=[
+    {
+      name:"claude",
+      call:async()=>{
+        const r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,
+            tools:[{type:"web_search_20250305",name:"web_search"}],
+            messages:[{role:"user",content:prompt}]})});
+        if(!r.ok) throw new Error("Claude HTTP "+r.status);
+        const d=await r.json();
+        if(!d||!Array.isArray(d.content)) throw new Error("Claude bad response");
+        const txt=d.content.filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+        if(!txt) throw new Error("Claude empty");
+        return txt;
+      }
+    },
+    {
+      name:"gemini",
+      call:async()=>{
+        const r=await fetch("/api/gemini",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({prompt})});
+        if(!r.ok) throw new Error("Gemini HTTP "+r.status);
+        const d=await r.json();
+        if(d.error) throw new Error("Gemini: "+d.error);
+        if(!d.text) throw new Error("Gemini empty");
+        return d.text;
+      }
+    },
+    {
+      name:"gpt",
+      call:async()=>{
+        const r=await fetch("/api/gpt",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({prompt})});
+        if(!r.ok) throw new Error("GPT HTTP "+r.status);
+        const d=await r.json();
+        if(d.error) throw new Error("GPT: "+d.error);
+        if(!d.text) throw new Error("GPT empty");
+        return d.text;
+      }
     }
-    throw new Error("Empty Claude response");
-  }catch(e1){
-    console.warn("Claude failed:",e1.message,". Trying Gemini...");
-    // Try Gemini second
+  ];
+
+  let lastErr="";
+  for(const api of apis){
     try{
-      const r=await fetch("/api/gemini",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({prompt})});
-      const d=await r.json();
-      if(d&&d.text){activeApi="gemini";updateApiBadge();return d.text;}
-      throw new Error(d.error||"Empty Gemini response");
-    }catch(e2){
-      console.warn("Gemini failed:",e2.message,". Trying GPT...");
-      // Try GPT-4o-mini last
-      const r=await fetch("/api/gpt",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({prompt})});
-      const d=await r.json();
-      if(d&&d.text){activeApi="gpt";updateApiBadge();return d.text;}
-      throw new Error(d.error||"All three AI services unavailable. Please try again in a few minutes.");
+      const txt=await api.call();
+      activeApi=api.name;
+      updateApiBadge();
+      return txt;
+    }catch(e){
+      console.warn(api.name+" failed:",e.message);
+      lastErr=e.message;
     }
   }
+  throw new Error("All AI services are busy. Please try again in a minute. ("+lastErr+")");
 }
 
 function updateApiBadge(){
