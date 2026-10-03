@@ -397,24 +397,24 @@ function getPrompt(){
     const q=isHi
       ?`आज ${d} है। MunaFa Café की 5-मिनट की सुबह की ब्रीफिंग लिखें। विस्तार से कवर करें: 1) Nifty और Sensex के exact स्तर, दिशा और पिछले हफ्ते की तुलना। 2) शीर्ष 3 सेक्टर की चाल — कारण सहित। 3) FII और DII के exact प्रवाह और इसका अर्थ। 4) एक वैश्विक कारण जो भारत को प्रभावित कर रहा है। 5) Crude oil और dollar-rupee। 6) SIP निवेशकों के लिए 2 मुख्य बातें।`
       :`Today is ${d}. Write a detailed 5-minute MunaFa Café morning briefing. Cover thoroughly: 1) Nifty and Sensex exact levels, direction and comparison to last week. 2) Top 3 sector moves with reasons. 3) Exact FII and DII flows and what they mean. 4) One global factor affecting India. 5) Crude oil and dollar-rupee. 6) Two key takeaways for SIP investors.`;
-    return `${q} ${r} {"module":"morning","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 14-16 turns alternating. Each turn 40-60 words. Max 4 keyNumbers.`;
+    return `${q} ${r} {"module":"morning","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns alternating. Each turn 25-40 words. Max 3 keyNumbers. Keep it short.`;
   }
   if(activeModule==="company"){
     const q=isHi
       ?`"${co}" पर MunaFa Café का detailed 5-मिनट का सेगमेंट लिखें। कवर करें: 1) व्यवसाय और revenue model। 2) नवीनतम quarterly परिणाम — सभी प्रमुख संख्याएं। 3) Management commentary। 4) प्रमुख जोखिम। 5) Long-term investors क्या देखते हैं। 6) Valuation context।`
       :`Write a detailed 5-minute MunaFa Café company deep dive on "${co}". Cover: 1) Business model and revenue streams. 2) Latest quarterly results with key numbers. 3) Management commentary. 4) Key risks. 5) What long-term investors watch. 6) Valuation context.`;
-    return `${q} ${r} {"module":"company","company":"${co}","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 14-16 turns. Each 40-60 words. Max 4 keyNumbers.`;
+    return `${q} ${r} {"module":"company","company":"${co}","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Each 25-40 words. Max 3 keyNumbers. Keep it short.`;
   }
   if(activeModule==="macro"){
     const q=isHi
       ?`MunaFa Café का detailed 5-मिनट का विश्व अर्थव्यवस्था सेगमेंट लिखें। कवर करें: US Fed rates और भारत पर प्रभाव, crude oil, dollar-rupee, China economy, एक emerging market development, भारतीय bonds और FII behaviour।`
       :`Write a detailed 5-minute MunaFa Café world economics segment. Cover: US Fed rates and India impact, crude oil price, dollar-rupee movement, China economy, one emerging market development, Indian bonds and FII behaviour.`;
-    return `${q} ${r} {"module":"macro","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 14-16 turns. Each 40-60 words. Max 5 keyNumbers.`;
+    return `${q} ${r} {"module":"macro","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Each 25-40 words. Max 3 keyNumbers. Keep it short.`;
   }
   const q=isHi
     ?`MunaFa Café की detailed 5-मिनट की बाज़ार समाचार राउंडअप लिखें। पिछले 24 घंटों की 4-5 महत्वपूर्ण घटनाएं — हर बार company या sector, exact घटना और investors पर असर बताएं।`
     :`Write a detailed 5-minute MunaFa Café market news roundup. Cover 4-5 significant developments from past 24 hours — each time name the company or sector, the exact development, and what it means for investors.`;
-  return `${q} ${r} {"module":"news","headline":"","subline":"","turns":${t},"keyNumbers":[],"disclaimer":""} 14-16 turns. Each 40-60 words.`;
+  return `${q} ${r} {"module":"news","headline":"","subline":"","turns":${t},"keyNumbers":[],"disclaimer":""} 8-10 turns. Each 25-40 words.`;
 }
 
 /* ─── JSON REPAIR ─── */
