@@ -661,7 +661,8 @@ async function speakEL(i){
   cursor=i;loadingTurn=i;renderTurns();
   const t=turns[i],a=isAnch(t.who);
   try{
-    const url=await callTTS(t.text,a?"anchor":"advisor");
+    const ttsText = "… " + t.text;  // leading pause prevents first-word clipping
+    const url=await callTTS(ttsText,a?"anchor":"advisor");
     if(stopFlag)return;
     loadingTurn=-1;renderTurns();
     showNP(t.text,a);
