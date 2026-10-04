@@ -382,8 +382,10 @@ const ANCHOR={hi:"अनुराग",en:"Anurag"}, ADVISOR={hi:"दीपा",e
 
 /* 5-minute show = 14-16 turns, each 40-60 words */
 const RULES={
-  hi:`भाषा: शुद्ध हिंदी। केवल ये शब्द अंग्रेज़ी में रखें: SIP, NAV, FII, DII, Nifty, Sensex, EBITDA, PE, crude oil, mutual fund, portfolio, index। अनुराग = आत्मविश्वासी एंकर, छोटे-पंचदार वाक्य, हर point को frame करते हैं। दीपा = warm सलाहकार, हर नंबर को निवेशक के पोर्टफोलियो से जोड़ती हैं, "यह signal है कि...", "निवेशकों के लिए मतलब है..." जैसे phrases use करें। कोई tip नहीं, कोई target price नहीं। अंत में अनुराग कहें यह केवल जानकारी है, निवेश सलाह नहीं। केवल valid JSON लौटाएं, कोई prose नहीं।`,
-  en:`Language: Clear conversational Indian English. Financial terms as-is (SIP,NAV,FII,DII,Nifty,Sensex,EBITDA,PE,crude oil). Anurag = confident anchor, short punchy sentences, frames each point. Deepa = warm advisor, connects every number to what the listener should think about their own portfolio, uses phrases like "what this means for investors is...", "the signal here is...". No tips, no target prices. Anurag closes reminding this is information not investment advice. Return ONLY valid JSON, no prose, no fences.`
+  hi:`IMPORTANT: Return ONLY a JSON object. No explanation, no markdown, no text before or after. The JSON must be complete and valid.
+Bhasha: Shuddh Hindi. English mein sirf: SIP, NAV, FII, DII, Nifty, Sensex, PE, crude oil. Anurag = anchor, punchy lines. Deepa = advisor. Koi tip nahi. JSON structure neeche diya hai.`,
+  en:`IMPORTANT: Return ONLY a JSON object. No explanation, no markdown, no text before or after. The JSON must be complete and valid.
+Language: Clear Indian English. Anurag = confident anchor. Deepa = warm advisor connecting numbers to investor portfolios. No tips, no target prices. JSON structure below.`
 };
 
 function getTurns(){const a=ANCHOR[lang],d=ADVISOR[lang];return `[{"who":"${a}","text":""},{"who":"${d}","text":""}]`;}
@@ -393,28 +395,29 @@ function getPrompt(){
   const co=document.getElementById("companyInput").value.trim()||"Reliance Industries";
   const r=RULES[lang],t=getTurns(),isHi=lang==="hi";
 
-  if(activeModule==="morning"){
-    const q=isHi
-      ?`आज ${d} है। MunaFa Café की 5-मिनट की सुबह की ब्रीफिंग लिखें। विस्तार से कवर करें: 1) Nifty और Sensex के exact स्तर, दिशा और पिछले हफ्ते की तुलना। 2) शीर्ष 3 सेक्टर की चाल — कारण सहित। 3) FII और DII के exact प्रवाह और इसका अर्थ। 4) एक वैश्विक कारण जो भारत को प्रभावित कर रहा है। 5) Crude oil और dollar-rupee। 6) SIP निवेशकों के लिए 2 मुख्य बातें।`
-      :`Today is ${d}. Write a detailed 5-minute MunaFa Café morning briefing. Cover thoroughly: 1) Nifty and Sensex exact levels, direction and comparison to last week. 2) Top 3 sector moves with reasons. 3) Exact FII and DII flows and what they mean. 4) One global factor affecting India. 5) Crude oil and dollar-rupee. 6) Two key takeaways for SIP investors.`;
-    return `${q} ${r} {"module":"morning","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns alternating. Each turn 25-40 words. Max 3 keyNumbers. Keep it short.`;
-  }
-  if(activeModule==="company"){
-    const q=isHi
-      ?`"${co}" पर MunaFa Café का detailed 5-मिनट का सेगमेंट लिखें। कवर करें: 1) व्यवसाय और revenue model। 2) नवीनतम quarterly परिणाम — सभी प्रमुख संख्याएं। 3) Management commentary। 4) प्रमुख जोखिम। 5) Long-term investors क्या देखते हैं। 6) Valuation context।`
-      :`Write a detailed 5-minute MunaFa Café company deep dive on "${co}". Cover: 1) Business model and revenue streams. 2) Latest quarterly results with key numbers. 3) Management commentary. 4) Key risks. 5) What long-term investors watch. 6) Valuation context.`;
-    return `${q} ${r} {"module":"company","company":"${co}","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Each 25-40 words. Max 3 keyNumbers. Keep it short.`;
-  }
-  if(activeModule==="macro"){
-    const q=isHi
-      ?`MunaFa Café का detailed 5-मिनट का विश्व अर्थव्यवस्था सेगमेंट लिखें। कवर करें: US Fed rates और भारत पर प्रभाव, crude oil, dollar-rupee, China economy, एक emerging market development, भारतीय bonds और FII behaviour।`
-      :`Write a detailed 5-minute MunaFa Café world economics segment. Cover: US Fed rates and India impact, crude oil price, dollar-rupee movement, China economy, one emerging market development, Indian bonds and FII behaviour.`;
-    return `${q} ${r} {"module":"macro","headline":"","subline":"","turns":${t},"keyNumbers":[{"label":"","value":""}],"disclaimer":""} 8-10 turns. Each 25-40 words. Max 3 keyNumbers. Keep it short.`;
-  }
-  const q=isHi
-    ?`MunaFa Café की detailed 5-मिनट की बाज़ार समाचार राउंडअप लिखें। पिछले 24 घंटों की 4-5 महत्वपूर्ण घटनाएं — हर बार company या sector, exact घटना और investors पर असर बताएं।`
-    :`Write a detailed 5-minute MunaFa Café market news roundup. Cover 4-5 significant developments from past 24 hours — each time name the company or sector, the exact development, and what it means for investors.`;
-  return `${q} ${r} {"module":"news","headline":"","subline":"","turns":${t},"keyNumbers":[],"disclaimer":""} 8-10 turns. Each 25-40 words.`;
+  const jsonTemplate = activeModule==="morning"
+    ? `{"module":"morning","headline":"<catchy Hindi/English headline>","subline":"<date and context>","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[{"label":"Nifty","value":""},{"label":"Sensex","value":""}]}`
+    : activeModule==="company"
+    ? `{"module":"company","company":"${co}","headline":"","subline":"","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[{"label":"","value":""}]}`
+    : activeModule==="macro"
+    ? `{"module":"macro","headline":"","subline":"","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[{"label":"Crude Oil","value":""},{"label":"USD/INR","value":""}]}`
+    : `{"module":"news","headline":"","subline":"","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[]}`;
+
+  const topic = {
+    morning: isHi ? `आज ${d} के लिए Nifty, Sensex, FII/DII flow, top sectors, SIP investors ke liye ek tip.` : `Morning market brief for ${d}: Nifty, Sensex levels, FII/DII flows, top sectors, one SIP tip.`,
+    company: isHi ? `"${co}" company ka analysis: business, latest results, risks, long-term view.` : `Company analysis of "${co}": business model, latest results, key risks, long-term view.`,
+    macro: isHi ? `Global economics: US Fed, crude oil, dollar-rupee, China impact on India.` : `World economics: US Fed rates, crude oil, dollar-rupee, China impact on India.`,
+    news: isHi ? `Aaj ki top 3-4 market news: company names, events, investor impact.` : `Top 3-4 market news today: company names, events, investor impact.`,
+  }[activeModule];
+
+  return `${r}
+
+Topic: ${topic}
+
+Return this JSON with all fields filled in (6-8 turns, each 20-35 words, alternating between ${ANCHOR[lang]} and ${ADVISOR[lang]}):
+${jsonTemplate}
+
+Fill EVERY "text" field. Make turns natural FM radio dialogue. Return ONLY the JSON, nothing else.`;
 }
 
 /* ─── JSON REPAIR ─── */
