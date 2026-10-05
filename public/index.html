@@ -655,9 +655,89 @@ function speakBrowser(i){
   u.onerror=()=>done();
   window.speechSynthesis.speak(u);
 }
+/* ─── MUNAFA CAFÉ JINGLE ─── */
+function playJingle(){
+  return new Promise(resolve=>{
+    try{
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      const master=ctx.createGain();
+      master.gain.setValueAtTime(0.35,ctx.currentTime);
+      master.connect(ctx.destination);
+
+      // Warm FM chime — 3 ascending notes
+      const notes=[
+        {freq:523.25,start:0,dur:0.45},   // C5
+        {freq:659.25,start:0.22,dur:0.45}, // E5
+        {freq:783.99,start:0.44,dur:0.7},  // G5
+        {freq:1046.5,start:0.66,dur:0.9},  // C6 — high bright finish
+      ];
+
+      notes.forEach(n=>{
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        osc.type="sine";
+        osc.frequency.setValueAtTime(n.freq,ctx.currentTime+n.start);
+        gain.gain.setValueAtTime(0,ctx.currentTime+n.start);
+        gain.gain.linearRampToValueAtTime(0.8,ctx.currentTime+n.start+0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+n.start+n.dur);
+        osc.connect(gain);gain.connect(master);
+        osc.start(ctx.currentTime+n.start);
+        osc.stop(ctx.currentTime+n.start+n.dur+0.05);
+      });
+
+      // Soft tabla-like thump underneath
+      const buf=ctx.createBuffer(1,ctx.sampleRate*0.18,ctx.sampleRate);
+      const data=buf.getChannelData(0);
+      for(let i=0;i<data.length;i++){
+        data[i]=Math.random()*2-1;
+      }
+      const noise=ctx.createBufferSource();
+      noise.buffer=buf;
+      const bpf=ctx.createBiquadFilter();
+      bpf.type="bandpass";bpf.frequency.value=180;bpf.Q.value=0.8;
+      const ng=ctx.createGain();
+      ng.gain.setValueAtTime(0.5,ctx.currentTime+0.62);
+      ng.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.80);
+      noise.connect(bpf);bpf.connect(ng);ng.connect(master);
+      noise.start(ctx.currentTime+0.62);
+
+      // Second softer thump
+      const buf2=ctx.createBuffer(1,ctx.sampleRate*0.14,ctx.sampleRate);
+      const d2=buf2.getChannelData(0);
+      for(let i=0;i<d2.length;i++) d2[i]=Math.random()*2-1;
+      const n2=ctx.createBufferSource();
+      n2.buffer=buf2;
+      const bp2=ctx.createBiquadFilter();
+      bp2.type="bandpass";bp2.frequency.value=220;bp2.Q.value=0.9;
+      const ng2=ctx.createGain();
+      ng2.gain.setValueAtTime(0.3,ctx.currentTime+0.90);
+      ng2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.04);
+      n2.connect(bp2);bp2.connect(ng2);ng2.connect(master);
+      n2.start(ctx.currentTime+0.90);
+
+      // Total jingle length ~1.7 seconds then resolve
+      const totalDur=1.72;
+      master.gain.setValueAtTime(0.35,ctx.currentTime+totalDur-0.3);
+      master.gain.linearRampToValueAtTime(0,ctx.currentTime+totalDur);
+      setTimeout(()=>{
+        try{ctx.close();}catch(e){}
+        resolve();
+      },totalDur*1000+80);
+    }catch(e){
+      // If audio context fails (autoplay policy etc), just resolve
+      resolve();
+    }
+  });
+}
+
 async function speakEL(i){
   if(stopFlag)return;
   if(i>=turns.length){done();return;}
+  // Play jingle before very first turn
+  if(i===0){
+    try{ await playJingle(); }catch(e){}
+  }
+  if(stopFlag)return;
   cursor=i;loadingTurn=i;renderTurns();
   const t=turns[i],a=isAnch(t.who);
   try{
