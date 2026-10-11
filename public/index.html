@@ -63,10 +63,25 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 .output-area{display:none;flex-direction:column;gap:10px}
 .output-area.visible{display:flex}
 .script-box{background:#0d1117;border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;max-height:300px;overflow-y:auto}
-.turn{padding:7px 0;border-bottom:1px solid rgba(48,54,61,.5)}
+.turn{padding:8px 0;border-bottom:1px solid rgba(48,54,61,.5)}
 .turn:last-child{border-bottom:none}
 .turn-num{color:var(--accent);font-weight:700;font-size:11px;margin-bottom:3px}
 .turn-text{color:var(--text);font-size:13px;line-height:1.75}
+
+/* Anurag-Deepa dialogue style */
+.dialogue{display:flex;flex-direction:column;gap:10px;padding:4px 0}
+.dlg-bubble{display:flex;gap:10px;align-items:flex-start}
+.dlg-bubble.deepa{flex-direction:row-reverse}
+.dlg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;margin-top:2px}
+.dlg-avatar.av-a{background:linear-gradient(135deg,#f0a500,#d4920a);color:#000}
+.dlg-avatar.av-d{background:linear-gradient(135deg,#00bcd4,#0097a7);color:#000}
+.dlg-body{max-width:85%}
+.dlg-name{font-size:10px;font-weight:700;margin-bottom:4px;letter-spacing:.5px}
+.dlg-name.nm-a{color:var(--accent)}
+.dlg-name.nm-d{color:var(--accent2);text-align:right}
+.dlg-text{font-size:13px;line-height:1.7;padding:10px 13px;border-radius:12px}
+.dlg-text.tx-a{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.25);border-top-left-radius:2px;color:var(--text)}
+.dlg-text.tx-d{background:rgba(0,188,212,.08);border:1px solid rgba(0,188,212,.2);border-top-right-radius:2px;color:var(--text)}
 
 .api-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:8px;font-weight:700;margin-bottom:8px}
 .api-claude{background:rgba(124,58,237,.2);color:#a78bfa}
@@ -143,7 +158,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="module-icon">🌅</div>
         <div>
           <div class="module-title">Market Morning Brief</div>
-          <div class="module-desc">Aaj ke bazaar ki poori taiyari — indices, sectors, global cues</div>
+          <div class="module-desc">Anurag &amp; Deepa ke saath — indices, sectors, global cues — live dialogue</div>
         </div>
       </div>
       <button class="gen-btn" id="gen-0" onclick="generate(0)">📻 Morning Brief Generate Karein</button>
@@ -338,38 +353,93 @@ function getPrompt(mi) {
 
   const prompts = [
 
-    // 0 — Morning Brief
-    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
-Generate a 15-turn morning market brief in Hinglish (mix Hindi + English naturally). Each turn must be 40-55 words.
-Reply ONLY with this JSON structure, no extra text before or after:
+    // 0 — Morning Brief (Anurag-Deepa dialogue, language=${lang})
+    lang === "hi"
+    ? `आप MunaFa Café FM के दो RJ हैं — Anurag (पुरुष, बाज़ार विशेषज्ञ) और Deepa (महिला, जो सरल और तीखे सवाल पूछती हैं)। आज की तारीख है ${d}।
+
+भाषा नियम — यह बहुत ज़रूरी है:
+- वाक्य संरचना और सभी शब्द शुद्ध हिंदी में लिखें।
+- केवल वे अंग्रेज़ी शब्द रखें जिनका हिंदी में कोई प्रचलित विकल्प नहीं है: Nifty, Sensex, Bank Nifty, SIP, NAV, FII, DII, EBITDA, GDP, IPO, NFO, RSI।
+- बाकी सब हिंदी में — "बाज़ार", "गिरावट", "तेज़ी", "निवेशक", "स्तर", "समर्थन", "प्रतिरोध", "क्षेत्र", "कच्चा तेल" आदि।
+- उदाहरण सही शैली: "आज Nifty 24,200 के समर्थन स्तर पर टिका है। FII ने ₹3,800 करोड़ की खरीदारी की — यह सकारात्मक संकेत है।"
+- गलत शैली: "market mein bullish trend hai, sectors perform kar rahe hain" — यह बिल्कुल नहीं चाहिए।
+
+15 turns का संवाद लिखें, हर turn 40-55 शब्द। सिर्फ यह JSON दें, कोई अतिरिक्त टेक्स्ट नहीं:
 {"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"}
+{"n":1,"s":"A","t":"TEXT"},
+{"n":2,"s":"D","t":"TEXT"},
+{"n":3,"s":"A","t":"TEXT"},
+{"n":4,"s":"D","t":"TEXT"},
+{"n":5,"s":"A","t":"TEXT"},
+{"n":6,"s":"D","t":"TEXT"},
+{"n":7,"s":"A","t":"TEXT"},
+{"n":8,"s":"D","t":"TEXT"},
+{"n":9,"s":"A","t":"TEXT"},
+{"n":10,"s":"D","t":"TEXT"},
+{"n":11,"s":"A","t":"TEXT"},
+{"n":12,"s":"D","t":"TEXT"},
+{"n":13,"s":"A","t":"TEXT"},
+{"n":14,"s":"D","t":"TEXT"},
+{"n":15,"s":"A","t":"TEXT"}
 ]}
-CONTENT SEQUENCE:
-Turn 1: FM jingle intro — "Namaskar dosto, main hoon RJ Munafa, aur yeh hai aapka MunaFa Café — India ka no.1 AI investor FM show!"
-Turn 2-3: Global markets recap — Dow Jones, Nasdaq, Nikkei, SGX Nifty levels (use realistic estimated values), what they signal.
-Turn 4-5: Nifty 50 and Sensex outlook — support/resistance levels, trend direction, what to watch today.
-Turn 6-7: Bank Nifty analysis and sector rotation — which sectors are in favour today.
-Turn 8-9: Top 3 stocks expected to gain and top 3 to watch out for — with reasons.
-Turn 10-11: FII and DII activity — net buying/selling, rupee vs dollar, what it means.
-Turn 12-13: Commodity corner — gold price, silver, crude oil, their impact on Indian markets.
-Turn 14: Key events today — earnings announcements, economic data, RBI news, IPO dates.
-Turn 15: Energetic sign-off — "Invest karo, seekhte raho, aur MunaFa Café ke saath bane raho!"
-Use authentic FM RJ energy. Give realistic estimated market data. Pure Hinglish.`,
+
+"s": "A" = Anurag, "D" = Deepa।
+
+संवाद क्रम:
+Turn 1 (A): शो का परिचय — "नमस्कार श्रोताओं! मैं हूँ Anurag, और साथ में हैं Deepa जी — आपका स्वागत है MunaFa Café में, आपके सुबह के बाज़ार साथी!"
+Turn 2 (D): "Anurag जी, आज रात विश्व बाज़ारों का क्या हाल रहा? क्या भारतीय बाज़ार के लिए कोई चिंता की बात है?"
+Turn 3 (A): Dow Jones, Nasdaq, Nikkei, SGX Nifty के यथार्थवादी अनुमानित स्तर — भारत पर उनका असर, शुद्ध हिंदी में।
+Turn 4 (D): "तो आज Nifty किस दिशा में जाएगा? समर्थन और प्रतिरोध के स्तर क्या हैं?"
+Turn 5 (A): Nifty 50 और Sensex का तकनीकी विश्लेषण — यथार्थवादी अनुमानित स्तर, रुझान, आज क्या देखें।
+Turn 6 (D): "Bank Nifty और अलग-अलग क्षेत्रों की क्या स्थिति है? कौन से क्षेत्र आज मज़बूत दिख रहे हैं?"
+Turn 7 (A): Bank Nifty विश्लेषण, क्षेत्र परिवर्तन — आज कौन से क्षेत्र अनुकूल हैं और क्यों।
+Turn 8 (D): "आज के लिए कौन से शेयर देखने लायक हैं? हमारे श्रोताओं के लिए कुछ नाम बताइए।"
+Turn 9 (A): 3 संभावित लाभ देने वाले शेयर और 2 जिनसे सावधान रहें — ठोस कारणों के साथ।
+Turn 10 (D): "FII और DII की गतिविधि कैसी है? रुपया-डॉलर की स्थिति क्या है आज?"
+Turn 11 (A): FII/DII की शुद्ध खरीद-बिक्री, रुपये का स्तर, बाज़ार पर इसका क्या असर पड़ेगा।
+Turn 12 (D): "जिंस बाज़ार की बात करें — सोना, चाँदी, कच्चा तेल आज कहाँ हैं?"
+Turn 13 (A): सोना, चाँदी, कच्चे तेल के यथार्थवादी अनुमानित भाव — भारतीय शेयर बाज़ार पर उनका प्रभाव।
+Turn 14 (D): "आज के लिए कोई महत्वपूर्ण घटनाएँ, परिणाम या आर्थिक आँकड़े आने वाले हैं क्या?"
+Turn 15 (A): आज की प्रमुख घटनाएँ — earnings, आर्थिक आँकड़े, और जोशीली विदाई: "निवेश करते रहें, सीखते रहें, MunaFa Café के साथ बने रहें — नमस्कार!"
+यथार्थवादी बाज़ार डेटा दें। स्वाभाविक FM ऊर्जा और गर्मजोशी हो।`
+    : `You are two RJs on MunaFa Café FM — Anurag (male, market expert) and Deepa (female, who asks smart questions and simplifies for listeners). Today is ${d}.
+This is the Morning Market Brief — a natural radio dialogue. Write 15 turns, each 40-55 words, in pure English only (financial terms like Nifty, Sensex are fine).
+Reply ONLY with this JSON, no extra text:
+{"turns":[
+{"n":1,"s":"A","t":"TEXT"},
+{"n":2,"s":"D","t":"TEXT"},
+{"n":3,"s":"A","t":"TEXT"},
+{"n":4,"s":"D","t":"TEXT"},
+{"n":5,"s":"A","t":"TEXT"},
+{"n":6,"s":"D","t":"TEXT"},
+{"n":7,"s":"A","t":"TEXT"},
+{"n":8,"s":"D","t":"TEXT"},
+{"n":9,"s":"A","t":"TEXT"},
+{"n":10,"s":"D","t":"TEXT"},
+{"n":11,"s":"A","t":"TEXT"},
+{"n":12,"s":"D","t":"TEXT"},
+{"n":13,"s":"A","t":"TEXT"},
+{"n":14,"s":"D","t":"TEXT"},
+{"n":15,"s":"A","t":"TEXT"}
+]}
+"s": "A" = Anurag speaking, "D" = Deepa speaking.
+DIALOGUE SEQUENCE:
+Turn 1 (A): Show intro — "Good morning investors! I'm Anurag, joined by the wonderful Deepa — welcome to MunaFa Café, your morning market companion!"
+Turn 2 (D): Deepa asks — "Anurag, how are global markets looking today? Should our listeners be worried?"
+Turn 3 (A): Anurag answers — Dow Jones, Nasdaq, Nikkei, SGX Nifty estimated levels, what they signal for India.
+Turn 4 (D): Deepa — "So where is Nifty headed today? What should investors do right now?"
+Turn 5 (A): Anurag — Nifty 50 support/resistance, Sensex trend, technical outlook for the session.
+Turn 6 (D): Deepa — "What about Bank Nifty and sectors — which areas look strong today?"
+Turn 7 (A): Anurag — Bank Nifty analysis, sector rotation, today's favourable sectors with reasons.
+Turn 8 (D): Deepa — "Anurag, which stocks are worth watching today? Any top picks for our listeners?"
+Turn 9 (A): Anurag — 3 potential gainers and 2 stocks to be cautious about, with clear reasoning.
+Turn 10 (D): Deepa — "What are FIIs doing? And how is the rupee holding up against the dollar?"
+Turn 11 (A): Anurag — FII/DII net activity, rupee vs dollar level, market implications.
+Turn 12 (D): Deepa — "Let's talk commodities — gold, silver, crude oil. What's the picture today?"
+Turn 13 (A): Anurag — Gold, silver, crude oil estimated prices and their impact on Indian equities.
+Turn 14 (D): Deepa — "Any key events or results scheduled for today that listeners should know about?"
+Turn 15 (A): Anurag — Key events, earnings calendar, warm sign-off — "Keep investing, keep learning, and stay with MunaFa Café!"
+Use realistic estimated market data. Natural, warm FM energy throughout.`,
 
     // 1 — Company Spotlight
     `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
@@ -628,12 +698,31 @@ async function generate(mi) {
       scr.innerHTML = "";
     }
 
-    turns.forEach(t => {
-      const div = document.createElement("div");
-      div.className = "turn";
-      div.innerHTML = "<div class='turn-num'>Turn " + t.n + "</div><div class='turn-text'>" + (t.t || "") + "</div>";
-      scr.appendChild(div);
-    });
+    // Module 0 = Anurag-Deepa dialogue bubbles; others = plain turns
+    if (mi === 0) {
+      const dlg = document.createElement("div");
+      dlg.className = "dialogue";
+      turns.forEach(t => {
+        const isDeep = (t.s === "D");
+        const bubble = document.createElement("div");
+        bubble.className = "dlg-bubble" + (isDeep ? " deepa" : "");
+        bubble.innerHTML =
+          "<div class='dlg-avatar " + (isDeep ? "av-d" : "av-a") + "'>" + (isDeep ? "D" : "A") + "</div>" +
+          "<div class='dlg-body'>" +
+            "<div class='dlg-name " + (isDeep ? "nm-d" : "nm-a") + "'>" + (isDeep ? "Deepa" : "Anurag") + "</div>" +
+            "<div class='dlg-text " + (isDeep ? "tx-d" : "tx-a") + "'>" + (t.t || "") + "</div>" +
+          "</div>";
+        dlg.appendChild(bubble);
+      });
+      scr.appendChild(dlg);
+    } else {
+      turns.forEach(t => {
+        const div = document.createElement("div");
+        div.className = "turn";
+        div.innerHTML = "<div class='turn-num'>Turn " + t.n + "</div><div class='turn-text'>" + (t.t || "") + "</div>";
+        scr.appendChild(div);
+      });
+    }
 
     bdg.className = "api-badge " + cls;
     bdg.textContent = badge + " · " + turns.length + " turns";
@@ -680,8 +769,8 @@ function setupAudio(mi, turns) {
       await playJingle();
       for (const t of turns) {
         if (stopMe) break;
-        await speakTurn(t.t || "");
-        await delay(250);
+        await speakTurn(t.t || "", t.s || "A");
+        await delay(300);
       }
     } catch(e) { console.warn("Audio error:", e.message); }
 
@@ -696,28 +785,31 @@ function setupAudio(mi, turns) {
 // ────────────────────────────────────────────────────────
 // TTS — ElevenLabs with browser fallback
 // ────────────────────────────────────────────────────────
-async function speakTurn(text) {
+// XI_VOICE_IDs — cloned voices from ElevenLabs
+const XI_VOICE_ANURAG = "g0k4YO6pc9QkUXdyUT52"; // Anurag (cloned)
+const XI_VOICE_DEEPA  = "Y8AULI9gwzMzFX41r7IP"; // Deepa (cloned)
+
+async function speakTurn(text, speaker) {
   if (!XI_KEY || XI_KEY === "YOUR_ELEVENLABS_API_KEY") {
-    return browserSpeak(text);
+    return browserSpeak(text, speaker);
   }
 
-  const cacheKey = text.slice(0, 60);
-  if (audioCache[cacheKey]) {
-    await playBuffer(audioCache[cacheKey]);
-    return;
-  }
+  const voiceId   = (speaker === "D") ? XI_VOICE_DEEPA : XI_VOICE_ANURAG;
+  const cacheKey  = (speaker || "X") + "_" + text.slice(0, 55);
+  if (audioCache[cacheKey]) { await playBuffer(audioCache[cacheKey]); return; }
 
   try {
-    const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + XI_VOICE_ID, {
+    const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + voiceId, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "xi-api-key": XI_KEY
-      },
+      headers: { "Content-Type": "application/json", "xi-api-key": XI_KEY },
       body: JSON.stringify({
         text: "… " + text,
         model_id: "eleven_multilingual_v2",
-        voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.3 }
+        voice_settings: {
+          stability:        speaker === "D" ? 0.55 : 0.50,
+          similarity_boost: 0.80,
+          style:            speaker === "D" ? 0.35 : 0.25
+        }
       })
     });
     if (!r.ok) throw new Error("ElevenLabs " + r.status);
@@ -725,16 +817,20 @@ async function speakTurn(text) {
     audioCache[cacheKey] = buf;
     await playBuffer(buf);
   } catch(e) {
-    console.warn("ElevenLabs fallback to browser TTS:", e.message);
-    await browserSpeak(text);
+    console.warn("ElevenLabs fallback:", e.message);
+    await browserSpeak(text, speaker);
   }
 }
 
-function browserSpeak(text) {
+function browserSpeak(text, speaker) {
+  // speaker: "A" = Anurag (lower, measured), "D" = Deepa (slightly higher, warm)
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
     const u = new SpeechSynthesisUtterance("… " + text);
-    u.lang = "hi-IN"; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
+    u.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    u.rate   = speaker === "D" ? 0.92 : 0.85;
+    u.pitch  = speaker === "D" ? 1.18 : 0.95;
+    u.volume = 1;
     u.onend = resolve; u.onerror = resolve;
     speechSynthesis.speak(u);
   });
@@ -753,7 +849,7 @@ async function playBuffer(buf) {
 }
 
 // ────────────────────────────────────────────────────────
-// JINGLE — 10-second Web Audio FM intro
+// JINGLE — 10-second Web Audio FM intro (richer version)
 // ────────────────────────────────────────────────────────
 async function playJingle() {
   try {
@@ -761,47 +857,82 @@ async function playJingle() {
     const ctx = audioCtx;
     const now = ctx.currentTime;
 
-    // Sa Re Ga Ma Pa — Indian pentatonic melody
-    const scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
-    const melody = [0, 2, 4, 5, 4, 2, 0, 4, 5, 7, 5, 4, 2, 4, 0, 2, 4];
-    melody.forEach((note, i) => {
+    // Master gain with slight fade-in and fade-out
+    const master = ctx.createGain();
+    master.connect(ctx.destination);
+    master.gain.setValueAtTime(0, now);
+    master.gain.linearRampToValueAtTime(1, now + 0.3);
+    master.gain.setValueAtTime(1, now + 8.5);
+    master.gain.linearRampToValueAtTime(0, now + 10);
+
+    // Chord pad — warm FM-radio background chord (Sa Ma Pa)
+    [[261.63, 0.06], [329.63, 0.05], [392.00, 0.05], [523.25, 0.04]].forEach(([freq, vol]) => {
       const o = ctx.createOscillator();
       const g = ctx.createGain();
-      const t = now + i * 0.52;
+      o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(vol, now + 1);
+      g.gain.setValueAtTime(vol, now + 8);
+      g.gain.linearRampToValueAtTime(0, now + 10);
+      o.connect(g); g.connect(master);
+      o.start(now); o.stop(now + 10);
+    });
+
+    // Sarangi-style melody — Indian pentatonic (Sa Re Ga Ma Pa Dha)
+    const scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25];
+    const mel   = [0,2,4,5,7,5,4,2,4,7,9,7,5,4,5,7,4,2,0];
+    const melT  = [0,.45,.85,1.25,1.65,2.05,2.35,2.65,3.05,3.45,3.85,4.25,4.65,5.0,5.35,5.75,6.15,6.5,6.9];
+    mel.forEach((note, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const t = now + melT[i];
       o.type = "triangle";
-      o.frequency.value = scale[note % scale.length];
+      o.frequency.value = scale[note];
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.13, t + 0.04);
-      g.gain.linearRampToValueAtTime(0, t + 0.46);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(t); o.stop(t + 0.5);
+      g.gain.linearRampToValueAtTime(0.18, t + 0.04);
+      g.gain.setValueAtTime(0.15, t + 0.28);
+      g.gain.linearRampToValueAtTime(0, t + 0.4);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t + 0.45);
     });
 
-    // Tabla-style percussion
-    const beats = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5];
-    beats.forEach((b, i) => {
+    // Tabla dha-dhin pattern
+    function dhol(t, freq, vol, dur) {
       const o = ctx.createOscillator();
       const g = ctx.createGain();
-      const freq = i % 4 === 0 ? 80 : i % 2 === 0 ? 120 : 100;
-      const vol  = i % 4 === 0 ? 0.3 : 0.18;
-      o.frequency.setValueAtTime(freq, now + b);
-      o.frequency.exponentialRampToValueAtTime(freq * 0.4, now + b + 0.12);
-      g.gain.setValueAtTime(vol, now + b);
-      g.gain.exponentialRampToValueAtTime(0.001, now + b + 0.18);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(now + b); o.stop(now + b + 0.25);
-    });
+      o.frequency.setValueAtTime(freq, t);
+      o.frequency.exponentialRampToValueAtTime(freq * 0.35, t + dur * 0.8);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t + dur + 0.05);
+    }
+    // Teentaal-inspired rhythm
+    const rhythm = [
+      [0,   90,  0.32, 0.25], [0.25,140, 0.18, 0.15], [0.5, 90,  0.22, 0.2 ],
+      [0.75,120, 0.14, 0.12], [1.0, 90,  0.32, 0.25], [1.25,140, 0.16, 0.15],
+      [1.5, 90,  0.22, 0.2 ], [1.75,160, 0.20, 0.18], [2.0, 90,  0.32, 0.25],
+      [2.5, 90,  0.22, 0.2 ], [3.0, 90,  0.32, 0.25], [3.25,140, 0.18, 0.15],
+      [3.5, 90,  0.22, 0.2 ], [3.75,120, 0.14, 0.12], [4.0, 90,  0.32, 0.25],
+      [4.5, 90,  0.22, 0.2 ], [5.0, 90,  0.32, 0.25], [5.25,140, 0.18, 0.15],
+      [5.5, 90,  0.22, 0.2 ], [5.75,160, 0.20, 0.18], [6.0, 90,  0.32, 0.25],
+      [6.5, 90,  0.22, 0.2 ], [7.0, 90,  0.32, 0.25], [7.5, 90,  0.22, 0.2 ],
+      [8.0, 90,  0.28, 0.25]
+    ];
+    rhythm.forEach(([b, f, v, d]) => dhol(now + b, f, v, d));
 
-    // FM ident sweep at the end
+    // FM station ident — rising tone sweep at end
     const sw = ctx.createOscillator();
     const sg = ctx.createGain();
     sw.type = "sine";
-    sw.frequency.setValueAtTime(440, now + 8.5);
-    sw.frequency.exponentialRampToValueAtTime(1320, now + 10);
-    sg.gain.setValueAtTime(0.12, now + 8.5);
-    sg.gain.exponentialRampToValueAtTime(0.001, now + 10);
-    sw.connect(sg); sg.connect(ctx.destination);
-    sw.start(now + 8.5); sw.stop(now + 10);
+    sw.frequency.setValueAtTime(392, now + 7.2);
+    sw.frequency.linearRampToValueAtTime(784, now + 8.0);
+    sw.frequency.linearRampToValueAtTime(1568, now + 9.0);
+    sg.gain.setValueAtTime(0.14, now + 7.2);
+    sg.gain.linearRampToValueAtTime(0.08, now + 8.5);
+    sg.gain.linearRampToValueAtTime(0, now + 10);
+    sw.connect(sg); sg.connect(master);
+    sw.start(now + 7.2); sw.stop(now + 10);
 
     await delay(10000);
   } catch(e) {
