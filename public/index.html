@@ -1133,15 +1133,11 @@ async function generate(mi) {
     // Parse JSON — strip markdown fences first, then extract JSON object
     let parsed;
     try {
-      let clean = text
-        .replace(/^```json\s*/i, "").replace(/^```\s*/i, "")  // leading fence
-        .replace(/```\s*$/i, "")                               // trailing fence
-        .trim();
-      // Find the outermost { ... } reliably
-      const start = clean.indexOf("{");
-      const end   = clean.lastIndexOf("}");
+      // Robustly extract JSON: find first { and last } regardless of fences/whitespace
+      const start = text.indexOf("{");
+      const end   = text.lastIndexOf("}");
       if (start === -1 || end === -1) throw new Error("No JSON object found");
-      clean = clean.slice(start, end + 1);
+      const clean = text.slice(start, end + 1);
       parsed = JSON.parse(clean);
     } catch(e) {
       // Fallback: display raw text in readable form
@@ -1256,7 +1252,7 @@ function setupAudio(mi, turns) {
 // ────────────────────────────────────────────────────────
 // ── Cloned ElevenLabs voice IDs ──────────────────────────
 const XI_VOICE_ANURAG = "g0k4YO6pc9QkUXdyUT52"; // Anurag (cloned)
-const XI_VOICE_DEEPA  = "Y8AULI9gwzMzFX41r7IP"; // Deepa  (cloned)
+const XI_VOICE_DEEPA  = "xccfcojYYGnqTTxwZEDU"; // Deepa  (cloned)
 
 // Voice settings tuned for broadcast FM quality
 // Anurag: measured, authoritative anchor voice
