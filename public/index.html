@@ -1,784 +1,933 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>MunaFa Café — Rozana teen minute. Bazaar ki poori baat.</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MunaFa Café ☕ — AI Investor FM</title>
 <style>
-  :root{
-    --bg:#0D1117;--card:#161B22;--card2:#1C2128;--border:#30363D;
-    --gold:#D4A017;--gold-dim:#8B6914;--gold-soft:#2A2210;--cream:#F0E6C8;
-    --green:#238636;--green-s:#0D2818;--red:#DA3633;--red-s:#2D1012;
-    --sub:#8B949E;--white:#E6EDF3;
-    box-sizing:border-box;
-    padding-top:env(safe-area-inset-top,0px);
-    padding-bottom:env(safe-area-inset-bottom,0px);
-  }
-  *,*::before,*::after{box-sizing:inherit;margin:0;padding:0;}
-  html,body{background:var(--bg);color:var(--white);font-family:Inter,"Helvetica Neue",-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;min-height:100%;}
-  body{padding-bottom:40px;}
-  .gold-line{height:3px;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-dim));}
-  header{padding:14px 20px;border-bottom:1px solid var(--border);}
-  .header-inner{max-width:720px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;}
-  .logo-wrap{display:flex;align-items:center;gap:12px;}
-  .logo-icon{width:44px;height:44px;border-radius:12px;background:var(--gold-soft);border:1px solid #D4A01755;display:flex;align-items:center;justify-content:center;font-size:22px;}
-  .logo-name{font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;color:var(--gold);font-size:22px;letter-spacing:-0.01em;}
-  .logo-tag{color:var(--sub);font-size:11px;margin-top:2px;}
-  .header-meta{display:flex;align-items:center;gap:6px;color:var(--sub);font-size:12px;}
-  main{max-width:720px;margin:0 auto;padding:0 16px;}
-  .lang-row{display:flex;align-items:center;gap:10px;margin-top:18px;}
-  .lang-label{font-size:12px;color:var(--sub);}
-  .lang-btn{padding:7px 18px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--sub);transition:all .15s;}
-  .lang-btn.active{background:var(--gold);color:#0D1117;border-color:var(--gold);}
-  .modules{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-  @media(max-width:520px){.modules{grid-template-columns:repeat(2,1fr);}}
-  .module-tile{border-radius:14px;padding:14px 12px;background:var(--card);border:1px solid var(--border);cursor:pointer;text-align:left;transition:all .15s;}
-  .module-tile:hover{border-color:var(--gold-dim);}
-  .module-tile.active{background:var(--gold-soft);border-color:var(--gold);}
-  .tile-icon{font-size:20px;}
-  .tile-label{font-size:12px;font-weight:700;margin-top:8px;color:var(--white);}
-  .module-tile.active .tile-label{color:var(--gold);}
-  .tile-sub{font-size:11px;color:var(--sub);margin-top:3px;}
-  .company-row{margin-top:12px;display:flex;gap:8px;}
-  .company-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--white);outline:none;}
-  .company-input:focus{border-color:var(--gold);}
-  .sample-chips{margin-top:8px;display:flex;flex-wrap:wrap;gap:7px;}
-  .chip{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--sub);cursor:pointer;}
-  .chip:hover{border-color:var(--gold-dim);color:var(--white);}
-  .gen-btn{margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:14px;font-size:14px;font-weight:700;background:var(--gold);color:#0D1117;border:none;cursor:pointer;}
-  .gen-btn:disabled{background:#2D2A1A;color:var(--sub);cursor:default;}
-  .spin{animation:spin 1s linear infinite;display:inline-block;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  /* API STATUS BADGE */
-  .api-badge{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;margin-top:8px;}
-  .api-badge.claude{background:#3D1A6E;color:#C084FC;}
-  .api-badge.gemini{background:#0D2B45;color:#60C0FF;}
-  .api-badge.gpt{background:#0D3D1A;color:#4ADE80;}
-  .api-badge.error{background:var(--red-s);color:var(--red);}
-  /* NOW PLAYING */
-  .now-playing-wrap{display:none;margin-top:14px;border-radius:14px;overflow:hidden;position:relative;height:210px;}
-  .np-bg{width:100%;height:100%;background:linear-gradient(180deg,#00000077 0%,#00000000 40%,#000000BB 100%),url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80') center/cover no-repeat;}
-  .np-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:16px;}
-  .np-top{display:flex;align-items:center;gap:8px;}
-  .np-live{background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:4px;padding:2px 7px;letter-spacing:1px;}
-  .np-title{font-size:11px;color:#ffffffCC;font-weight:600;}
-  .np-bottom{}
-  .np-speaker{font-size:10px;font-weight:700;margin-bottom:4px;}
-  .np-speaker.anchor{color:var(--gold);}
-  .np-speaker.advisor{color:#5ECA8A;}
-  .np-current{font-size:13px;color:#fff;font-weight:500;max-width:92%;line-height:1.5;text-shadow:0 1px 4px #000;}
-  .np-prog-wrap{width:100%;height:3px;background:#ffffff22;border-radius:2px;margin-top:10px;}
-  .np-prog{height:100%;width:0%;background:var(--gold);border-radius:2px;transition:width 0.3s linear;}
-  /* HEADLINE */
-  .headline-card{margin-top:14px;border-radius:14px;padding:16px;background:var(--gold-soft);border:1px solid #D4A01744;}
-  .ep-badge{display:inline-block;background:var(--gold);color:#0D1117;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px;margin-bottom:8px;}
-  .fm-badge{display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px;margin-bottom:8px;margin-left:6px;}
-  .ep-headline{font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;color:var(--gold);font-size:20px;line-height:1.3;}
-  .ep-subline{margin-top:6px;font-size:13px;color:var(--cream);opacity:.85;}
-  .num-grid{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  @media(max-width:400px){.num-grid{grid-template-columns:repeat(2,1fr);}}
-  .num-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px;}
-  .num-label{font-size:11px;color:var(--sub);}
-  .num-value{font-size:15px;font-weight:700;color:var(--gold);margin-top:4px;}
-  .tabs{margin-top:14px;display:flex;border-bottom:1px solid var(--border);}
-  .tab-btn{padding:10px 16px;font-size:13px;font-weight:500;color:var(--sub);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;}
-  .tab-btn.active{color:var(--gold);font-weight:700;border-bottom-color:var(--gold);}
-  .controls{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;}
-  .play-btn{display:flex;align-items:center;gap:6px;background:var(--gold);color:#0D1117;border:none;border-radius:12px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;min-width:140px;justify-content:center;}
-  .stop-btn{display:flex;align-items:center;gap:6px;background:#21262D;color:var(--sub);border:none;border-radius:12px;padding:10px 14px;font-size:13px;cursor:pointer;}
-  .speed-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);}
-  .speed-wrap input[type=range]{width:80px;accent-color:var(--gold);}
-  .speed-val{color:var(--gold);font-weight:700;min-width:34px;}
-  .el-msg{font-size:11px;width:100%;color:var(--red);}
-  .turns{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
-  .turn{display:flex;gap:10px;border-radius:14px;padding:12px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
-  .turn.advisor{margin-left:20px;}
-  .turn.active-anchor{background:var(--gold-soft);border-color:var(--gold);}
-  .turn.active-advisor{background:var(--green-s);border-color:var(--green);}
-  .turn-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0D1117;flex-shrink:0;}
-  .turn-avatar.anchor{background:var(--gold);}
-  .turn-avatar.advisor{background:var(--green);}
-  .turn-body{flex:1;min-width:0;}
-  .turn-who{font-size:11px;font-weight:700;margin-bottom:3px;}
-  .turn-who.anchor{color:var(--gold);}
-  .turn-who.advisor{color:var(--green);}
-  .turn-text{font-size:13px;line-height:1.55;color:var(--white);}
-  .turn-arrow{align-self:center;font-size:13px;flex-shrink:0;}
-  .turns-hint{font-size:11px;color:var(--sub);margin-top:8px;}
-  .action-row{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  @media(max-width:400px){.action-row{grid-template-columns:1fr;}}
-  .share-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;}
-  .wa-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--green);border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;}
-  .empty{margin-top:24px;border-radius:14px;padding:40px 20px;text-align:center;background:var(--card);border:1px solid var(--border);}
-  .empty-icon{font-size:40px;}
-  .empty-title{font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;color:var(--gold);font-size:20px;margin-top:12px;}
-  .empty-sub{color:var(--sub);font-size:13px;margin-top:8px;max-width:360px;margin-left:auto;margin-right:auto;}
-  .err-box{margin-top:12px;border-radius:12px;padding:14px;background:var(--red-s);border:1px solid #DA363344;}
-  .err-text{color:var(--red);font-size:13px;font-weight:600;}
-  .err-retry{color:var(--red);font-size:12px;text-decoration:underline;background:none;border:none;cursor:pointer;margin-top:6px;}
-  .loading-box{margin-top:12px;display:flex;align-items:center;gap:10px;border-radius:12px;padding:14px;background:var(--card);border:1px solid var(--border);}
-  .loading-text{color:var(--sub);font-size:13px;}
-  footer{max-width:720px;margin:32px auto 0;padding:0 16px;}
-  .footer-inner{border-radius:14px;padding:14px;background:var(--card);border:1px solid var(--border);display:flex;gap:10px;}
-  .footer-text{font-size:11px;color:var(--sub);line-height:1.7;}
+:root{
+  --bg:#0d1117;--card:#161b22;--accent:#f0a500;--accent2:#00bcd4;
+  --text:#e6edf3;--sub:#8b949e;--border:#30363d;--green:#3fb950;
+  --red:#f85149;--purple:#7c3aed;--blue:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
+header{background:linear-gradient(135deg,#1a0a00,#0d1117);border-bottom:2px solid var(--accent);padding:16px 20px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.logo{font-size:28px;font-weight:900;color:var(--accent);letter-spacing:-1px}
+.logo span{color:var(--accent2)}
+.tagline{font-size:11px;color:var(--sub);line-height:1.4}
+.lang-toggle{margin-left:auto;display:flex;gap:8px}
+.lang-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--sub);cursor:pointer;font-size:12px;transition:all .2s}
+.lang-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+
+/* Subscription Gate */
+#sub-gate{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.gate-box{background:var(--card);border:2px solid var(--accent);border-radius:20px;padding:36px;max-width:480px;width:90%;text-align:center}
+.gate-box h2{font-size:24px;color:var(--accent);margin-bottom:8px}
+.gate-box p{color:var(--sub);font-size:14px;margin-bottom:24px;line-height:1.6}
+.plan-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.plan-card{border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s}
+.plan-card:hover,.plan-card.selected{border-color:var(--accent);background:rgba(240,165,0,.08)}
+.plan-name{font-weight:700;font-size:15px;margin-bottom:4px}
+.plan-price{font-size:22px;font-weight:900;color:var(--accent)}
+.plan-sub{font-size:11px;color:var(--sub);margin-top:2px}
+.plan-badge{font-size:10px;background:var(--green);color:#000;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;font-weight:700}
+.btn{display:block;width:100%;padding:14px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:#d4920a}
+.btn-free{background:transparent;border:1px solid var(--border);color:var(--sub);font-size:13px}
+.btn-free:hover{border-color:var(--accent);color:var(--accent)}
+
+main{padding:20px;max-width:1100px;margin:0 auto}
+.status-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:10px 16px;background:var(--card);border-radius:10px;border:1px solid var(--border);font-size:13px}
+.badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.badge-free{background:rgba(139,148,158,.2);color:var(--sub)}
+.badge-premium{background:rgba(240,165,0,.2);color:var(--accent)}
+.upgrade-link{margin-left:auto;font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline}
+
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.module-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;transition:border-color .2s;position:relative;overflow:hidden}
+.module-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.module-card.locked::before{background:var(--border)}
+.module-header{display:flex;align-items:flex-start;gap:12px}
+.module-icon{font-size:32px;line-height:1}
+.module-title{font-size:16px;font-weight:700;line-height:1.3}
+.module-desc{font-size:12px;color:var(--sub);margin-top:4px}
+.lock-badge{font-size:10px;background:rgba(124,58,237,.2);color:#a78bfa;padding:2px 8px;border-radius:10px;font-weight:700;margin-top:4px;display:inline-block}
+
+.gen-btn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),#d4920a);color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.gen-btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.gen-btn.locked-btn{background:linear-gradient(135deg,#374151,#1f2937);color:var(--sub)}
+
+.output-area{display:none;flex-direction:column;gap:10px}
+.output-area.visible{display:flex}
+.script-box{background:#0d1117;border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;max-height:300px;overflow-y:auto}
+.turn{padding:7px 0;border-bottom:1px solid rgba(48,54,61,.5)}
+.turn:last-child{border-bottom:none}
+.turn-num{color:var(--accent);font-weight:700;font-size:11px;margin-bottom:3px}
+.turn-text{color:var(--text);font-size:13px;line-height:1.75}
+
+.api-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:8px;font-weight:700;margin-bottom:8px}
+.api-claude{background:rgba(124,58,237,.2);color:#a78bfa}
+.api-gemini{background:rgba(37,99,235,.2);color:#60a5fa}
+.api-gpt{background:rgba(63,185,80,.2);color:var(--green)}
+
+.audio-controls{display:flex;gap:8px;flex-wrap:wrap}
+.audio-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--sub);cursor:pointer;font-size:12px;transition:all .2s}
+.audio-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.audio-btn.playing{background:rgba(0,188,212,.1);border-color:var(--accent2);color:var(--accent2)}
+
+footer{text-align:center;padding:30px 20px;color:var(--sub);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
+footer a{color:var(--accent);text-decoration:none}
+
+@media(max-width:600px){
+  .modules-grid{grid-template-columns:1fr}
+  .plan-cards{grid-template-columns:1fr}
+  header{flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
-<div class="gold-line"></div>
-<header>
-  <div class="header-inner">
-    <div class="logo-wrap">
-      <div class="logo-icon">☕</div>
-      <div>
-        <div class="logo-name">MunaFa Café</div>
-        <div class="logo-tag" id="tagline">Rozana paanch minute. Bazaar ki poori baat.</div>
+
+<!-- ═══════════════ SUBSCRIPTION GATE ═══════════════ -->
+<div id="sub-gate">
+  <div class="gate-box">
+    <div style="font-size:40px;margin-bottom:12px">☕</div>
+    <h2>MunaFa Café</h2>
+    <p id="gate-tagline">Aapka AI-powered Hinglish Investor FM Show. Har subah market ki chai ke saath.</p>
+    <div class="plan-cards">
+      <div class="plan-card selected" id="plan-monthly" onclick="selectPlan('monthly')">
+        <div class="plan-name">Monthly</div>
+        <div class="plan-price">₹99</div>
+        <div class="plan-sub">per month</div>
+        <div class="plan-badge">POPULAR</div>
+      </div>
+      <div class="plan-card" id="plan-yearly" onclick="selectPlan('yearly')">
+        <div class="plan-name">Yearly</div>
+        <div class="plan-price">₹699</div>
+        <div class="plan-sub">per year · Save 41%</div>
+        <div class="plan-badge">BEST VALUE</div>
       </div>
     </div>
-    <div class="header-meta">🎙 Anurag &amp; Deepa &nbsp;·&nbsp; ARN-135225</div>
+    <button class="btn btn-primary" onclick="startPayment()">☕ Subscribe &amp; Unlock All</button>
+    <button class="btn btn-free" onclick="useFree()">Continue Free (Morning Brief only)</button>
+    <p style="font-size:11px;color:var(--sub);margin-top:8px">🔒 Secure payment via Razorpay · Cancel anytime</p>
+  </div>
+</div>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div>
+    <div class="logo">MunaFa <span>Café</span> ☕</div>
+    <div class="tagline">AI-Powered Investor FM • munaapha.co.in</div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('hi')" id="btn-hi">हिं</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
   </div>
 </header>
 
 <main>
-  <div class="lang-row">
-    <span class="lang-label">भाषा / Language:</span>
-    <button class="lang-btn active" id="btnHi" onclick="setLang('hi')">हिंदी</button>
-    <button class="lang-btn" id="btnEn" onclick="setLang('en')">English</button>
+  <div class="status-bar">
+    <span id="status-badge" class="badge badge-free">FREE</span>
+    <span id="status-text" style="color:var(--sub)">Morning Brief unlocked · Premium ke liye subscribe karein</span>
+    <span class="upgrade-link" onclick="showGate()">⬆ Upgrade</span>
   </div>
 
-  <div class="modules">
-    <button class="module-tile active" onclick="setModule('morning')" id="tile-morning">
-      <div class="tile-icon">☕</div>
-      <div class="tile-label" id="lbl-morning">Morning Brief</div>
-      <div class="tile-sub" id="sub-morning">Subah ki Baat</div>
-    </button>
-    <button class="module-tile" onclick="setModule('company')" id="tile-company">
-      <div class="tile-icon">📈</div>
-      <div class="tile-label" id="lbl-company">Company Deep Dive</div>
-      <div class="tile-sub" id="sub-company">Company ka Haal</div>
-    </button>
-    <button class="module-tile" onclick="setModule('macro')" id="tile-macro">
-      <div class="tile-icon">🌐</div>
-      <div class="tile-label" id="lbl-macro">World Economics</div>
-      <div class="tile-sub" id="sub-macro">Duniya ki Nazar</div>
-    </button>
-    <button class="module-tile" onclick="setModule('news')" id="tile-news">
-      <div class="tile-icon">📰</div>
-      <div class="tile-label" id="lbl-news">Market News</div>
-      <div class="tile-sub" id="sub-news">Aaj ki Khabar</div>
-    </button>
-  </div>
+  <div class="modules-grid">
 
-  <div id="companySection" style="display:none;margin-top:12px;">
-    <div class="company-row">
-      <input type="text" class="company-input" id="companyInput"
-        placeholder="Company naam ya ticker..."
-        onkeydown="if(event.key==='Enter')runShow()"/>
-      <button class="gen-btn" style="width:auto;margin:0;padding:12px 20px;" onclick="runShow()" id="goBtn">Chalo →</button>
-    </div>
-    <div class="sample-chips">
-      <span class="chip" onclick="quickCompany('Reliance Industries')">Reliance Industries</span>
-      <span class="chip" onclick="quickCompany('Infosys')">Infosys</span>
-      <span class="chip" onclick="quickCompany('HDFC Bank')">HDFC Bank</span>
-      <span class="chip" onclick="quickCompany('Tata Motors')">Tata Motors</span>
-      <span class="chip" onclick="quickCompany('Adani Ports')">Adani Ports</span>
-      <span class="chip" onclick="quickCompany('Zomato')">Zomato</span>
-    </div>
-  </div>
-
-  <button class="gen-btn" id="genBtn" onclick="runShow()">📻 Morning Brief Suniye</button>
-  <div style="text-align:center;margin-top:6px;">
-    <span class="api-badge claude" id="apiBadge">Claude AI</span>
-  </div>
-
-  <div class="now-playing-wrap" id="npWrap">
-    <div class="np-bg"></div>
-    <div class="np-overlay">
-      <div class="np-top">
-        <span class="np-live">LIVE</span>
-        <span class="np-title" id="npTitle">MunaFa Café</span>
-      </div>
-      <div class="np-bottom">
-        <div class="np-speaker" id="npSpeaker"></div>
-        <div class="np-current" id="npCurrent"></div>
-        <div class="np-prog-wrap"><div class="np-prog" id="npProg"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="statusArea"></div>
-
-  <div id="showArea" style="display:none">
-    <div class="headline-card">
-      <span class="ep-badge" id="epBadge"></span>
-      <span class="fm-badge">🎙 FM Voice</span>
-      <div class="ep-headline" id="epHeadline"></div>
-      <div class="ep-subline" id="epSubline"></div>
-    </div>
-    <div class="num-grid" id="numGrid" style="display:none"></div>
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('listen')" id="tab-listen">🎙 Listen</button>
-      <button class="tab-btn" onclick="switchTab('script')" id="tab-script">📄 Script</button>
-    </div>
-    <div id="listenPanel">
-      <div class="controls">
-        <button class="play-btn" id="playBtn" onclick="togglePlay()">▶ Play karo</button>
-        <button class="stop-btn" id="stopBtn" onclick="hardStop()">⏹ Rok do</button>
-        <div class="speed-wrap">
-          Speed
-          <input type="range" min="0.7" max="1.6" step="0.05" value="1.05" id="speedRange" oninput="onSpeed(this.value)"/>
-          <span class="speed-val" id="speedVal">1.05x</span>
+    <!-- MODULE 0: Morning Brief (FREE) -->
+    <div class="module-card" id="card-0">
+      <div class="module-header">
+        <div class="module-icon">🌅</div>
+        <div>
+          <div class="module-title">Market Morning Brief</div>
+          <div class="module-desc">Aaj ke bazaar ki poori taiyari — indices, sectors, global cues</div>
         </div>
-        <div class="el-msg" id="elMsg" style="display:none"></div>
       </div>
-      <p style="font-size:12px;color:var(--sub);margin-top:10px;" id="listenHint">
-        Image mein current line dikh rahi hai. Script tab mein poora text padhen.
-      </p>
+      <button class="gen-btn" id="gen-0" onclick="generate(0)">📻 Morning Brief Generate Karein</button>
+      <div class="output-area" id="out-0">
+        <div class="api-badge" id="badge-0"></div>
+        <div class="script-box" id="script-0"></div>
+        <div class="audio-controls" id="audio-0"></div>
+      </div>
     </div>
-    <div id="scriptPanel" style="display:none">
-      <div class="turns" id="turnsDiv"></div>
-      <div class="turns-hint" id="tapHint">Kisi bhi line par tap karo — wahan se shuru hoga.</div>
-    </div>
-    <div class="action-row">
-      <button class="share-btn" onclick="copyShare()" id="shareBtn">🔗 Share karo</button>
-      <a class="wa-btn" id="waLink" href="#" target="_blank">💬 Invest — WhatsApp karo</a>
-    </div>
-  </div>
 
-  <div class="empty" id="emptyState">
-    <div class="empty-icon">☕</div>
-    <div class="empty-title" id="emptyTitle">Aapka MunaFa Café ready hai.</div>
-    <div class="empty-sub" id="emptySub">Bhasha chuniye, module chuniye, aur suniye FM quality mein.</div>
+    <!-- MODULE 1: Company Spotlight (PREMIUM) -->
+    <div class="module-card locked" id="card-1">
+      <div class="module-header">
+        <div class="module-icon">🏢</div>
+        <div>
+          <div class="module-title">Company Spotlight</div>
+          <div class="module-desc">Kisi ek company ka deep-dive: fundamentals, technicals, outlook</div>
+          <div class="lock-badge" id="lock-1">🔒 PREMIUM</div>
+        </div>
+      </div>
+      <button class="gen-btn locked-btn" id="gen-1" onclick="generate(1)">🔒 Company Spotlight</button>
+      <div class="output-area" id="out-1">
+        <div class="api-badge" id="badge-1"></div>
+        <div class="script-box" id="script-1"></div>
+        <div class="audio-controls" id="audio-1"></div>
+      </div>
+    </div>
+
+    <!-- MODULE 2: Macro & Economy (PREMIUM) -->
+    <div class="module-card locked" id="card-2">
+      <div class="module-header">
+        <div class="module-icon">🌍</div>
+        <div>
+          <div class="module-title">Macro &amp; Economy</div>
+          <div class="module-desc">RBI, GDP, inflation, FII/DII flows — macro picture in plain Hinglish</div>
+          <div class="lock-badge" id="lock-2">🔒 PREMIUM</div>
+        </div>
+      </div>
+      <button class="gen-btn locked-btn" id="gen-2" onclick="generate(2)">🔒 Macro &amp; Economy</button>
+      <div class="output-area" id="out-2">
+        <div class="api-badge" id="badge-2"></div>
+        <div class="script-box" id="script-2"></div>
+        <div class="audio-controls" id="audio-2"></div>
+      </div>
+    </div>
+
+    <!-- MODULE 3: Market Buzz (PREMIUM) -->
+    <div class="module-card locked" id="card-3">
+      <div class="module-header">
+        <div class="module-icon">📰</div>
+        <div>
+          <div class="module-title">Market Buzz</div>
+          <div class="module-desc">Aaj ke hot market news, block deals, insider activity</div>
+          <div class="lock-badge" id="lock-3">🔒 PREMIUM</div>
+        </div>
+      </div>
+      <button class="gen-btn locked-btn" id="gen-3" onclick="generate(3)">🔒 Market Buzz</button>
+      <div class="output-area" id="out-3">
+        <div class="api-badge" id="badge-3"></div>
+        <div class="script-box" id="script-3"></div>
+        <div class="audio-controls" id="audio-3"></div>
+      </div>
+    </div>
+
+    <!-- MODULE 4: IPO / NFO Radar (PREMIUM) — NEW -->
+    <div class="module-card locked" id="card-4">
+      <div class="module-header">
+        <div class="module-icon">📊</div>
+        <div>
+          <div class="module-title">IPO / NFO Radar</div>
+          <div class="module-desc">Upcoming IPOs &amp; NFOs ka SWOT analysis — apply karein ya nahi?</div>
+          <div class="lock-badge" id="lock-4">🔒 PREMIUM</div>
+        </div>
+      </div>
+      <button class="gen-btn locked-btn" id="gen-4" onclick="generate(4)">🔒 IPO / NFO Radar</button>
+      <div class="output-area" id="out-4">
+        <div class="api-badge" id="badge-4"></div>
+        <div class="script-box" id="script-4"></div>
+        <div class="audio-controls" id="audio-4"></div>
+      </div>
+    </div>
+
+    <!-- MODULE 5: Results Calendar (PREMIUM) — NEW -->
+    <div class="module-card locked" id="card-5">
+      <div class="module-header">
+        <div class="module-icon">📅</div>
+        <div>
+          <div class="module-title">Results Calendar</div>
+          <div class="module-desc">Upcoming Q results — last period se comparison, kya expect karein</div>
+          <div class="lock-badge" id="lock-5">🔒 PREMIUM</div>
+        </div>
+      </div>
+      <button class="gen-btn locked-btn" id="gen-5" onclick="generate(5)">🔒 Results Calendar</button>
+      <div class="output-area" id="out-5">
+        <div class="api-badge" id="badge-5"></div>
+        <div class="script-box" id="script-5"></div>
+        <div class="audio-controls" id="audio-5"></div>
+      </div>
+    </div>
+
   </div>
 </main>
 
 <footer>
-  <div class="footer-inner">
-    <span>⚠️</span>
-    <div class="footer-text" id="disclaimer">MunaFa Café publicly available information report karta hai. Koi bhi security recommend nahi karta, investment advice nahi deta, koi bhi return guarantee nahi karta. Deepa Maheshwari AMFI-registered mutual fund distributor hain (ARN-135225) aur AMCs se commission prapt karte hain. Mutual fund investments market risks ke subject hain. Invest karne se pehle saare scheme-related documents dhyan se padhen.</div>
-  </div>
+  <p>MunaFa Café © 2026 · <a href="https://munaapha.co.in">munaapha.co.in</a> · AI-generated content — not SEBI registered advice · Always do your own research</p>
+  <p style="margin-top:6px">Powered by Claude · Gemini · GPT · ElevenLabs</p>
 </footer>
-<div class="gold-line" style="margin-top:24px"></div>
+
+<!-- Razorpay SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
-/* ─── CONFIG ─── */
-const WA = "917983091525";
-const VOICE_IDS = {
-  anchor:  { id:"g0k4YO6pc9QkUXdyUT52", model:"eleven_multilingual_v2", cfg:{ stability:0.62, similarity_boost:0.88, style:0.35, use_speaker_boost:true } },
-  advisor: { id:"Y8AULI9gwzMzFX41r7IP", model:"eleven_multilingual_v2", cfg:{ stability:0.68, similarity_boost:0.86, style:0.22, use_speaker_boost:true } },
-};
+// ════════════════════════════════════════════════════════════════════════
+//  ⚠️  LIVE KEY CONFIGURATION — READ CAREFULLY
+// ════════════════════════════════════════════════════════════════════════
+//
+//  STEP 1 — UPDATE THIS FILE:
+//  Replace the test key below with your LIVE Razorpay Key ID.
+//  Your live key starts with "rzp_live_" (get it from Razorpay Dashboard
+//  → Settings → API Keys → Live Keys → Key ID)
+//
+const RZP_KEY = "rzp_live_TmgKvmK8LiLLB7"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
+//
+//  STEP 2 — UPDATE VERCEL ENVIRONMENT VARIABLES:
+//  Go to Vercel Dashboard → Your Project → Settings → Environment Variables
+//  Update these two variables to your LIVE values:
+//    RAZORPAY_KEY_ID     = rzp_live_XXXXXXXXXXXXXXXX
+//    RAZORPAY_KEY_SECRET = your_live_secret_key_here  ← NEVER put this in frontend!
+//
+//  STEP 3 — REDEPLOY:
+//  After saving env vars in Vercel, click "Redeploy" for changes to take effect.
+//
+// ════════════════════════════════════════════════════════════════════════
 
-/* ─── STATE ─── */
-let lang="hi", activeModule="morning", currentShow=null, turns=[];
-let cursor=-1, playing=false, paused=false, loadingTurn=-1, playRate=1.05;
-let currentAudio=null, stopFlag=false, progInterval=null, progPct=0;
-let activeApi="claude"; // tracks which API is being used
-const audioCache={};
+// ElevenLabs TTS (safe in frontend — used for audio only)
+const XI_KEY = "YOUR_ELEVENLABS_API_KEY"; // ← Replace with your ElevenLabs API key
+const XI_VOICE_ID = "ErXwobaYiN019PkySvjV"; // Antoni — warm Hinglish voice
 
-/* ─── UI STRINGS ─── */
-const UI={
-  hi:{
-    tagline:"Rozana paanch minute. Bazaar ki poori baat.",
-    modules:["Morning Brief","Company Deep Dive","World Economics","Market News"],
-    subs:["Subah ki Baat","Company ka Haal","Duniya ki Nazar","Aaj ki Khabar"],
-    genBtn:["Morning Brief Suniye","Company Deep Dive Suniye","World Economics Suniye","Market News Suniye"],
-    listen:"🎙 Suniye", script:"📄 Script",
-    play:"▶ Play karo", pause:"⏸ Pause karo", resume:"▶ Resume karo", stop:"⏹ Rok do",
-    share:"🔗 Share karo", wa:"💬 Invest — WhatsApp karo",
-    emptyTitle:"Aapka MunaFa Café ready hai.",
-    emptySub:"Bhasha chuniye, module chuniye, suniye FM quality mein.",
-    loading:"Bazaar ka data padh rahe hain...",
-    goBtn:"Chalo →",
-    companyPh:"Company naam ya ticker — Infosys, TCS, HDFC Bank...",
-    tapHint:"Kisi bhi line par tap karo — wahan se shuru hoga.",
-    listenHint:"Image mein current line dikh rahi hai. Script tab mein poora text padhen.",
-    disclaimer:"MunaFa Café publicly available information report karta hai. Koi bhi security recommend nahi karta, investment advice nahi deta, koi bhi return guarantee nahi karta. Deepa Maheshwari AMFI-registered mutual fund distributor hain (ARN-135225) aur AMCs se commission prapt karte hain. Mutual fund investments market risks ke subject hain. Invest karne se pehle saare scheme-related documents dhyan se padhen.",
+// ────────────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────────────
+let lang = "hi";
+let isPremium = false;
+let selectedPlan = "monthly";
+const PLAN_AMOUNTS = { monthly: 9900, yearly: 69900 }; // paise
+
+const audioCache = {};
+let audioCtx = null;
+let globalStopFlag = false;
+
+// ────────────────────────────────────────────────────────
+// UI LABELS
+// ────────────────────────────────────────────────────────
+const UI = {
+  hi: {
+    genBtn: [
+      "Morning Brief Generate Karein",
+      "Company Spotlight Generate Karein",
+      "Macro Brief Generate Karein",
+      "Market Buzz Generate Karein",
+      "IPO/NFO Radar Generate Karein",
+      "Results Calendar Generate Karein"
+    ],
+    generating: "Script ban rahi hai… thoda wait karein ☕",
+    listenAll: "▶ Poora Suno",
+    stop: "⏹ Rokein",
+    gateTagline: "Aapka AI-powered Hinglish Investor FM Show. Har subah market ki chai ke saath."
   },
-  en:{
-    tagline:"Five minutes every morning. The full market picture.",
-    modules:["Morning Brief","Company Deep Dive","World Economics","Market News"],
-    subs:["Today's market","Company analysis","Global view","Breaking news"],
-    genBtn:["Play Morning Brief","Play Company Deep Dive","Play World Economics","Play Market News"],
-    listen:"🎙 Listen", script:"📄 Script",
-    play:"▶ Play", pause:"⏸ Pause", resume:"▶ Resume", stop:"⏹ Stop",
-    share:"🔗 Share this episode", wa:"💬 Invest — WhatsApp us",
-    emptyTitle:"Your MunaFa Café is ready.",
-    emptySub:"Choose a module and listen to Anurag and Deepa in FM quality.",
-    loading:"Reading market data...",
-    goBtn:"Go →",
-    companyPh:"Company name or ticker — Infosys, TCS, HDFC Bank...",
-    tapHint:"Tap any line to play from there.",
-    listenHint:"Current line shows on the image above. Switch to Script tab to read along.",
-    disclaimer:"MunaFa Café reports publicly available information. It does not recommend any security, does not provide investment advice, and makes no return guarantee. Deepa Maheshwari is an AMFI-registered mutual fund distributor (ARN-135225) and receives commission from AMCs. Mutual fund investments are subject to market risks. Read all scheme-related documents carefully before investing.",
+  en: {
+    genBtn: [
+      "Generate Morning Brief",
+      "Generate Company Spotlight",
+      "Generate Macro Brief",
+      "Generate Market Buzz",
+      "Generate IPO/NFO Radar",
+      "Generate Results Calendar"
+    ],
+    generating: "Generating script… please wait ☕",
+    listenAll: "▶ Listen All",
+    stop: "⏹ Stop",
+    gateTagline: "Your AI-powered Hinglish Investor FM Show. Every morning with market chai."
   }
 };
-const MIDS=["morning","company","macro","news"];
 
-function todayStr(){return new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});}
-
-function applyUI(){
-  const u=UI[lang];
-  document.getElementById("tagline").textContent=u.tagline;
-  MIDS.forEach((m,i)=>{
-    document.getElementById("lbl-"+m).textContent=u.modules[i];
-    document.getElementById("sub-"+m).textContent=u.subs[i];
+// ────────────────────────────────────────────────────────
+// MODULE PROMPTS — 5 minutes (14–16 turns, 40–55 words each)
+// ────────────────────────────────────────────────────────
+function getPrompt(mi) {
+  const d = new Date().toLocaleDateString("en-IN", {
+    weekday:"long", day:"numeric", month:"long", year:"numeric"
   });
-  const mi=MIDS.indexOf(activeModule);
-  if(activeModule!=="company") document.getElementById("genBtn").textContent="📻 "+u.genBtn[mi]+" — "+todayStr();
-  document.getElementById("tab-listen").textContent=u.listen;
-  document.getElementById("tab-script").textContent=u.script;
-  updatePlayBtn();
-  document.getElementById("stopBtn").textContent=u.stop;
-  document.getElementById("shareBtn").textContent=u.share;
-  document.getElementById("waLink").textContent=u.wa;
-  document.getElementById("emptyTitle").textContent=u.emptyTitle;
-  document.getElementById("emptySub").textContent=u.emptySub;
-  document.getElementById("disclaimer").textContent=u.disclaimer;
-  document.getElementById("companyInput").placeholder=u.companyPh;
-  document.getElementById("goBtn").textContent=u.goBtn;
-  document.getElementById("tapHint").textContent=u.tapHint;
-  document.getElementById("listenHint").textContent=u.listenHint;
-}
 
-document.getElementById("genBtn").textContent="📻 Morning Brief Suniye — "+todayStr();
-applyUI();
+  const prompts = [
 
-/* ─── LANGUAGE ─── */
-function setLang(l){
-  if(lang===l)return;
-  lang=l;
-  document.getElementById("btnHi").classList.toggle("active",l==="hi");
-  document.getElementById("btnEn").classList.toggle("active",l==="en");
-  applyUI();
-  if(currentShow){
-    hardStop();hideNP();
-    document.getElementById("showArea").style.display="none";
-    document.getElementById("emptyState").style.display="block";
-    currentShow=null;turns=[];
-    runShow();
-  }
-}
+    // 0 — Morning Brief
+    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
+Generate a 15-turn morning market brief in Hinglish (mix Hindi + English naturally). Each turn must be 40-55 words.
+Reply ONLY with this JSON structure, no extra text before or after:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"}
+]}
+CONTENT SEQUENCE:
+Turn 1: FM jingle intro — "Namaskar dosto, main hoon RJ Munafa, aur yeh hai aapka MunaFa Café — India ka no.1 AI investor FM show!"
+Turn 2-3: Global markets recap — Dow Jones, Nasdaq, Nikkei, SGX Nifty levels (use realistic estimated values), what they signal.
+Turn 4-5: Nifty 50 and Sensex outlook — support/resistance levels, trend direction, what to watch today.
+Turn 6-7: Bank Nifty analysis and sector rotation — which sectors are in favour today.
+Turn 8-9: Top 3 stocks expected to gain and top 3 to watch out for — with reasons.
+Turn 10-11: FII and DII activity — net buying/selling, rupee vs dollar, what it means.
+Turn 12-13: Commodity corner — gold price, silver, crude oil, their impact on Indian markets.
+Turn 14: Key events today — earnings announcements, economic data, RBI news, IPO dates.
+Turn 15: Energetic sign-off — "Invest karo, seekhte raho, aur MunaFa Café ke saath bane raho!"
+Use authentic FM RJ energy. Give realistic estimated market data. Pure Hinglish.`,
 
-/* ─── MODULES ─── */
-function setModule(m){
-  activeModule=m;
-  document.querySelectorAll(".module-tile").forEach(t=>t.classList.remove("active"));
-  document.getElementById("tile-"+m).classList.add("active");
-  document.getElementById("companySection").style.display=m==="company"?"block":"none";
-  const gb=document.getElementById("genBtn");
-  if(m==="company") gb.style.display="none";
-  else{
-    gb.style.display="flex";
-    gb.textContent="📻 "+UI[lang].genBtn[MIDS.indexOf(m)]+" — "+todayStr();
-  }
-  document.getElementById("showArea").style.display="none";
-  document.getElementById("emptyState").style.display="block";
-  document.getElementById("statusArea").innerHTML="";
-  hideNP();hardStop();
-}
-function quickCompany(n){document.getElementById("companyInput").value=n;runShow();}
+    // 1 — Company Spotlight
+    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
+Generate a 15-turn company deep-dive in Hinglish. Each turn must be 40-55 words.
+Pick ONE major Indian listed company that is newsworthy this week (e.g. from Nifty 50 or Nifty Next 50).
+Reply ONLY with this JSON:
+{"company":"COMPANY_NAME_HERE","turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"}
+]}
+CONTENT SEQUENCE:
+Turn 1: Company intro with excitement — what they do, market cap, exchange listing.
+Turn 2-3: Business model — revenue streams, key products/services, explained simply in Hinglish.
+Turn 4-5: Recent quarterly results — revenue, PAT, EBITDA margin vs expectations and last year.
+Turn 6-7: Technical chart analysis — current price, 52-week high/low, support/resistance, RSI, trend.
+Turn 8-9: Ownership structure — promoter holding %, FII/DII stake change recent quarter.
+Turn 10-11: Sector position — how it compares to competitors, market share, moat.
+Turn 12: Management quality — recent decisions, guidance, any controversies.
+Turn 13: Key risks — regulatory, debt, competition, macro sensitivity.
+Turn 14: Analyst consensus — price targets from top brokerages, rating (buy/hold/sell).
+Turn 15: RJ Munafa ka verdict — honest buy/hold/watch recommendation with clear reasoning.
+Authentic Hinglish FM energy. Use realistic estimated data.`,
 
-/* ─── PROMPTS ─── */
-const ANCHOR={hi:"अनुराग",en:"Anurag"}, ADVISOR={hi:"दीपा",en:"Deepa"};
+    // 2 — Macro & Economy
+    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
+Generate a 14-turn macro economy brief in Hinglish. Each turn must be 40-55 words.
+Reply ONLY with this JSON:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"}
+]}
+CONTENT SEQUENCE:
+Turn 1: Energetic intro — "Dosto, aaj macro ka poora scene samjhaata hoon — simple aur seedha!"
+Turn 2-3: RBI monetary policy — current repo rate, MPC stance (accommodative/neutral/hawkish), what it means for EMIs, markets.
+Turn 4-5: India GDP growth — current FY estimate, comparison with China, USA, global slowdown fears.
+Turn 6-7: Inflation picture — CPI and WPI latest, food inflation impact on RBI decisions, common man effect.
+Turn 8-9: FII flows this month — sector wise what foreigners are buying and selling, why it matters.
+Turn 10-11: Rupee story — USD/INR current level, RBI intervention, import-export competitiveness.
+Turn 12: Government spending — capex vs fiscal deficit, budget targets, infrastructure push.
+Turn 13: Global macro risks — US Fed rate decisions, China slowdown, Middle East geopolitics, oil price.
+Turn 14: Investor takeaway — which sectors win in current macro? Which to avoid? Simple action points.
+Educational, engaging Hinglish. Use realistic current data estimates.`,
 
-/* 5-minute show = 14-16 turns, each 40-60 words */
-const RULES={
-  hi:`IMPORTANT: Return ONLY a JSON object. No explanation, no markdown, no text before or after. The JSON must be complete and valid.
-Bhasha: Shuddh Hindi. English mein sirf: SIP, NAV, FII, DII, Nifty, Sensex, PE, crude oil. Anurag = anchor, punchy lines. Deepa = advisor. Koi tip nahi. JSON structure neeche diya hai.`,
-  en:`IMPORTANT: Return ONLY a JSON object. No explanation, no markdown, no text before or after. The JSON must be complete and valid.
-Language: Clear Indian English. Anurag = confident anchor. Deepa = warm advisor connecting numbers to investor portfolios. No tips, no target prices. JSON structure below.`
-};
+    // 3 — Market Buzz
+    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
+Generate a 15-turn market news buzz in Hinglish. Each turn must be 40-55 words.
+Reply ONLY with this JSON:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"}
+]}
+CONTENT SEQUENCE:
+Turn 1: High-energy buzz intro — "Dosto, aaj ka market masala le aaya hoon! Bahut kuch hua hai aaj!"
+Turn 2-3: Top 2-3 corporate news stories — mergers, acquisitions, QIP fundraises, partnerships (use realistic Indian companies).
+Turn 4-5: Bulk deals and block deals today — who bought what, at what price, institutional interest signal.
+Turn 6-7: Insider trading disclosures — promoter buying or selling, what it signals about confidence.
+Turn 8-9: Circuit breaker stocks — upper and lower circuit stocks, reasons, opportunity or danger?
+Turn 10-11: F&O market action — open interest buildup, max pain level, put-call ratio, what it signals.
+Turn 12-13: Mutual fund space — NFO launches, SIP data, which categories getting most inflows.
+Turn 14: SEBI corner — any new regulations, circulars, compliance updates affecting investors.
+Turn 15: RJ Munafa ki hot tip — 2-3 stocks to keep on watchlist tomorrow with reasons. Always disclaimer: do your own research!
+Gossipy, energetic Hinglish delivery. Use realistic examples.`,
 
-function getTurns(){const a=ANCHOR[lang],d=ADVISOR[lang];return `[{"who":"${a}","text":""},{"who":"${d}","text":""}]`;}
+    // 4 — IPO / NFO Radar
+    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
+Generate a 16-turn IPO and NFO analysis in Hinglish. Each turn must be 40-55 words.
+Reply ONLY with this JSON:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"},
+{"n":16,"t":"TURN_TEXT_HERE"}
+]}
+CONTENT SEQUENCE:
+Turn 1: Excited intro — "Dosto, IPO season mein aapka swagat hai! Kaun sa IPO aapke liye hai, main batata hoon!"
+Turn 2: Overview of current IPO pipeline — how many IPOs this month, total size, market sentiment.
+Turn 3: IPO #1 introduction — company name, sector, issue size, price band, subscription dates, use of funds.
+Turn 4: IPO #1 STRENGTHS — 2-3 strong points: market position, growth rate, brand, financials.
+Turn 5: IPO #1 WEAKNESSES — 2-3 concerns: losses, high valuation, promoter pledging, concentration risk.
+Turn 6: IPO #1 OPPORTUNITIES — market expansion, sector tailwind, government policy benefit.
+Turn 7: IPO #1 THREATS and Verdict — competition, regulatory risk, RJ Munafa verdict (Apply/Avoid/Risky Bet) with reason.
+Turn 8: IPO #2 introduction — different sector company, issue size, dates, key business.
+Turn 9: IPO #2 STRENGTHS — financial metrics, competitive moat, promoter track record.
+Turn 10: IPO #2 WEAKNESSES — valuation concern, sector risk, dependency issues.
+Turn 11: IPO #2 OPPORTUNITIES and THREATS — growth drivers vs risks. Verdict with reasoning.
+Turn 12: NFO Corner — 1-2 mutual fund NFOs currently open, theme (smallcap/thematic/debt), who should invest.
+Turn 13: Grey Market Premium (GMP) analysis — what GMP is saying about IPO #1 and #2, reliability of GMP data.
+Turn 14: Subscription analysis — how to read Day 1, Day 2, Day 3 subscription numbers, QIB/HNI/retail breakdown meaning.
+Turn 15: Allotment strategy — lot size, application amounts, how to maximise allotment chances.
+Turn 16: Final advice — how to fit IPOs in your portfolio, listing day strategy, long-term vs listing gain approach.
+Honest, analytical Hinglish. No hype. Use realistic fictional companies if needed.`,
 
-function getPrompt(){
-  const d=todayStr();
-  const co=document.getElementById("companyInput").value.trim()||"Reliance Industries";
-  const r=RULES[lang],t=getTurns(),isHi=lang==="hi";
-
-  const jsonTemplate = activeModule==="morning"
-    ? `{"module":"morning","headline":"<catchy Hindi/English headline>","subline":"<date and context>","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[{"label":"Nifty","value":""},{"label":"Sensex","value":""}]}`
-    : activeModule==="company"
-    ? `{"module":"company","company":"${co}","headline":"","subline":"","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[{"label":"","value":""}]}`
-    : activeModule==="macro"
-    ? `{"module":"macro","headline":"","subline":"","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[{"label":"Crude Oil","value":""},{"label":"USD/INR","value":""}]}`
-    : `{"module":"news","headline":"","subline":"","turns":[{"who":"${ANCHOR[lang]}","text":""},{"who":"${ADVISOR[lang]}","text":""}],"keyNumbers":[]}`;
-
-  const topic = {
-    morning: isHi ? `आज ${d} के लिए Nifty, Sensex, FII/DII flow, top sectors, SIP investors ke liye ek tip.` : `Morning market brief for ${d}: Nifty, Sensex levels, FII/DII flows, top sectors, one SIP tip.`,
-    company: isHi ? `"${co}" company ka analysis: business, latest results, risks, long-term view.` : `Company analysis of "${co}": business model, latest results, key risks, long-term view.`,
-    macro: isHi ? `Global economics: US Fed, crude oil, dollar-rupee, China impact on India.` : `World economics: US Fed rates, crude oil, dollar-rupee, China impact on India.`,
-    news: isHi ? `Aaj ki top 3-4 market news: company names, events, investor impact.` : `Top 3-4 market news today: company names, events, investor impact.`,
-  }[activeModule];
-
-  return `${r}
-
-Topic: ${topic}
-
-Return this JSON with all fields filled in (6-8 turns, each 20-35 words, alternating between ${ANCHOR[lang]} and ${ADVISOR[lang]}):
-${jsonTemplate}
-
-Fill EVERY "text" field. Make turns natural FM radio dialogue. Return ONLY the JSON, nothing else.`;
-}
-
-/* ─── JSON REPAIR ─── */
-function repairJson(t){
-  let inStr=false,esc=false,stack=[],cut=-1;
-  for(let i=0;i<t.length;i++){
-    const ch=t[i];
-    if(inStr){if(esc)esc=false;else if(ch==="\\")esc=true;else if(ch==='"')inStr=false;continue;}
-    if(ch==='"')inStr=true;
-    else if(ch==="{"||ch==="[")stack.push(ch==="{"?"}":")");
-    else if(ch==="}"||ch==="]"){stack.pop();cut=i;}
-  }
-  return t.slice(0,cut+1).replace(/,\s*$/,"")+stack.reverse().join("");
-}
-function parseJson(raw){
-  const t=raw.replace(/```json/gi,"").replace(/```/g,"").trim();
-  const i=t.indexOf("{");if(i<0)throw new Error("Unreadable");
-  const b=t.slice(i);
-  try{return JSON.parse(b);}catch{}
-  try{return JSON.parse(repairJson(b));}catch{}
-  throw new Error("Response incomplete.");
-}
-
-/* ─── TRIPLE API WITH FALLBACK ─── */
-async function callApi(prompt){
-  const apis=[
-    {
-      name:"claude",
-      call:async()=>{
-        const r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({prompt})});
-        if(!r.ok) throw new Error("Claude HTTP "+r.status);
-        const d=await r.json();
-        if(d.error) throw new Error("Claude: "+d.error);
-        if(!d.text) throw new Error("Claude empty");
-        return d.text;
-      }
-    },
-    {
-      name:"gemini",
-      call:async()=>{
-        const r=await fetch("/api/gemini",{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({prompt})});
-        if(!r.ok) throw new Error("Gemini HTTP "+r.status);
-        const d=await r.json();
-        if(d.error) throw new Error("Gemini: "+d.error);
-        if(!d.text) throw new Error("Gemini empty");
-        return d.text;
-      }
-    },
-    {
-      name:"gpt",
-      call:async()=>{
-        const r=await fetch("/api/gpt",{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({prompt})});
-        if(!r.ok) throw new Error("GPT HTTP "+r.status);
-        const d=await r.json();
-        if(d.error) throw new Error("GPT: "+d.error);
-        if(!d.text) throw new Error("GPT empty");
-        return d.text;
-      }
-    }
+    // 5 — Results Calendar
+    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
+Generate a 15-turn results season analysis in Hinglish. Each turn must be 40-55 words.
+Reply ONLY with this JSON:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"}
+]}
+CONTENT SEQUENCE:
+Turn 1: Results season intro — "Dosto, result season aa gaya! Kaun deliver karega, kaun disappoint? Chalte hain!"
+Turn 2: Current results season context — which quarter (Q2/Q3/Q4), broad market expectations, analyst consensus EPS growth estimate.
+Turn 3: Company #1 result preview — name, sector, expected revenue, expected PAT, YoY growth estimate vs last corresponding quarter.
+Turn 4: Company #1 key metrics to track — margins, EBITDA, order book, management guidance, any specific triggers.
+Turn 5: Company #2 result preview — different sector, expected numbers, YoY and QoQ comparison, analyst expectations.
+Turn 6: Company #2 what could surprise — positive or negative triggers, recent news that could impact.
+Turn 7: Company #3 result preview — banking or NBFC sector preferred, key ratios: NIM, NPA, credit growth.
+Turn 8: Company #3 comparison — vs last corresponding period, vs peers, sector health signal.
+Turn 9: Sector-wide earnings trend — which sectors beating estimates this season, which missing, why.
+Turn 10: IT sector results special — revenue in USD, deal wins, headcount, visa issues impact, guidance.
+Turn 11: Banking sector results — NPA recovery, credit growth, RBI guidelines effect on profitability.
+Turn 12: Stock price reaction strategy — should you buy before or after results? Risk-reward analysis.
+Turn 13: Management commentary decoder — what phrases like "cautious optimism," "in-line with expectations," "challenging environment" really mean.
+Turn 14: Earnings surprise history — companies that consistently beat or miss, why it matters for investors.
+Turn 15: Results season investment strategy — how to position portfolio, which results to act on, risk management tips.
+Educational, analytical Hinglish. Use realistic company names and estimated numbers.`
   ];
 
-  let lastErr="";
-  for(const api of apis){
-    try{
-      const txt=await api.call();
-      activeApi=api.name;
-      updateApiBadge();
-      return txt;
-    }catch(e){
-      console.warn(api.name+" failed:",e.message);
-      lastErr=e.message;
-    }
-  }
-  throw new Error("All AI services are busy. Please try again in a minute. ("+lastErr+")");
+  return prompts[mi];
 }
 
-function updateApiBadge(){
-  const b=document.getElementById("apiBadge");
-  const labels={claude:"Claude AI",gemini:"Gemini AI",gpt:"GPT-4o"};
-  const classes={claude:"api-badge claude",gemini:"api-badge gemini",gpt:"api-badge gpt"};
-  b.textContent=labels[activeApi]||activeApi;
-  b.className=classes[activeApi]||"api-badge";
-}
+// ────────────────────────────────────────────────────────
+// TRIPLE API FALLBACK
+// ────────────────────────────────────────────────────────
+async function callApi(prompt) {
+  const apis = [
+    { name:"claude", url:"/api/claude", badge:"🤖 Claude",  cls:"api-claude" },
+    { name:"gemini", url:"/api/gemini", badge:"💠 Gemini",  cls:"api-gemini" },
+    { name:"gpt",    url:"/api/gpt",    badge:"🟢 GPT-4o",  cls:"api-gpt"    }
+  ];
 
-/* ─── TTS ─── */
-async function callTTS(text,vk){
-  const v=VOICE_IDS[vk];
-  const ck=v.id+"|"+text.slice(0,80);
-  if(audioCache[ck])return audioCache[ck];
-  const res=await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({text,voice_id:v.id,model_id:v.model,voice_settings:v.cfg})});
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||"TTS error");}
-  const url=URL.createObjectURL(await res.blob());
-  audioCache[ck]=url;return url;
-}
-
-/* ─── GENERATE ─── */
-async function runShow(){
-  hardStop();hideNP();
-  document.getElementById("showArea").style.display="none";
-  document.getElementById("emptyState").style.display="none";
-  const gb=document.getElementById("genBtn");
-  gb.disabled=true;
-  const loadMsg=lang==="hi"?"⟳  Taiyaar ho rahi hai baat...":"⟳  Preparing your brief...";
-  gb.textContent=loadMsg;
-  showLoading(UI[lang].loading);
-  try{
-    const prompt=getPrompt();
-    let data;
-    try{data=parseJson(await callApi(prompt));}
-    catch{
-      // Retry with shorter request
-      const short=prompt+"\n\nIMPORTANT: Keep it shorter. Max 10 turns, each under 35 words. Max 3 keyNumbers. Still return valid JSON.";
-      data=parseJson(await callApi(short));
-    }
-    renderShow(data);
-  }catch(e){
-    showError(e.message||"Please try again.",runShow);
-    document.getElementById("apiBadge").className="api-badge error";
-    document.getElementById("apiBadge").textContent="All APIs failed";
-  }finally{
-    gb.disabled=false;
-    const mi=MIDS.indexOf(activeModule);
-    if(activeModule!=="company") gb.textContent="📻 "+UI[lang].genBtn[mi]+" — "+todayStr();
-    else gb.style.display="none";
-  }
-}
-
-/* ─── RENDER ─── */
-function isAnch(who){return who===ANCHOR.hi||who===ANCHOR.en;}
-
-function renderShow(data){
-  currentShow=data;turns=Array.isArray(data.turns)?data.turns:[];clearStatus();
-  document.getElementById("epBadge").textContent=UI[lang].modules[MIDS.indexOf(activeModule)];
-  document.getElementById("epHeadline").textContent=data.headline||"";
-  document.getElementById("epSubline").textContent=data.subline||"";
-  const ng=document.getElementById("numGrid");ng.innerHTML="";
-  const nums=(data.keyNumbers||[]).filter(n=>n&&n.label&&n.value);
-  nums.forEach(n=>{ng.innerHTML+=`<div class="num-card"><div class="num-label">${n.label}</div><div class="num-value">${n.value}</div></div>`;});
-  ng.style.display=nums.length?"grid":"none";
-  renderTurns();
-  document.getElementById("waLink").href=`https://wa.me/${WA}?text=${encodeURIComponent(lang==="hi"?"नमस्ते, मैंने MunaFa Café सुना और निवेश करना चाहता/चाहती हूँ। कृपया मार्गदर्शन करें। — ARN-135225":"Hello, I listened to MunaFa Café and would like to invest. Please guide me. — ARN-135225")}`;
-  document.getElementById("showArea").style.display="block";
-  document.getElementById("emptyState").style.display="none";
-  switchTab("listen");applyUI();
-}
-
-function renderTurns(){
-  const div=document.getElementById("turnsDiv");div.innerHTML="";
-  turns.forEach((t,i)=>{
-    const a=isAnch(t.who),on=cursor===i,loading=loadingTurn===i;
-    const cls="turn"+(a?"":" advisor")+(on?(a?" active-anchor":" active-advisor"):"");
-    const arrow=loading?`<span class="spin" style="color:var(--gold)">⟳</span>`:on?`<span style="color:${a?"var(--gold)":"var(--green)"}">▶</span>`:"";
-    div.innerHTML+=`<div class="${cls}" onclick="playFrom(${i})"><div class="turn-avatar ${a?"anchor":"advisor"}">${t.who[0]}</div><div class="turn-body"><div class="turn-who ${a?"anchor":"advisor"}">${t.who}</div><div class="turn-text">${t.text}</div></div><div class="turn-arrow">${arrow}</div></div>`;
-  });
-}
-
-function switchTab(t){
-  document.getElementById("listenPanel").style.display=t==="listen"?"block":"none";
-  document.getElementById("scriptPanel").style.display=t==="script"?"block":"none";
-  document.getElementById("tab-listen").classList.toggle("active",t==="listen");
-  document.getElementById("tab-script").classList.toggle("active",t==="script");
-}
-
-/* ─── NOW PLAYING ─── */
-function showNP(t,isAnchor){
-  const w=document.getElementById("npWrap");
-  w.style.display="block";
-  document.getElementById("npTitle").textContent="MunaFa Café — "+UI[lang].modules[MIDS.indexOf(activeModule)];
-  const sp=document.getElementById("npSpeaker");
-  sp.textContent=isAnchor?(lang==="hi"?"अनुराग — Anchor":"Anurag — Anchor"):(lang==="hi"?"दीपा — Advisor":"Deepa — Advisor");
-  sp.className="np-speaker "+(isAnchor?"anchor":"advisor");
-  document.getElementById("npCurrent").textContent=t;
-  w.scrollIntoView({behavior:"smooth",block:"nearest"});
-}
-function updateNPProg(durationMs){
-  clearInterval(progInterval);progPct=0;
-  const step=100/(durationMs/250);
-  progInterval=setInterval(()=>{
-    progPct=Math.min(100,progPct+step);
-    document.getElementById("npProg").style.width=progPct+"%";
-    if(progPct>=100)clearInterval(progInterval);
-  },250);
-}
-function hideNP(){
-  document.getElementById("npWrap").style.display="none";
-  clearInterval(progInterval);progPct=0;
-  document.getElementById("npProg").style.width="0%";
-}
-
-/* ─── PLAYBACK ─── */
-function togglePlay(){if(playing)togglePause();else playFrom(0);}
-function playFrom(i){
-  if(!turns.length)return;
-  hardStop();stopFlag=false;playing=true;paused=false;
-  updatePlayBtn();setElMsg("");
-  const t=turns[i];if(t)showNP(t.text,isAnch(t.who));
-  speakEL(i);
-}
-function hardStop(){
-  stopFlag=true;
-  if(currentAudio){currentAudio.pause();currentAudio=null;}
-  if(window.speechSynthesis)window.speechSynthesis.cancel();
-  playing=false;paused=false;cursor=-1;loadingTurn=-1;
-  updatePlayBtn();renderTurns();hideNP();
-}
-function togglePause(){
-  if(!playing)return;
-  if(currentAudio){if(paused){currentAudio.play();paused=false;}else{currentAudio.pause();paused=true;}}
-  else{if(paused){window.speechSynthesis.resume();paused=false;}else{window.speechSynthesis.pause();paused=true;}}
-  updatePlayBtn();
-}
-function updatePlayBtn(){
-  const b=document.getElementById("playBtn");if(!b)return;
-  const u=UI[lang];
-  b.textContent=playing&&!paused?u.pause:playing&&paused?u.resume:u.play;
-}
-function speakBrowser(i){
-  if(stopFlag)return;
-  if(i>=turns.length){done();return;}
-  cursor=i;renderTurns();
-  const t=turns[i],a=isAnch(t.who);
-  showNP(t.text,a);
-  const u=new SpeechSynthesisUtterance(t.text);
-  u.lang=lang==="hi"?"hi-IN":"en-IN";
-  const voices=window.speechSynthesis.getVoices();
-  const ind=voices.filter(v=>/IN$/i.test(v.lang));
-  if(a){const v=ind.find(v=>/ravi|male/i.test(v.name))||ind[0];if(v)u.voice=v;u.pitch=0.88;}
-  else{const v=ind.find(v=>/heera|female/i.test(v.name))||ind[1]||ind[0];if(v)u.voice=v;u.pitch=1.12;}
-  u.rate=playRate;
-  u.onend=()=>{if(!stopFlag)speakBrowser(i+1);};
-  u.onerror=()=>done();
-  window.speechSynthesis.speak(u);
-}
-/* ─── MUNAFA CAFÉ JINGLE ─── */
-function playJingle(){
-  return new Promise(resolve=>{
-    try{
-      const ctx=new(window.AudioContext||window.webkitAudioContext)();
-      const master=ctx.createGain();
-      master.gain.setValueAtTime(0.35,ctx.currentTime);
-      master.connect(ctx.destination);
-
-      // Warm FM chime — 3 ascending notes
-      const notes=[
-        {freq:523.25,start:0,dur:0.45},   // C5
-        {freq:659.25,start:0.22,dur:0.45}, // E5
-        {freq:783.99,start:0.44,dur:0.7},  // G5
-        {freq:1046.5,start:0.66,dur:0.9},  // C6 — high bright finish
-      ];
-
-      notes.forEach(n=>{
-        const osc=ctx.createOscillator();
-        const gain=ctx.createGain();
-        osc.type="sine";
-        osc.frequency.setValueAtTime(n.freq,ctx.currentTime+n.start);
-        gain.gain.setValueAtTime(0,ctx.currentTime+n.start);
-        gain.gain.linearRampToValueAtTime(0.8,ctx.currentTime+n.start+0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+n.start+n.dur);
-        osc.connect(gain);gain.connect(master);
-        osc.start(ctx.currentTime+n.start);
-        osc.stop(ctx.currentTime+n.start+n.dur+0.05);
+  for (const api of apis) {
+    try {
+      const r = await fetch(api.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
       });
-
-      // Soft tabla-like thump underneath
-      const buf=ctx.createBuffer(1,ctx.sampleRate*0.18,ctx.sampleRate);
-      const data=buf.getChannelData(0);
-      for(let i=0;i<data.length;i++){
-        data[i]=Math.random()*2-1;
-      }
-      const noise=ctx.createBufferSource();
-      noise.buffer=buf;
-      const bpf=ctx.createBiquadFilter();
-      bpf.type="bandpass";bpf.frequency.value=180;bpf.Q.value=0.8;
-      const ng=ctx.createGain();
-      ng.gain.setValueAtTime(0.5,ctx.currentTime+0.62);
-      ng.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.80);
-      noise.connect(bpf);bpf.connect(ng);ng.connect(master);
-      noise.start(ctx.currentTime+0.62);
-
-      // Second softer thump
-      const buf2=ctx.createBuffer(1,ctx.sampleRate*0.14,ctx.sampleRate);
-      const d2=buf2.getChannelData(0);
-      for(let i=0;i<d2.length;i++) d2[i]=Math.random()*2-1;
-      const n2=ctx.createBufferSource();
-      n2.buffer=buf2;
-      const bp2=ctx.createBiquadFilter();
-      bp2.type="bandpass";bp2.frequency.value=220;bp2.Q.value=0.9;
-      const ng2=ctx.createGain();
-      ng2.gain.setValueAtTime(0.3,ctx.currentTime+0.90);
-      ng2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.04);
-      n2.connect(bp2);bp2.connect(ng2);ng2.connect(master);
-      n2.start(ctx.currentTime+0.90);
-
-      // Total jingle length ~1.7 seconds then resolve
-      const totalDur=1.72;
-      master.gain.setValueAtTime(0.35,ctx.currentTime+totalDur-0.3);
-      master.gain.linearRampToValueAtTime(0,ctx.currentTime+totalDur);
-      setTimeout(()=>{
-        try{ctx.close();}catch(e){}
-        resolve();
-      },totalDur*1000+80);
-    }catch(e){
-      // If audio context fails (autoplay policy etc), just resolve
-      resolve();
+      if (!r.ok) { console.warn(api.name + " HTTP " + r.status); continue; }
+      const d = await r.json();
+      const text = d.text || "";
+      if (text.length > 80) return { text, badge: api.badge, cls: api.cls };
+    } catch(e) {
+      console.warn(api.name + " error:", e.message);
     }
+  }
+  throw new Error("All APIs failed. Please check your network and API keys in Vercel.");
+}
+
+// ────────────────────────────────────────────────────────
+// GENERATE MODULE
+// ────────────────────────────────────────────────────────
+async function generate(mi) {
+  if (!isPremium && mi > 0) { showGate(); return; }
+
+  const gb   = document.getElementById("gen-" + mi);
+  const out  = document.getElementById("out-" + mi);
+  const scr  = document.getElementById("script-" + mi);
+  const bdg  = document.getElementById("badge-" + mi);
+  const aud  = document.getElementById("audio-" + mi);
+
+  gb.disabled = true;
+  gb.textContent = UI[lang].generating;
+  out.classList.remove("visible");
+  scr.innerHTML = "";
+  aud.innerHTML = "";
+
+  try {
+    const { text, badge, cls } = await callApi(getPrompt(mi));
+
+    // Parse JSON from response
+    let parsed;
+    try {
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error("No JSON");
+      parsed = JSON.parse(m[0]);
+    } catch(e) {
+      // Fallback: display raw text
+      scr.innerHTML = "<div class='turn'><div class='turn-text'>" + text + "</div></div>";
+      bdg.className = "api-badge " + cls;
+      bdg.textContent = badge;
+      out.classList.add("visible");
+      setupAudio(mi, [{ n:1, t: text }]);
+      return;
+    }
+
+    const turns = Array.isArray(parsed.turns) ? parsed.turns : [];
+
+    if (parsed.company) {
+      scr.innerHTML = "<div style='font-size:11px;color:var(--accent);margin-bottom:10px;font-weight:700'>🏢 " + parsed.company + "</div>";
+    } else {
+      scr.innerHTML = "";
+    }
+
+    turns.forEach(t => {
+      const div = document.createElement("div");
+      div.className = "turn";
+      div.innerHTML = "<div class='turn-num'>Turn " + t.n + "</div><div class='turn-text'>" + (t.t || "") + "</div>";
+      scr.appendChild(div);
+    });
+
+    bdg.className = "api-badge " + cls;
+    bdg.textContent = badge + " · " + turns.length + " turns";
+    out.classList.add("visible");
+    setupAudio(mi, turns);
+
+  } catch(e) {
+    scr.innerHTML = "<div style='color:var(--red);padding:12px'>❌ " + e.message + "</div>";
+    out.classList.add("visible");
+  } finally {
+    const d = new Date();
+    const ds = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
+    gb.textContent = "🔄 Refresh — " + ds;
+    gb.disabled = false;
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// AUDIO SETUP
+// ────────────────────────────────────────────────────────
+function setupAudio(mi, turns) {
+  const aud = document.getElementById("audio-" + mi);
+  aud.innerHTML = "";
+
+  const listenBtn = document.createElement("button");
+  listenBtn.className = "audio-btn";
+  listenBtn.textContent = UI[lang].listenAll;
+  let playing = false;
+  let stopMe = false;
+
+  listenBtn.onclick = async () => {
+    if (playing) {
+      stopMe = true; playing = false;
+      speechSynthesis.cancel();
+      listenBtn.className = "audio-btn";
+      listenBtn.textContent = UI[lang].listenAll;
+      return;
+    }
+    playing = true; stopMe = false;
+    listenBtn.className = "audio-btn playing";
+    listenBtn.textContent = UI[lang].stop;
+
+    try {
+      await playJingle();
+      for (const t of turns) {
+        if (stopMe) break;
+        await speakTurn(t.t || "");
+        await delay(250);
+      }
+    } catch(e) { console.warn("Audio error:", e.message); }
+
+    playing = false; stopMe = false;
+    listenBtn.className = "audio-btn";
+    listenBtn.textContent = UI[lang].listenAll;
+  };
+
+  aud.appendChild(listenBtn);
+}
+
+// ────────────────────────────────────────────────────────
+// TTS — ElevenLabs with browser fallback
+// ────────────────────────────────────────────────────────
+async function speakTurn(text) {
+  if (!XI_KEY || XI_KEY === "YOUR_ELEVENLABS_API_KEY") {
+    return browserSpeak(text);
+  }
+
+  const cacheKey = text.slice(0, 60);
+  if (audioCache[cacheKey]) {
+    await playBuffer(audioCache[cacheKey]);
+    return;
+  }
+
+  try {
+    const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + XI_VOICE_ID, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "xi-api-key": XI_KEY
+      },
+      body: JSON.stringify({
+        text: "… " + text,
+        model_id: "eleven_multilingual_v2",
+        voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.3 }
+      })
+    });
+    if (!r.ok) throw new Error("ElevenLabs " + r.status);
+    const buf = await r.arrayBuffer();
+    audioCache[cacheKey] = buf;
+    await playBuffer(buf);
+  } catch(e) {
+    console.warn("ElevenLabs fallback to browser TTS:", e.message);
+    await browserSpeak(text);
+  }
+}
+
+function browserSpeak(text) {
+  return new Promise(resolve => {
+    if (!window.speechSynthesis) { resolve(); return; }
+    const u = new SpeechSynthesisUtterance("… " + text);
+    u.lang = "hi-IN"; u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
+    u.onend = resolve; u.onerror = resolve;
+    speechSynthesis.speak(u);
   });
 }
 
-async function speakEL(i){
-  if(stopFlag)return;
-  if(i>=turns.length){done();return;}
-  // Play jingle before very first turn
-  if(i===0){
-    try{ await playJingle(); }catch(e){}
-  }
-  if(stopFlag)return;
-  cursor=i;loadingTurn=i;renderTurns();
-  const t=turns[i],a=isAnch(t.who);
-  try{
-    const ttsText = "… " + t.text;  // leading pause prevents first-word clipping
-    const url=await callTTS(ttsText,a?"anchor":"advisor");
-    if(stopFlag)return;
-    loadingTurn=-1;renderTurns();
-    showNP(t.text,a);
-    const estMs=(t.text.length/3.5)*100;
-    updateNPProg(estMs);
-    const audio=new Audio(url);
-    audio.playbackRate=playRate;currentAudio=audio;
-    audio.onended=()=>{if(!stopFlag)speakEL(i+1);};
-    audio.onerror=()=>{setElMsg(lang==="hi"?"Audio error — device voice use ho raha hai":"Audio error — using device voice");speakBrowser(i);};
-    await audio.play();
-  }catch(e){
-    loadingTurn=-1;
-    setElMsg((e.message||"TTS error")+(lang==="hi"?" — device voice use ho raha hai":" — using device voice"));
-    if(!stopFlag)speakBrowser(i);
-  }
-}
-function done(){playing=false;cursor=-1;loadingTurn=-1;updatePlayBtn();renderTurns();hideNP();}
-function onSpeed(v){playRate=parseFloat(v);document.getElementById("speedVal").textContent=playRate.toFixed(2)+"x";if(currentAudio)currentAudio.playbackRate=playRate;}
-function setElMsg(text){const el=document.getElementById("elMsg");if(!text){el.style.display="none";return;}el.style.display="block";el.textContent=text;}
-
-/* ─── SHARE ─── */
-function copyShare(){
-  const text=currentShow?`🎙️ MunaFa Café — ${currentShow.headline||""}\n${window.location.href}\n\nDeepa Maheshwari · ARN-135225`:`🎙️ MunaFa Café\n${window.location.href}`;
-  navigator.clipboard.writeText(text).then(()=>{
-    document.getElementById("shareBtn").textContent="✅ Copied!";
-    setTimeout(()=>applyUI(),2500);
-  }).catch(()=>{});
+async function playBuffer(buf) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const decoded = await audioCtx.decodeAudioData(buf.slice(0));
+  return new Promise(resolve => {
+    const src = audioCtx.createBufferSource();
+    src.buffer = decoded;
+    src.connect(audioCtx.destination);
+    src.onended = resolve;
+    src.start();
+  });
 }
 
-/* ─── STATUS ─── */
-function showLoading(text){document.getElementById("statusArea").innerHTML=`<div class="loading-box"><span class="spin">⟳</span><span class="loading-text">&nbsp;${text}</span></div>`;}
-function showError(text,retry){document.getElementById("statusArea").innerHTML=`<div class="err-box"><div class="err-text">${text}</div>${retry?`<button class="err-retry" onclick="(${retry.toString()})()">Retry</button>`:""}</div>`;}
-function clearStatus(){document.getElementById("statusArea").innerHTML="";}
+// ────────────────────────────────────────────────────────
+// JINGLE — 10-second Web Audio FM intro
+// ────────────────────────────────────────────────────────
+async function playJingle() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = audioCtx;
+    const now = ctx.currentTime;
 
-window.speechSynthesis&&window.speechSynthesis.addEventListener("voiceschanged",()=>window.speechSynthesis.getVoices());
-setTimeout(()=>window.speechSynthesis&&window.speechSynthesis.getVoices(),500);
+    // Sa Re Ga Ma Pa — Indian pentatonic melody
+    const scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+    const melody = [0, 2, 4, 5, 4, 2, 0, 4, 5, 7, 5, 4, 2, 4, 0, 2, 4];
+    melody.forEach((note, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const t = now + i * 0.52;
+      o.type = "triangle";
+      o.frequency.value = scale[note % scale.length];
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.13, t + 0.04);
+      g.gain.linearRampToValueAtTime(0, t + 0.46);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t + 0.5);
+    });
+
+    // Tabla-style percussion
+    const beats = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5];
+    beats.forEach((b, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const freq = i % 4 === 0 ? 80 : i % 2 === 0 ? 120 : 100;
+      const vol  = i % 4 === 0 ? 0.3 : 0.18;
+      o.frequency.setValueAtTime(freq, now + b);
+      o.frequency.exponentialRampToValueAtTime(freq * 0.4, now + b + 0.12);
+      g.gain.setValueAtTime(vol, now + b);
+      g.gain.exponentialRampToValueAtTime(0.001, now + b + 0.18);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now + b); o.stop(now + b + 0.25);
+    });
+
+    // FM ident sweep at the end
+    const sw = ctx.createOscillator();
+    const sg = ctx.createGain();
+    sw.type = "sine";
+    sw.frequency.setValueAtTime(440, now + 8.5);
+    sw.frequency.exponentialRampToValueAtTime(1320, now + 10);
+    sg.gain.setValueAtTime(0.12, now + 8.5);
+    sg.gain.exponentialRampToValueAtTime(0.001, now + 10);
+    sw.connect(sg); sg.connect(ctx.destination);
+    sw.start(now + 8.5); sw.stop(now + 10);
+
+    await delay(10000);
+  } catch(e) {
+    console.warn("Jingle error:", e.message);
+    await delay(500);
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// RAZORPAY PAYMENT FLOW
+// ────────────────────────────────────────────────────────
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.getElementById("plan-monthly").classList.toggle("selected", plan === "monthly");
+  document.getElementById("plan-yearly").classList.toggle("selected",  plan === "yearly");
+}
+
+async function startPayment() {
+  const amount = PLAN_AMOUNTS[selectedPlan];
+
+  try {
+    // Step 1: Create order via serverless function (KEY_SECRET stays on server)
+    const r = await fetch("/api/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, plan: selectedPlan })
+    });
+    const order = await r.json();
+    if (!r.ok || !order.order_id) {
+      alert("Order creation failed: " + (order.error || "Unknown error"));
+      return;
+    }
+
+    // Step 2: Open Razorpay modal (uses KEY_ID only — KEY_SECRET never comes to frontend)
+    const options = {
+      key:         RZP_KEY,        // Only Key ID here — safe for frontend
+      amount:      order.amount,
+      currency:    order.currency,
+      name:        "MunaFa Café ☕",
+      description: selectedPlan === "monthly"
+                   ? "Monthly Premium — ₹99/month"
+                   : "Yearly Premium — ₹699/year",
+      order_id:    order.order_id,
+      handler: async function(response) {
+        // Step 3: Verify payment signature on server
+        const vr = await fetch("/api/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id:   response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature:  response.razorpay_signature,
+            plan:                selectedPlan
+          })
+        });
+        const vd = await vr.json();
+        if (vd.success) {
+          unlockPremium();
+          alert("🎉 Premium unlock ho gaya! Ab saare 6 modules available hain — enjoy MunaFa Café!");
+        } else {
+          alert("Payment verification failed. Please contact support@munaapha.co.in\nPayment ID: " + response.razorpay_payment_id);
+        }
+      },
+      prefill: { name: "", email: "", contact: "" },
+      theme:   { color: "#f0a500" },
+      modal:   { ondismiss: () => console.log("Razorpay modal closed") }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  } catch(e) {
+    alert("Payment error: " + e.message);
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// UNLOCK PREMIUM
+// ────────────────────────────────────────────────────────
+function unlockPremium() {
+  isPremium = true;
+  document.getElementById("sub-gate").style.display = "none";
+  document.getElementById("status-badge").className = "badge badge-premium";
+  document.getElementById("status-badge").textContent = "PREMIUM";
+  document.getElementById("status-text").textContent = "Saare 6 modules unlocked! Enjoy MunaFa Café ☕";
+
+  for (let mi = 1; mi <= 5; mi++) {
+    document.getElementById("card-" + mi).classList.remove("locked");
+    const lb = document.getElementById("lock-" + mi);
+    if (lb) lb.style.display = "none";
+    const gb = document.getElementById("gen-" + mi);
+    gb.className = "gen-btn";
+    gb.textContent = "📻 " + UI[lang].genBtn[mi];
+  }
+}
+
+function useFree() {
+  document.getElementById("sub-gate").style.display = "none";
+}
+
+function showGate() {
+  document.getElementById("sub-gate").style.display = "flex";
+}
+
+// ────────────────────────────────────────────────────────
+// LANGUAGE TOGGLE
+// ────────────────────────────────────────────────────────
+function setLang(l) {
+  lang = l;
+  document.getElementById("btn-hi").classList.toggle("active", l === "hi");
+  document.getElementById("btn-en").classList.toggle("active", l === "en");
+  document.getElementById("gate-tagline").textContent = UI[l].gateTagline;
+
+  for (let mi = 0; mi <= 5; mi++) {
+    const gb = document.getElementById("gen-" + mi);
+    if (gb && !gb.disabled) {
+      const locked = !isPremium && mi > 0;
+      gb.textContent = locked ? "🔒 " + UI[l].genBtn[mi] : "📻 " + UI[l].genBtn[mi];
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────────────────
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
 </body>
 </html>
