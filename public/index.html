@@ -22,9 +22,20 @@ header{background:linear-gradient(135deg,#1a0a00,#0d1117);border-bottom:2px soli
 
 /* Subscription Gate */
 #sub-gate{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
-.gate-box{background:var(--card);border:2px solid var(--accent);border-radius:20px;padding:36px;max-width:480px;width:90%;text-align:center}
-.gate-box h2{font-size:24px;color:var(--accent);margin-bottom:8px}
-.gate-box p{color:var(--sub);font-size:14px;margin-bottom:24px;line-height:1.6}
+.gate-box{background:var(--card);border:2px solid var(--accent);border-radius:20px;padding:32px;max-width:480px;width:92%;text-align:center}
+.gate-box h2{font-size:24px;color:var(--accent);margin-bottom:6px}
+.gate-box p{color:var(--sub);font-size:13px;margin-bottom:20px;line-height:1.6}
+/* Gate tabs */
+.gate-tabs{display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.gate-tab{flex:1;padding:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--sub);transition:all .2s}
+.gate-tab.active{background:var(--accent);color:#000}
+.gate-panel{display:none}.gate-panel.active{display:block}
+/* Login panel */
+.phone-input{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--border);background:#0d1117;color:var(--text);font-size:16px;margin-bottom:12px;letter-spacing:1px}
+.phone-input:focus{outline:none;border-color:var(--accent)}
+.login-msg{font-size:12px;min-height:18px;margin-bottom:10px;color:var(--sub)}
+.login-msg.err{color:var(--red)}.login-msg.ok{color:var(--green)}
+/* Subscribe panel */
 .plan-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
 .plan-card{border:2px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s}
 .plan-card:hover,.plan-card.selected{border-color:var(--accent);background:rgba(240,165,0,.08)}
@@ -96,10 +107,24 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 footer{text-align:center;padding:30px 20px;color:var(--sub);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
 footer a{color:var(--accent);text-decoration:none}
 
+/* ── Live Markets ── */
+.markets-section{margin-bottom:24px}
+.markets-heading{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.markets-heading::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.ticker-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.chart-label{font-size:11px;font-weight:700;color:var(--sub);padding:8px 12px 0;letter-spacing:.5px}
+.world-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.world-box{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+
 @media(max-width:600px){
   .modules-grid{grid-template-columns:1fr}
   .plan-cards{grid-template-columns:1fr}
   header{flex-wrap:wrap}
+  .charts-row{grid-template-columns:1fr}
+  .world-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
@@ -108,26 +133,45 @@ footer a{color:var(--accent);text-decoration:none}
 <!-- ═══════════════ SUBSCRIPTION GATE ═══════════════ -->
 <div id="sub-gate">
   <div class="gate-box">
-    <div style="font-size:40px;margin-bottom:12px">☕</div>
+    <div style="font-size:40px;margin-bottom:8px">☕</div>
     <h2>MunaFa Café</h2>
-    <p id="gate-tagline">Aapka AI-powered Hinglish Investor FM Show. Har subah market ki chai ke saath.</p>
-    <div class="plan-cards">
-      <div class="plan-card selected" id="plan-monthly" onclick="selectPlan('monthly')">
-        <div class="plan-name">Monthly</div>
-        <div class="plan-price">₹99</div>
-        <div class="plan-sub">per month</div>
-        <div class="plan-badge">POPULAR</div>
-      </div>
-      <div class="plan-card" id="plan-yearly" onclick="selectPlan('yearly')">
-        <div class="plan-name">Yearly</div>
-        <div class="plan-price">₹699</div>
-        <div class="plan-sub">per year · Save 41%</div>
-        <div class="plan-badge">BEST VALUE</div>
-      </div>
+    <p id="gate-tagline">Your AI-powered Investor FM Show. Every morning with market chai.</p>
+
+    <!-- Tab switcher -->
+    <div class="gate-tabs">
+      <button class="gate-tab active" id="tab-login" onclick="switchTab('login')">🔑 Existing Subscriber</button>
+      <button class="gate-tab" id="tab-subscribe" onclick="switchTab('subscribe')">✨ New Subscription</button>
     </div>
-    <button class="btn btn-primary" onclick="startPayment()">☕ Subscribe &amp; Unlock All</button>
-    <button class="btn btn-free" onclick="useFree()">Continue Free (Morning Brief only)</button>
-    <p style="font-size:11px;color:var(--sub);margin-top:8px">🔒 Secure payment via Razorpay · Cancel anytime</p>
+
+    <!-- LOGIN PANEL -->
+    <div class="gate-panel active" id="panel-login">
+      <p style="font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.6">Enter your registered mobile number to restore access.</p>
+      <input class="phone-input" id="login-phone" type="tel" placeholder="📱 10-digit mobile number" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"/>
+      <div class="login-msg" id="login-msg"></div>
+      <button class="btn btn-primary" onclick="loginWithPhone()" id="login-btn">🔑 Restore My Subscription</button>
+      <button class="btn btn-free" onclick="useFree()" style="margin-top:6px">Continue Free (Morning Brief only)</button>
+    </div>
+
+    <!-- SUBSCRIBE PANEL -->
+    <div class="gate-panel" id="panel-subscribe">
+      <div class="plan-cards">
+        <div class="plan-card selected" id="plan-monthly" onclick="selectPlan('monthly')">
+          <div class="plan-name">Monthly</div>
+          <div class="plan-price">₹99</div>
+          <div class="plan-sub">per month</div>
+          <div class="plan-badge">POPULAR</div>
+        </div>
+        <div class="plan-card" id="plan-yearly" onclick="selectPlan('yearly')">
+          <div class="plan-name">Yearly</div>
+          <div class="plan-price">₹699</div>
+          <div class="plan-sub">per year · Save 41%</div>
+          <div class="plan-badge">BEST VALUE</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="startPayment()">☕ Subscribe &amp; Unlock All</button>
+      <button class="btn btn-free" onclick="useFree()">Continue Free (Morning Brief only)</button>
+      <p style="font-size:11px;color:var(--sub);margin-top:8px">🔒 Secure payment via Razorpay · Cancel anytime</p>
+    </div>
   </div>
 </div>
 
@@ -146,9 +190,184 @@ footer a{color:var(--accent);text-decoration:none}
 <main>
   <div class="status-bar">
     <span id="status-badge" class="badge badge-free">FREE</span>
-    <span id="status-text" style="color:var(--sub)">Morning Brief unlocked · Premium ke liye subscribe karein</span>
+    <span id="status-text" style="color:var(--sub)">Morning Brief unlocked · Subscribe for Premium</span>
     <span class="upgrade-link" onclick="showGate()">⬆ Upgrade</span>
   </div>
+
+  <!-- ═══════════════ LIVE MARKETS ═══════════════ -->
+  <div class="markets-section">
+    <div class="markets-heading">🔴 Live Markets</div>
+
+    <!-- Ticker Tape: Nifty, Sensex, Bank Nifty, Dow, Nasdaq, Nikkei, Gold, Crude -->
+    <div class="ticker-wrap">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            {"proName":"NSE:NIFTY","title":"Nifty 50"},
+            {"proName":"BSE:SENSEX","title":"Sensex"},
+            {"proName":"NSE:BANKNIFTY","title":"Bank Nifty"},
+            {"proName":"NSE:MIDCPNIFTY","title":"Midcap Nifty"},
+            {"proName":"NASDAQ:IXIC","title":"Nasdaq"},
+            {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
+            {"proName":"INDEX:NKY","title":"Nikkei 225"},
+            {"proName":"FOREXCOM:NSXUSD","title":"Nasdaq 100"},
+            {"proName":"TVC:GOLD","title":"Gold"},
+            {"proName":"TVC:USOIL","title":"Crude Oil"},
+            {"proName":"FX:USDINR","title":"USD/INR"}
+          ],
+          "showSymbolLogo": true,
+          "isTransparent": true,
+          "displayMode": "adaptive",
+          "colorTheme": "dark",
+          "locale": "en"
+        }
+        </script>
+      </div>
+    </div>
+
+    <!-- Main Chart Row: Nifty 50 candles + Market Overview -->
+    <div class="charts-row">
+      <!-- Nifty 50 Candle Chart -->
+      <div class="chart-box">
+        <div class="chart-label">NIFTY 50 — NSE</div>
+        <div class="tradingview-widget-container" style="height:320px">
+          <div class="tradingview-widget-container__widget" style="height:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {
+            "autosize": true,
+            "symbol": "NSE:NIFTY",
+            "interval": "15",
+            "timezone": "Asia/Kolkata",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#161b22",
+            "enable_publishing": false,
+            "hide_top_toolbar": false,
+            "hide_legend": false,
+            "save_image": false,
+            "backgroundColor": "rgba(13,17,23,1)",
+            "gridColor": "rgba(48,54,61,0.3)",
+            "studies": ["RSI@tv-basicstudies","MASimple@tv-basicstudies"],
+            "container_id": "tv_chart_nifty"
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- Market Overview: Indian + Global -->
+      <div class="chart-box">
+        <div class="chart-label">MARKET OVERVIEW</div>
+        <div class="tradingview-widget-container" style="height:320px">
+          <div class="tradingview-widget-container__widget" style="height:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+          {
+            "colorTheme": "dark",
+            "dateRange": "1D",
+            "showChart": true,
+            "locale": "en",
+            "width": "100%",
+            "height": "100%",
+            "largeChartUrl": "",
+            "isTransparent": true,
+            "showSymbolLogo": true,
+            "showFloatingTooltip": false,
+            "tabs": [
+              {
+                "title": "India",
+                "symbols": [
+                  {"s":"NSE:NIFTY","d":"Nifty 50"},
+                  {"s":"BSE:SENSEX","d":"Sensex"},
+                  {"s":"NSE:BANKNIFTY","d":"Bank Nifty"},
+                  {"s":"NSE:MIDCPNIFTY","d":"Midcap Nifty"},
+                  {"s":"NSE:CNXINFRA","d":"Infra"}
+                ],
+                "originalTitle": "India"
+              },
+              {
+                "title": "World",
+                "symbols": [
+                  {"s":"FOREXCOM:SPXUSD","d":"S&P 500"},
+                  {"s":"NASDAQ:IXIC","d":"Nasdaq"},
+                  {"s":"INDEX:NKY","d":"Nikkei"},
+                  {"s":"INDEX:DEU40","d":"DAX"},
+                  {"s":"FOREXCOM:UKXGBP","d":"FTSE 100"},
+                  {"s":"HSI:HSI","d":"Hang Seng"}
+                ],
+                "originalTitle": "World"
+              },
+              {
+                "title": "Commodities",
+                "symbols": [
+                  {"s":"TVC:GOLD","d":"Gold"},
+                  {"s":"TVC:SILVER","d":"Silver"},
+                  {"s":"TVC:USOIL","d":"Crude Oil"},
+                  {"s":"TVC:NATURALGAS","d":"Nat. Gas"}
+                ],
+                "originalTitle": "Commodities"
+              }
+            ]
+          }
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- World Markets Mini Candles Row -->
+    <div class="world-grid">
+      <div class="world-box">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"FOREXCOM:SPXUSD","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+      <div class="world-box">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"NASDAQ:IXIC","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+      <div class="world-box">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"INDEX:NKY","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+      <div class="world-box">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"INDEX:DEU40","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+      <div class="world-box">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"TVC:GOLD","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+      <div class="world-box">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {"symbol":"FX:USDINR","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ═══════════════ END LIVE MARKETS ═══════════════ -->
 
   <div class="modules-grid">
 
@@ -158,10 +377,10 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="module-icon">🌅</div>
         <div>
           <div class="module-title">Market Morning Brief</div>
-          <div class="module-desc">Anurag &amp; Deepa ke saath — indices, sectors, global cues — live dialogue</div>
+          <div class="module-desc">Anurag &amp; Deepa live dialogue — indices, sectors, global cues</div>
         </div>
       </div>
-      <button class="gen-btn" id="gen-0" onclick="generate(0)">📻 Morning Brief Generate Karein</button>
+      <button class="gen-btn" id="gen-0" onclick="generate(0)">📻 Generate Morning Brief</button>
       <div class="output-area" id="out-0">
         <div class="api-badge" id="badge-0"></div>
         <div class="script-box" id="script-0"></div>
@@ -193,7 +412,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="module-icon">🌍</div>
         <div>
           <div class="module-title">Macro &amp; Economy</div>
-          <div class="module-desc">RBI, GDP, inflation, FII/DII flows — macro picture in plain Hinglish</div>
+          <div class="module-desc">RBI, GDP, inflation, FII/DII flows — macro picture in plain language</div>
           <div class="lock-badge" id="lock-2">🔒 PREMIUM</div>
         </div>
       </div>
@@ -211,7 +430,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="module-icon">📰</div>
         <div>
           <div class="module-title">Market Buzz</div>
-          <div class="module-desc">Aaj ke hot market news, block deals, insider activity</div>
+          <div class="module-desc">Today's hot market news, block deals, insider activity</div>
           <div class="lock-badge" id="lock-3">🔒 PREMIUM</div>
         </div>
       </div>
@@ -229,7 +448,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="module-icon">📊</div>
         <div>
           <div class="module-title">IPO / NFO Radar</div>
-          <div class="module-desc">Upcoming IPOs &amp; NFOs ka SWOT analysis — apply karein ya nahi?</div>
+          <div class="module-desc">Upcoming IPOs &amp; NFOs — SWOT analysis, apply or avoid?</div>
           <div class="lock-badge" id="lock-4">🔒 PREMIUM</div>
         </div>
       </div>
@@ -247,7 +466,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="module-icon">📅</div>
         <div>
           <div class="module-title">Results Calendar</div>
-          <div class="module-desc">Upcoming Q results — last period se comparison, kya expect karein</div>
+          <div class="module-desc">Upcoming Q results — comparison with last corresponding period</div>
           <div class="lock-badge" id="lock-5">🔒 PREMIUM</div>
         </div>
       </div>
@@ -256,6 +475,24 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="api-badge" id="badge-5"></div>
         <div class="script-box" id="script-5"></div>
         <div class="audio-controls" id="audio-5"></div>
+      </div>
+    </div>
+
+    <!-- MODULE 6: Learn Today (FREE) -->
+    <div class="module-card" id="card-6" style="grid-column:1/-1;border-color:rgba(0,188,212,.35)">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent2),#7c3aed)"></div>
+      <div class="module-header">
+        <div class="module-icon">🎓</div>
+        <div>
+          <div class="module-title">Learn Today <span style="font-size:11px;background:rgba(0,188,212,.15);color:var(--accent2);padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px">FREE</span></div>
+          <div class="module-desc" id="learn-desc">Daily stock market lesson — new term, trading concept, or strategy explained simply</div>
+        </div>
+      </div>
+      <button class="gen-btn" id="gen-6" onclick="generate(6)" style="background:linear-gradient(135deg,var(--accent2),#0097a7);color:#000">🎓 आज क्या सीखें?</button>
+      <div class="output-area" id="out-6">
+        <div class="api-badge" id="badge-6"></div>
+        <div class="script-box" id="script-6" style="max-height:420px"></div>
+        <div class="audio-controls" id="audio-6"></div>
       </div>
     </div>
 
@@ -293,9 +530,9 @@ const RZP_KEY = "rzp_live_TmgKvmK8LiLLB7"; // ← REPLACE WITH: rzp_live_XXXXXXX
 //
 // ════════════════════════════════════════════════════════════════════════
 
-// ElevenLabs TTS (safe in frontend — used for audio only)
-const XI_KEY = "YOUR_ELEVENLABS_API_KEY"; // ← Replace with your ElevenLabs API key
-const XI_VOICE_ID = "ErXwobaYiN019PkySvjV"; // Antoni — warm Hinglish voice
+// ElevenLabs TTS — key lives ONLY in Vercel env var ELEVENLABS_API_KEY
+// Frontend calls /api/tts which proxies to ElevenLabs securely
+const XI_VOICE_ID = "ErXwobaYiN019PkySvjV"; // unused legacy constant
 
 // ────────────────────────────────────────────────────────
 // STATE
@@ -315,17 +552,18 @@ let globalStopFlag = false;
 const UI = {
   hi: {
     genBtn: [
-      "Morning Brief Generate Karein",
-      "Company Spotlight Generate Karein",
-      "Macro Brief Generate Karein",
-      "Market Buzz Generate Karein",
-      "IPO/NFO Radar Generate Karein",
-      "Results Calendar Generate Karein"
+      "Morning Brief तैयार करें",
+      "Company Spotlight तैयार करें",
+      "Macro Brief तैयार करें",
+      "Market Buzz तैयार करें",
+      "IPO/NFO Radar तैयार करें",
+      "Results Calendar तैयार करें",
+      "🎓 आज क्या सीखें?"
     ],
-    generating: "Script ban rahi hai… thoda wait karein ☕",
-    listenAll: "▶ Poora Suno",
-    stop: "⏹ Rokein",
-    gateTagline: "Aapka AI-powered Hinglish Investor FM Show. Har subah market ki chai ke saath."
+    generating: "स्क्रिप्ट तैयार हो रही है… कृपया प्रतीक्षा करें ☕",
+    listenAll: "▶ सब सुनें",
+    stop: "⏹ रोकें",
+    gateTagline: "आपका AI-powered निवेशक FM शो। हर सुबह बाज़ार की चाय के साथ।"
   },
   en: {
     genBtn: [
@@ -334,12 +572,13 @@ const UI = {
       "Generate Macro Brief",
       "Generate Market Buzz",
       "Generate IPO/NFO Radar",
-      "Generate Results Calendar"
+      "Generate Results Calendar",
+      "🎓 Learn Today"
     ],
     generating: "Generating script… please wait ☕",
     listenAll: "▶ Listen All",
     stop: "⏹ Stop",
-    gateTagline: "Your AI-powered Hinglish Investor FM Show. Every morning with market chai."
+    gateTagline: "Your AI-powered Investor FM Show. Every morning with market chai."
   }
 };
 
@@ -442,11 +681,36 @@ Turn 15 (A): Anurag — Key events, earnings calendar, warm sign-off — "Keep i
 Use realistic estimated market data. Natural, warm FM energy throughout.`,
 
     // 1 — Company Spotlight
-    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
-Generate a 15-turn company deep-dive in Hinglish. Each turn must be 40-55 words.
-Pick ONE major Indian listed company that is newsworthy this week (e.g. from Nifty 50 or Nifty Next 50).
-Reply ONLY with this JSON:
-{"company":"COMPANY_NAME_HERE","turns":[
+    lang === "hi"
+    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख है ${d}।
+Nifty 50 या Nifty Next 50 की एक प्रमुख, चर्चित कंपनी चुनें और उसका विस्तृत विश्लेषण करें।
+भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, EBITDA, FII, DII, PAT, EPS, RSI, IPO, Q2, Q3।
+गलत: "company ka revenue strong hai, growth trajectory positive hai" — यह बिल्कुल नहीं।
+सही: "कंपनी का राजस्व मज़बूत है, विकास की दिशा सकारात्मक है।"
+15 turns, हर turn 40-55 शब्द। सिर्फ यह JSON दें:
+{"company":"कंपनी का नाम","turns":[
+{"n":1,"t":"पाठ"},{"n":2,"t":"पाठ"},{"n":3,"t":"पाठ"},{"n":4,"t":"पाठ"},{"n":5,"t":"पाठ"},
+{"n":6,"t":"पाठ"},{"n":7,"t":"पाठ"},{"n":8,"t":"पाठ"},{"n":9,"t":"पाठ"},{"n":10,"t":"पाठ"},
+{"n":11,"t":"पाठ"},{"n":12,"t":"पाठ"},{"n":13,"t":"पाठ"},{"n":14,"t":"पाठ"},{"n":15,"t":"पाठ"}
+]}
+क्रम: Turn 1 उत्साही परिचय। Turn 2-3 व्यापार मॉडल। Turn 4-5 तिमाही परिणाम — राजस्व, PAT, EBITDA। Turn 6-7 तकनीकी विश्लेषण — समर्थन/प्रतिरोध, RSI। Turn 8-9 प्रवर्तक हिस्सेदारी, FII/DII बदलाव। Turn 10-11 क्षेत्र में स्थिति। Turn 12 प्रबंधन गुणवत्ता। Turn 13 प्रमुख जोखिम। Turn 14 विश्लेषकों की राय। Turn 15 आपकी राय — खरीदें/रखें/देखें।`
+    : `You are RJ Anurag on MunaFa Café FM. Today is ${d}.
+Pick ONE major Indian listed company from Nifty 50 or Nifty Next 50 that is newsworthy this week.
+Language: Pure English only. No Hindi words at all.
+15 turns, each 40-55 words. Reply ONLY with this JSON:
+{"company":"COMPANY NAME","turns":[
+{"n":1,"t":"TEXT"},{"n":2,"t":"TEXT"},{"n":3,"t":"TEXT"},{"n":4,"t":"TEXT"},{"n":5,"t":"TEXT"},
+{"n":6,"t":"TEXT"},{"n":7,"t":"TEXT"},{"n":8,"t":"TEXT"},{"n":9,"t":"TEXT"},{"n":10,"t":"TEXT"},
+{"n":11,"t":"TEXT"},{"n":12,"t":"TEXT"},{"n":13,"t":"TEXT"},{"n":14,"t":"TEXT"},{"n":15,"t":"TEXT"}
+]}
+Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly results vs expectations. Turn 6-7 technical chart — support/resistance, RSI, trend. Turn 8-9 promoter holding, FII/DII changes. Turn 10-11 sector position, competitive moat. Turn 12 management quality. Turn 13 key risks. Turn 14 analyst targets and consensus. Turn 15 your honest verdict — buy/hold/watch with reasons.`,
+
+    // 2 — Macro & Economy
+    lang === "hi"
+    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+14 टर्न का macro economy विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
+केवल इस JSON में उत्तर दें:
+{"turns":[
 {"n":1,"t":"TURN_TEXT_HERE"},
 {"n":2,"t":"TURN_TEXT_HERE"},
 {"n":3,"t":"TURN_TEXT_HERE"},
@@ -460,25 +724,24 @@ Reply ONLY with this JSON:
 {"n":11,"t":"TURN_TEXT_HERE"},
 {"n":12,"t":"TURN_TEXT_HERE"},
 {"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"}
+{"n":14,"t":"TURN_TEXT_HERE"}
 ]}
-CONTENT SEQUENCE:
-Turn 1: Company intro with excitement — what they do, market cap, exchange listing.
-Turn 2-3: Business model — revenue streams, key products/services, explained simply in Hinglish.
-Turn 4-5: Recent quarterly results — revenue, PAT, EBITDA margin vs expectations and last year.
-Turn 6-7: Technical chart analysis — current price, 52-week high/low, support/resistance, RSI, trend.
-Turn 8-9: Ownership structure — promoter holding %, FII/DII stake change recent quarter.
-Turn 10-11: Sector position — how it compares to competitors, market share, moat.
-Turn 12: Management quality — recent decisions, guidance, any controversies.
-Turn 13: Key risks — regulatory, debt, competition, macro sensitivity.
-Turn 14: Analyst consensus — price targets from top brokerages, rating (buy/hold/sell).
-Turn 15: RJ Munafa ka verdict — honest buy/hold/watch recommendation with clear reasoning.
-Authentic Hinglish FM energy. Use realistic estimated data.`,
-
-    // 2 — Macro & Economy
-    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
-Generate a 14-turn macro economy brief in Hinglish. Each turn must be 40-55 words.
+भाषा नियम (अनिवार्य):
+- सभी वाक्य शुद्ध हिंदी में लिखें। कोई अंग्रेज़ी वाक्यांश नहीं।
+- केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, GDP, RBI, FII, DII, CPI, WPI, EBITDA, repo rate, MPC
+- गलत: "RBI ne rate cut karke market ko support diya" — सही: "RBI ने ब्याज दर में कटौती कर बाज़ार को समर्थन दिया।"
+विषय क्रम:
+टर्न 1: ऊर्जावान परिचय — आज के macro अर्थव्यवस्था का पूरा चित्र प्रस्तुत।
+टर्न 2-3: RBI की मौद्रिक नीति — repo rate, MPC का रुख, EMI पर प्रभाव।
+टर्न 4-5: भारत की GDP वृद्धि — चालू वर्ष का अनुमान, चीन और अमेरिका से तुलना।
+टर्न 6-7: मुद्रास्फीति की स्थिति — CPI, WPI, खाद्य महंगाई का RBI के निर्णयों पर असर।
+टर्न 8-9: FII प्रवाह — किन क्षेत्रों में विदेशी निवेशक खरीद या बिक्री कर रहे हैं।
+टर्न 10-11: रुपये की कहानी — USD/INR स्तर, RBI हस्तक्षेप, निर्यात-आयात प्रतिस्पर्धा।
+टर्न 12: सरकारी व्यय — पूंजीगत व्यय बनाम राजकोषीय घाटा, बुनियादी ढांचा।
+टर्न 13: वैश्विक जोखिम — अमेरिकी Fed के निर्णय, चीन की मंदी, मध्य पूर्व तनाव, तेल मूल्य।
+टर्न 14: निवेशक निष्कर्ष — कौन से क्षेत्र लाभकारी? कौन से बचें? सरल सुझाव।`
+    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+Generate a 14-turn macro economy brief. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
 {"n":1,"t":"TURN_TEXT_HERE"},
@@ -496,21 +759,57 @@ Reply ONLY with this JSON:
 {"n":13,"t":"TURN_TEXT_HERE"},
 {"n":14,"t":"TURN_TEXT_HERE"}
 ]}
+Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
-Turn 1: Energetic intro — "Dosto, aaj macro ka poora scene samjhaata hoon — simple aur seedha!"
-Turn 2-3: RBI monetary policy — current repo rate, MPC stance (accommodative/neutral/hawkish), what it means for EMIs, markets.
+Turn 1: Energetic intro — big-picture macro overview for today's show.
+Turn 2-3: RBI monetary policy — current repo rate, MPC stance, impact on EMIs and markets.
 Turn 4-5: India GDP growth — current FY estimate, comparison with China, USA, global slowdown fears.
-Turn 6-7: Inflation picture — CPI and WPI latest, food inflation impact on RBI decisions, common man effect.
-Turn 8-9: FII flows this month — sector wise what foreigners are buying and selling, why it matters.
-Turn 10-11: Rupee story — USD/INR current level, RBI intervention, import-export competitiveness.
+Turn 6-7: Inflation picture — latest CPI and WPI data, food inflation, RBI's dilemma.
+Turn 8-9: FII flows — sector-wise foreign buying and selling this month, significance.
+Turn 10-11: Rupee story — USD/INR level, RBI intervention, trade competitiveness impact.
 Turn 12: Government spending — capex vs fiscal deficit, budget targets, infrastructure push.
-Turn 13: Global macro risks — US Fed rate decisions, China slowdown, Middle East geopolitics, oil price.
-Turn 14: Investor takeaway — which sectors win in current macro? Which to avoid? Simple action points.
-Educational, engaging Hinglish. Use realistic current data estimates.`,
+Turn 13: Global macro risks — US Fed decisions, China slowdown, geopolitics, oil price.
+Turn 14: Investor takeaway — winning sectors in current macro, what to avoid, clear action points.
+Educational, engaging broadcast style. Use realistic current data estimates.`,
 
     // 3 — Market Buzz
-    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
-Generate a 15-turn market news buzz in Hinglish. Each turn must be 40-55 words.
+    lang === "hi"
+    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+15 टर्न का बाज़ार समाचार विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
+केवल इस JSON में उत्तर दें:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"}
+]}
+भाषा नियम (अनिवार्य):
+- सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
+- केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, SIP, NAV, FII, DII, SEBI, F&O, IPO, NFO, QIP, NIM, NPA
+- गलत: "aaj market mein bahut action tha" — सही: "आज बाज़ार में काफी हलचल देखी गई।"
+विषय क्रम:
+टर्न 1: ऊर्जावान परिचय — आज की बड़ी बाज़ार खबरें।
+टर्न 2-3: शीर्ष 2-3 कॉर्पोरेट समाचार — विलय, अधिग्रहण, QIP, साझेदारी।
+टर्न 4-5: थोक और ब्लॉक सौदे — किसने क्या खरीदा, किस भाव पर, संस्थागत रुचि का संकेत।
+टर्न 6-7: अंदरूनी व्यापार खुलासे — प्रवर्तक की खरीद या बिक्री, विश्वास का संकेत।
+टर्न 8-9: सर्किट ब्रेकर शेयर — ऊपरी और निचले सर्किट में कौन से शेयर, कारण, अवसर या खतरा?
+टर्न 10-11: F&O बाज़ार गतिविधि — ओपन इंटरेस्ट, मैक्स पेन, पुट-कॉल अनुपात का अर्थ।
+टर्न 12-13: म्यूचुअल फंड क्षेत्र — NFO लॉन्च, SIP डेटा, कौन सी श्रेणियों में सबसे अधिक निवेश।
+टर्न 14: SEBI कोना — नए नियम, परिपत्र, अनुपालन अपडेट।
+टर्न 15: RJ Anurag की सलाह — 2-3 शेयर कल की निगरानी सूची में। अस्वीकरण: अपना शोध करें!`
+    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+Generate a 15-turn market news buzz. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
 {"n":1,"t":"TURN_TEXT_HERE"},
@@ -529,21 +828,65 @@ Reply ONLY with this JSON:
 {"n":14,"t":"TURN_TEXT_HERE"},
 {"n":15,"t":"TURN_TEXT_HERE"}
 ]}
+Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
-Turn 1: High-energy buzz intro — "Dosto, aaj ka market masala le aaya hoon! Bahut kuch hua hai aaj!"
-Turn 2-3: Top 2-3 corporate news stories — mergers, acquisitions, QIP fundraises, partnerships (use realistic Indian companies).
-Turn 4-5: Bulk deals and block deals today — who bought what, at what price, institutional interest signal.
+Turn 1: High-energy buzz intro — today's top market highlights.
+Turn 2-3: Top 2-3 corporate news stories — mergers, acquisitions, QIP fundraises, partnerships (realistic Indian companies).
+Turn 4-5: Bulk deals and block deals — who bought what, at what price, institutional interest signals.
 Turn 6-7: Insider trading disclosures — promoter buying or selling, what it signals about confidence.
 Turn 8-9: Circuit breaker stocks — upper and lower circuit stocks, reasons, opportunity or danger?
-Turn 10-11: F&O market action — open interest buildup, max pain level, put-call ratio, what it signals.
-Turn 12-13: Mutual fund space — NFO launches, SIP data, which categories getting most inflows.
-Turn 14: SEBI corner — any new regulations, circulars, compliance updates affecting investors.
-Turn 15: RJ Munafa ki hot tip — 2-3 stocks to keep on watchlist tomorrow with reasons. Always disclaimer: do your own research!
-Gossipy, energetic Hinglish delivery. Use realistic examples.`,
+Turn 10-11: F&O market action — open interest buildup, max pain, put-call ratio, what it signals.
+Turn 12-13: Mutual fund space — NFO launches, SIP data, categories seeing highest inflows.
+Turn 14: SEBI corner — new regulations, circulars, compliance updates affecting investors.
+Turn 15: RJ Anurag's hot picks — 2-3 stocks to watch tomorrow with reasons. Disclaimer: always do your own research!
+Gossipy, energetic broadcast style. Use realistic examples.`,
 
     // 4 — IPO / NFO Radar
-    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
-Generate a 16-turn IPO and NFO analysis in Hinglish. Each turn must be 40-55 words.
+    lang === "hi"
+    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+16 टर्न का IPO और NFO विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
+केवल इस JSON में उत्तर दें:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"},
+{"n":16,"t":"TURN_TEXT_HERE"}
+]}
+भाषा नियम (अनिवार्य):
+- सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
+- केवल ये अंग्रेज़ी शब्द अनुमत हैं: IPO, NFO, SWOT, GMP, QIB, HNI, NAV, SEBI, FII, EBITDA, PAT
+- गलत: "is IPO mein strong financials hain" — सही: "इस IPO की वित्तीय स्थिति मज़बूत है।"
+विषय क्रम:
+टर्न 1: उत्साहपूर्ण परिचय — आज के IPO/NFO राडार का स्वागत।
+टर्न 2: IPO पाइपलाइन का अवलोकन — इस माह कितने IPO, कुल आकार, बाज़ार भावना।
+टर्न 3: IPO #1 परिचय — कंपनी, क्षेत्र, निर्गम आकार, मूल्य बैंड, सदस्यता तिथियाँ, धनराशि का उपयोग।
+टर्न 4: IPO #1 शक्तियाँ (S) — बाज़ार स्थिति, विकास दर, ब्रांड, वित्तीय स्वास्थ्य।
+टर्न 5: IPO #1 कमज़ोरियाँ (W) — घाटा, उच्च मूल्यांकन, प्रवर्तक गिरवी, एकाग्रता जोखिम।
+टर्न 6: IPO #1 अवसर (O) — बाज़ार विस्तार, क्षेत्र अनुकूलता, सरकारी नीति लाभ।
+टर्न 7: IPO #1 खतरे और निर्णय (T) — प्रतिस्पर्धा, नियामक जोखिम। RJ Anurag का फैसला: आवेदन करें / बचें / सतर्क दाँव।
+टर्न 8: IPO #2 परिचय — अलग क्षेत्र की कंपनी, निर्गम आकार, मुख्य व्यवसाय।
+टर्न 9: IPO #2 शक्तियाँ — वित्तीय संकेतक, प्रतिस्पर्धी लाभ, प्रवर्तक का ट्रैक रिकॉर्ड।
+टर्न 10: IPO #2 कमज़ोरियाँ — मूल्यांकन चिंता, क्षेत्र जोखिम, निर्भरता समस्याएँ।
+टर्न 11: IPO #2 अवसर और खतरे — विकास कारक बनाम जोखिम। निर्णय।
+टर्न 12: NFO कोना — 1-2 म्यूचुअल फंड NFO, थीम (स्मॉलकैप/थीमैटिक/डेट), किसे निवेश करना चाहिए।
+टर्न 13: GMP विश्लेषण — IPO #1 और #2 के बारे में ग्रे मार्केट प्रीमियम, इसकी विश्वसनीयता।
+टर्न 14: सदस्यता विश्लेषण — दिन 1, 2, 3 के आँकड़े पढ़ने का तरीका, QIB/HNI/खुदरा विभाजन।
+टर्न 15: आवंटन रणनीति — लॉट आकार, आवेदन राशि, अधिकतम आवंटन के उपाय।
+टर्न 16: अंतिम सलाह — IPO को पोर्टफोलियो में कैसे जगह दें, लिस्टिंग दिवस की रणनीति।`
+    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+Generate a 16-turn IPO and NFO analysis. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
 {"n":1,"t":"TURN_TEXT_HERE"},
@@ -563,28 +906,70 @@ Reply ONLY with this JSON:
 {"n":15,"t":"TURN_TEXT_HERE"},
 {"n":16,"t":"TURN_TEXT_HERE"}
 ]}
+Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
-Turn 1: Excited intro — "Dosto, IPO season mein aapka swagat hai! Kaun sa IPO aapke liye hai, main batata hoon!"
-Turn 2: Overview of current IPO pipeline — how many IPOs this month, total size, market sentiment.
-Turn 3: IPO #1 introduction — company name, sector, issue size, price band, subscription dates, use of funds.
-Turn 4: IPO #1 STRENGTHS — 2-3 strong points: market position, growth rate, brand, financials.
+Turn 1: Excited intro — IPO season welcome, what's on today's radar.
+Turn 2: Current IPO pipeline overview — how many this month, total deal size, market sentiment.
+Turn 3: IPO #1 introduction — company name, sector, issue size, price band, subscription dates, use of proceeds.
+Turn 4: IPO #1 STRENGTHS — 2-3 strong points: market position, growth rate, brand strength, financials.
 Turn 5: IPO #1 WEAKNESSES — 2-3 concerns: losses, high valuation, promoter pledging, concentration risk.
 Turn 6: IPO #1 OPPORTUNITIES — market expansion, sector tailwind, government policy benefit.
-Turn 7: IPO #1 THREATS and Verdict — competition, regulatory risk, RJ Munafa verdict (Apply/Avoid/Risky Bet) with reason.
-Turn 8: IPO #2 introduction — different sector company, issue size, dates, key business.
+Turn 7: IPO #1 THREATS and Verdict — competition, regulatory risk, RJ Anurag's verdict: Apply / Avoid / Risky Bet.
+Turn 8: IPO #2 introduction — different sector, issue size, subscription dates, key business.
 Turn 9: IPO #2 STRENGTHS — financial metrics, competitive moat, promoter track record.
 Turn 10: IPO #2 WEAKNESSES — valuation concern, sector risk, dependency issues.
-Turn 11: IPO #2 OPPORTUNITIES and THREATS — growth drivers vs risks. Verdict with reasoning.
+Turn 11: IPO #2 OPPORTUNITIES and THREATS — growth drivers vs risks. Final verdict.
 Turn 12: NFO Corner — 1-2 mutual fund NFOs currently open, theme (smallcap/thematic/debt), who should invest.
-Turn 13: Grey Market Premium (GMP) analysis — what GMP is saying about IPO #1 and #2, reliability of GMP data.
-Turn 14: Subscription analysis — how to read Day 1, Day 2, Day 3 subscription numbers, QIB/HNI/retail breakdown meaning.
-Turn 15: Allotment strategy — lot size, application amounts, how to maximise allotment chances.
-Turn 16: Final advice — how to fit IPOs in your portfolio, listing day strategy, long-term vs listing gain approach.
-Honest, analytical Hinglish. No hype. Use realistic fictional companies if needed.`,
+Turn 13: Grey Market Premium (GMP) analysis — what GMP signals for IPO #1 and #2, reliability caveat.
+Turn 14: Subscription analysis — reading Day 1, 2, 3 numbers, QIB/HNI/retail breakdown meaning.
+Turn 15: Allotment strategy — lot size, application amounts, maximising allotment chances.
+Turn 16: Final advice — fitting IPOs in your portfolio, listing day strategy, long-term vs listing gain.
+Honest, analytical broadcast style. No hype. Use realistic fictional companies if needed.`,
 
     // 5 — Results Calendar
-    `You are RJ Munafa on MunaFa Café, an AI Hinglish investor FM show. Today is ${d}.
-Generate a 15-turn results season analysis in Hinglish. Each turn must be 40-55 words.
+    lang === "hi"
+    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+15 टर्न का परिणाम सत्र विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
+केवल इस JSON में उत्तर दें:
+{"turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"},
+{"n":13,"t":"TURN_TEXT_HERE"},
+{"n":14,"t":"TURN_TEXT_HERE"},
+{"n":15,"t":"TURN_TEXT_HERE"}
+]}
+भाषा नियम (अनिवार्य):
+- सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
+- केवल ये अंग्रेज़ी शब्द अनुमत हैं: Q1, Q2, Q3, Q4, PAT, EBITDA, NIM, NPA, EPS, YoY, QoQ, IT, NBFC, FII, RBI
+- गलत: "company ne strong results diye, revenue beat hua" — सही: "कंपनी ने मज़बूत परिणाम घोषित किए, राजस्व अनुमान से बेहतर रहा।"
+विषय क्रम:
+टर्न 1: परिणाम सत्र का उत्साहपूर्ण परिचय — कौन बेहतर करेगा, कौन निराश करेगा?
+टर्न 2: चालू परिणाम सत्र का संदर्भ — कौन सी तिमाही, बाज़ार की अपेक्षाएँ, विश्लेषक EPS वृद्धि अनुमान।
+टर्न 3: कंपनी #1 परिणाम पूर्वावलोकन — नाम, क्षेत्र, अपेक्षित राजस्व, PAT, YoY वृद्धि।
+टर्न 4: कंपनी #1 के प्रमुख संकेतक — मार्जिन, EBITDA, ऑर्डर बुक, प्रबंधन मार्गदर्शन।
+टर्न 5: कंपनी #2 परिणाम पूर्वावलोकन — अलग क्षेत्र, अपेक्षित संख्याएँ, YoY और QoQ तुलना।
+टर्न 6: कंपनी #2 में क्या चौंका सकता है — सकारात्मक या नकारात्मक कारक, हालिया समाचार।
+टर्न 7: कंपनी #3 परिणाम पूर्वावलोकन — बैंकिंग या NBFC क्षेत्र, NIM, NPA, ऋण वृद्धि।
+टर्न 8: कंपनी #3 तुलना — पिछली संगत अवधि से, प्रतिस्पर्धियों से, क्षेत्र के स्वास्थ्य का संकेत।
+टर्न 9: क्षेत्रवार आय प्रवृत्ति — कौन से क्षेत्र अनुमान से बेहतर, कौन पिछड़ रहे, कारण।
+टर्न 10: IT क्षेत्र विशेष — डॉलर राजस्व, सौदे, कर्मचारी संख्या, वीज़ा प्रभाव, मार्गदर्शन।
+टर्न 11: बैंकिंग क्षेत्र परिणाम — NPA वसूली, ऋण वृद्धि, RBI दिशा-निर्देशों का प्रभाव।
+टर्न 12: शेयर मूल्य प्रतिक्रिया रणनीति — परिणाम से पहले या बाद में खरीदें? जोखिम-लाभ विश्लेषण।
+टर्न 13: प्रबंधन टिप्पणी का अर्थ — "सतर्क आशावाद", "अपेक्षाओं के अनुरूप", "चुनौतीपूर्ण माहौल" का वास्तविक अर्थ।
+टर्न 14: आय आश्चर्य का इतिहास — जो कंपनियाँ लगातार बेहतर या बदतर प्रदर्शन करती हैं, क्यों मायने रखता है।
+टर्न 15: परिणाम सत्र निवेश रणनीति — पोर्टफोलियो कैसे तैयार करें, किन परिणामों पर कार्य करें, जोखिम प्रबंधन।`
+    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+Generate a 15-turn results season analysis. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
 {"n":1,"t":"TURN_TEXT_HERE"},
@@ -603,23 +988,94 @@ Reply ONLY with this JSON:
 {"n":14,"t":"TURN_TEXT_HERE"},
 {"n":15,"t":"TURN_TEXT_HERE"}
 ]}
+Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
-Turn 1: Results season intro — "Dosto, result season aa gaya! Kaun deliver karega, kaun disappoint? Chalte hain!"
-Turn 2: Current results season context — which quarter (Q2/Q3/Q4), broad market expectations, analyst consensus EPS growth estimate.
-Turn 3: Company #1 result preview — name, sector, expected revenue, expected PAT, YoY growth estimate vs last corresponding quarter.
-Turn 4: Company #1 key metrics to track — margins, EBITDA, order book, management guidance, any specific triggers.
+Turn 1: Results season intro — energetic welcome, who will deliver and who will disappoint?
+Turn 2: Current results season context — which quarter (Q2/Q3/Q4), broad market expectations, analyst EPS growth consensus.
+Turn 3: Company #1 result preview — name, sector, expected revenue, expected PAT, YoY growth vs last corresponding quarter.
+Turn 4: Company #1 key metrics — margins, EBITDA, order book, management guidance, specific triggers to watch.
 Turn 5: Company #2 result preview — different sector, expected numbers, YoY and QoQ comparison, analyst expectations.
-Turn 6: Company #2 what could surprise — positive or negative triggers, recent news that could impact.
-Turn 7: Company #3 result preview — banking or NBFC sector preferred, key ratios: NIM, NPA, credit growth.
+Turn 6: Company #2 potential surprises — positive or negative triggers, recent developments that could impact.
+Turn 7: Company #3 result preview — banking or NBFC preferred, key ratios: NIM, NPA, credit growth.
 Turn 8: Company #3 comparison — vs last corresponding period, vs peers, sector health signal.
 Turn 9: Sector-wide earnings trend — which sectors beating estimates this season, which missing, why.
-Turn 10: IT sector results special — revenue in USD, deal wins, headcount, visa issues impact, guidance.
+Turn 10: IT sector results special — USD revenue, deal wins, headcount, visa impact, management guidance.
 Turn 11: Banking sector results — NPA recovery, credit growth, RBI guidelines effect on profitability.
-Turn 12: Stock price reaction strategy — should you buy before or after results? Risk-reward analysis.
-Turn 13: Management commentary decoder — what phrases like "cautious optimism," "in-line with expectations," "challenging environment" really mean.
+Turn 12: Stock price reaction strategy — buy before or after results? Risk-reward analysis.
+Turn 13: Management commentary decoder — what "cautious optimism," "in-line with expectations," "challenging environment" really means.
 Turn 14: Earnings surprise history — companies that consistently beat or miss, why it matters for investors.
-Turn 15: Results season investment strategy — how to position portfolio, which results to act on, risk management tips.
-Educational, analytical Hinglish. Use realistic company names and estimated numbers.`
+Turn 15: Results season investment strategy — portfolio positioning, which results to act on, risk management tips.
+Educational, analytical broadcast style. Use realistic company names and estimated numbers.`,
+
+    // 6 — Learn Today (FREE, random topic each time)
+    lang === "hi"
+    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+आज का विषय: शेयर बाज़ार से संबंधित कोई एक महत्वपूर्ण अवधारणा — जैसे कि एक नई शब्दावली, ट्रेडिंग तकनीक, निवेश रणनीति, या बाज़ार का कोई नियम।
+विषय स्वयं यादृच्छिक रूप से चुनें — हर बार नया और रोचक। उदाहरण: P/E अनुपात, ऑप्शन ग्रीक्स, डेट-टू-इक्विटी, स्टॉप लॉस, कैंडलस्टिक पैटर्न, SEBI नियम, म्यूचुअल फंड NAV, FII/DII प्रवाह, Circuit Breaker, T+1 सेटलमेंट, Futures rollover आदि।
+
+12 टर्न का शैक्षिक पाठ तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
+केवल इस JSON में उत्तर दें:
+{"topic":"TOPIC_NAME_HERE","turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"}
+]}
+भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल प्रचलित वित्तीय अंग्रेज़ी शब्द जैसे Nifty, SEBI, NAV, P/E, EBITDA, RSI, SIP, F&O आदि अनुमत।
+पाठ क्रम:
+टर्न 1: विषय की रोचक भूमिका — "आज हम सीखेंगे…" — श्रोताओं को उत्साहित करें।
+टर्न 2: सरल परिभाषा — बिल्कुल आसान भाषा में, जैसे किसी नए निवेशक को समझाना हो।
+टर्न 3: वास्तविक जीवन का उदाहरण — भारतीय बाज़ार से।
+टर्न 4: यह क्यों महत्वपूर्ण है — निवेशक के नज़रिए से।
+टर्न 5: यह कैसे काम करता है — थोड़ा गहरा विवरण।
+टर्न 6: सामान्य गलतियाँ — नए निवेशक क्या गलतियाँ करते हैं।
+टर्न 7: विशेषज्ञ इसे कैसे उपयोग करते हैं — पेशेवर दृष्टिकोण।
+टर्न 8: संबंधित अवधारणाएँ — इससे जुड़े 2-3 अन्य शब्द या विचार।
+टर्न 9: भारतीय बाज़ार में इसकी प्रासंगिकता — NSE/BSE/SEBI संदर्भ।
+टर्न 10: व्यावहारिक सुझाव — इसे अपने पोर्टफोलियो में कैसे लागू करें।
+टर्न 11: एक त्वरित प्रश्नोत्तरी — श्रोताओं से एक प्रश्न और उसका उत्तर।
+टर्न 12: आज का सारांश और कल की झलक — "आज हमने सीखा…"`
+    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+Pick ONE interesting stock market topic to teach today — randomly chosen, fresh each time. Examples: P/E ratio, Options Greeks, Debt-to-Equity, Stop Loss mechanics, Candlestick patterns, SEBI regulations, Mutual Fund NAV, FII/DII flows, Circuit Breakers, T+1 settlement, Futures rollover, Bid-Ask spread, Short Selling, Dividend Yield, Book Value vs Market Value, ROCE vs ROE, etc.
+
+Generate a 12-turn educational lesson. Each turn must be 40-55 words.
+Reply ONLY with this JSON:
+{"topic":"TOPIC_NAME_HERE","turns":[
+{"n":1,"t":"TURN_TEXT_HERE"},
+{"n":2,"t":"TURN_TEXT_HERE"},
+{"n":3,"t":"TURN_TEXT_HERE"},
+{"n":4,"t":"TURN_TEXT_HERE"},
+{"n":5,"t":"TURN_TEXT_HERE"},
+{"n":6,"t":"TURN_TEXT_HERE"},
+{"n":7,"t":"TURN_TEXT_HERE"},
+{"n":8,"t":"TURN_TEXT_HERE"},
+{"n":9,"t":"TURN_TEXT_HERE"},
+{"n":10,"t":"TURN_TEXT_HERE"},
+{"n":11,"t":"TURN_TEXT_HERE"},
+{"n":12,"t":"TURN_TEXT_HERE"}
+]}
+Language rule: Pure English only. No Hindi words.
+LESSON SEQUENCE:
+Turn 1: Exciting topic intro — "Today we're learning about…" — hook the listener.
+Turn 2: Simple definition — as if explaining to a brand-new investor.
+Turn 3: Real-world Indian market example — NSE/BSE context.
+Turn 4: Why it matters — from an investor's perspective, what changes when you know this.
+Turn 5: How it works — slightly deeper, with a simple formula or mechanism.
+Turn 6: Common mistakes — what beginners get wrong about this concept.
+Turn 7: How experts use it — professional investor perspective.
+Turn 8: Related concepts — 2-3 connected terms worth knowing.
+Turn 9: Indian market relevance — how SEBI, NSE, BSE, or Indian companies make this unique.
+Turn 10: Practical tip — how to apply this in your own portfolio right now.
+Turn 11: Quick quiz — one question for the listener with the answer revealed.
+Turn 12: Today's summary and tomorrow's teaser — "Today we learned… tomorrow we'll explore…"`
   ];
 
   return prompts[mi];
@@ -657,7 +1113,7 @@ async function callApi(prompt) {
 // GENERATE MODULE
 // ────────────────────────────────────────────────────────
 async function generate(mi) {
-  if (!isPremium && mi > 0) { showGate(); return; }
+  if (!isPremium && mi > 0 && mi < 6) { showGate(); return; }
 
   const gb   = document.getElementById("gen-" + mi);
   const out  = document.getElementById("out-" + mi);
@@ -674,19 +1130,26 @@ async function generate(mi) {
   try {
     const { text, badge, cls } = await callApi(getPrompt(mi));
 
-    // Parse JSON from response
+    // Parse JSON — strip markdown fences first, then extract JSON object
     let parsed;
     try {
-      const m = text.match(/\{[\s\S]*\}/);
-      if (!m) throw new Error("No JSON");
-      parsed = JSON.parse(m[0]);
+      let clean = text
+        .replace(/^```json\s*/i, "").replace(/^```\s*/i, "")  // leading fence
+        .replace(/```\s*$/i, "")                               // trailing fence
+        .trim();
+      // Find the outermost { ... } reliably
+      const start = clean.indexOf("{");
+      const end   = clean.lastIndexOf("}");
+      if (start === -1 || end === -1) throw new Error("No JSON object found");
+      clean = clean.slice(start, end + 1);
+      parsed = JSON.parse(clean);
     } catch(e) {
-      // Fallback: display raw text
-      scr.innerHTML = "<div class='turn'><div class='turn-text'>" + text + "</div></div>";
+      // Fallback: display raw text in readable form
+      scr.innerHTML = "<div class='turn'><div class='turn-text' style='white-space:pre-wrap'>" + text + "</div></div>";
       bdg.className = "api-badge " + cls;
-      bdg.textContent = badge;
+      bdg.textContent = badge + " · parse error";
       out.classList.add("visible");
-      setupAudio(mi, [{ n:1, t: text }]);
+      setupAudio(mi, [{ n:1, t: text, s:"A" }]);
       return;
     }
 
@@ -694,6 +1157,11 @@ async function generate(mi) {
 
     if (parsed.company) {
       scr.innerHTML = "<div style='font-size:11px;color:var(--accent);margin-bottom:10px;font-weight:700'>🏢 " + parsed.company + "</div>";
+    } else if (parsed.topic) {
+      scr.innerHTML = "<div style='font-size:13px;color:var(--accent2);margin-bottom:12px;font-weight:700;padding:8px 12px;background:rgba(0,188,212,.08);border-radius:8px;border:1px solid rgba(0,188,212,.2)'>🎓 आज का विषय / Today's Topic: " + parsed.topic + "</div>";
+      // Also update the card subtitle with topic
+      const ld = document.getElementById("learn-desc");
+      if (ld) ld.textContent = "Today: " + parsed.topic;
     } else {
       scr.innerHTML = "";
     }
@@ -770,7 +1238,8 @@ function setupAudio(mi, turns) {
       for (const t of turns) {
         if (stopMe) break;
         await speakTurn(t.t || "", t.s || "A");
-        await delay(300);
+        // Natural broadcast pause — longer after Anurag's anchor turns, shorter after Deepa
+        await delay(t.s === "D" ? 280 : 420);
       }
     } catch(e) { console.warn("Audio error:", e.message); }
 
@@ -785,52 +1254,71 @@ function setupAudio(mi, turns) {
 // ────────────────────────────────────────────────────────
 // TTS — ElevenLabs with browser fallback
 // ────────────────────────────────────────────────────────
-// XI_VOICE_IDs — cloned voices from ElevenLabs
+// ── Cloned ElevenLabs voice IDs ──────────────────────────
 const XI_VOICE_ANURAG = "g0k4YO6pc9QkUXdyUT52"; // Anurag (cloned)
-const XI_VOICE_DEEPA  = "Y8AULI9gwzMzFX41r7IP"; // Deepa (cloned)
+const XI_VOICE_DEEPA  = "Y8AULI9gwzMzFX41r7IP"; // Deepa  (cloned)
+
+// Voice settings tuned for broadcast FM quality
+// Anurag: measured, authoritative anchor voice
+// Deepa:  warm, slightly brighter co-host
+const XI_SETTINGS = {
+  A: { stability: 0.48, similarity_boost: 0.82, style: 0.22, use_speaker_boost: true },
+  D: { stability: 0.52, similarity_boost: 0.82, style: 0.38, use_speaker_boost: true }
+};
 
 async function speakTurn(text, speaker) {
-  if (!XI_KEY || XI_KEY === "YOUR_ELEVENLABS_API_KEY") {
-    return browserSpeak(text, speaker);
-  }
-
-  const voiceId   = (speaker === "D") ? XI_VOICE_DEEPA : XI_VOICE_ANURAG;
-  const cacheKey  = (speaker || "X") + "_" + text.slice(0, 55);
+  const sp       = (speaker === "D") ? "D" : "A";
+  const voiceId  = (sp === "D") ? XI_VOICE_DEEPA : XI_VOICE_ANURAG;
+  const cacheKey = sp + "_" + text.slice(0, 60);
   if (audioCache[cacheKey]) { await playBuffer(audioCache[cacheKey]); return; }
 
   try {
-    const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + voiceId, {
+    // Calls /api/tts — a Vercel serverless function that holds the ElevenLabs key
+    // Key never touches the browser. See api/tts.js in your repo.
+    const r = await fetch("/api/tts", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "xi-api-key": XI_KEY },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        text: "… " + text,
-        model_id: "eleven_multilingual_v2",
-        voice_settings: {
-          stability:        speaker === "D" ? 0.55 : 0.50,
-          similarity_boost: 0.80,
-          style:            speaker === "D" ? 0.35 : 0.25
-        }
+        text:           text,
+        voice_id:       voiceId,
+        model_id:       "eleven_multilingual_v2",
+        voice_settings: XI_SETTINGS[sp]
       })
     });
-    if (!r.ok) throw new Error("ElevenLabs " + r.status);
+    if (!r.ok) throw new Error("TTS proxy " + r.status);
     const buf = await r.arrayBuffer();
     audioCache[cacheKey] = buf;
     await playBuffer(buf);
   } catch(e) {
-    console.warn("ElevenLabs fallback:", e.message);
-    await browserSpeak(text, speaker);
+    console.warn("TTS proxy failed, using browser speech:", e.message);
+    await browserSpeak(text, sp);
   }
 }
 
 function browserSpeak(text, speaker) {
-  // speaker: "A" = Anurag (lower, measured), "D" = Deepa (slightly higher, warm)
+  // Fallback when /api/tts unreachable (local dev without Vercel, or quota exceeded)
+  // Anurag: slow, deep (rate 0.84, pitch 0.92)
+  // Deepa:  slightly faster, brighter (rate 0.90, pitch 1.15)
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
-    const u = new SpeechSynthesisUtterance("… " + text);
-    u.lang = lang === "hi" ? "hi-IN" : "en-IN";
-    u.rate   = speaker === "D" ? 0.92 : 0.85;
-    u.pitch  = speaker === "D" ? 1.18 : 0.95;
-    u.volume = 1;
+    speechSynthesis.cancel(); // clear any queued utterances
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang   = lang === "hi" ? "hi-IN" : "en-IN";
+    u.rate   = speaker === "D" ? 0.90 : 0.84;
+    u.pitch  = speaker === "D" ? 1.15 : 0.92;
+    u.volume = 1.0;
+    // Try to pick a matching voice from the device
+    const voices = speechSynthesis.getVoices();
+    const hiVoices = voices.filter(v => v.lang.startsWith(lang === "hi" ? "hi" : "en"));
+    if (hiVoices.length > 0) {
+      // Prefer female voice for Deepa, male for Anurag if available
+      const gendered = hiVoices.filter(v =>
+        speaker === "D"
+          ? v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("woman") || v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("heera") || v.name.toLowerCase().includes("ravi") === false
+          : v.name.toLowerCase().includes("male") || v.name.toLowerCase().includes("man") || v.name.toLowerCase().includes("ravi") || v.name.toLowerCase().includes("david")
+      );
+      u.voice = gendered[0] || hiVoices[0];
+    }
     u.onend = resolve; u.onerror = resolve;
     speechSynthesis.speak(u);
   });
@@ -978,6 +1466,9 @@ async function startPayment() {
       order_id:    order.order_id,
       handler: async function(response) {
         // Step 3: Verify payment signature on server
+        // Grab the phone the user typed in Razorpay's prefill if available
+        const payPhone = (document.querySelector(".razorpay-backdrop input[type=tel]") || {}).value
+                         || localStorage.getItem("munafa_pending_phone") || "";
         const vr = await fetch("/api/verify-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -985,27 +1476,125 @@ async function startPayment() {
             razorpay_order_id:   response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature:  response.razorpay_signature,
-            plan:                selectedPlan
+            plan:                selectedPlan,
+            phone:               payPhone
           })
         });
         const vd = await vr.json();
         if (vd.success) {
+          // Save phone to localStorage for auto-login on return visits
+          if (vd.phone) {
+            localStorage.setItem("munafa_phone", vd.phone);
+            localStorage.removeItem("munafa_pending_phone");
+          }
           unlockPremium();
-          alert("🎉 Premium unlock ho gaya! Ab saare 6 modules available hain — enjoy MunaFa Café!");
+          alert("🎉 Premium unlocked! All 6 modules are now available — enjoy MunaFa Café!");
         } else {
           alert("Payment verification failed. Please contact support@munaapha.co.in\nPayment ID: " + response.razorpay_payment_id);
         }
       },
       prefill: { name: "", email: "", contact: "" },
+      // Store any phone the user types so we can save it after success
+
       theme:   { color: "#f0a500" },
       modal:   { ondismiss: () => console.log("Razorpay modal closed") }
     };
 
+    // Capture phone from payment form after payment success
     const rzp = new Razorpay(options);
+
+    // Intercept handler to also save phone for auto-login
+    const origHandler = options.handler;
+    rzp.on("payment.success", function(resp) {
+      // phone captured via rzp internal — we rely on verify-payment returning it
+    });
+
     rzp.open();
 
   } catch(e) {
     alert("Payment error: " + e.message);
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// GATE TAB SWITCHER
+// ────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ["login","subscribe"].forEach(t => {
+    document.getElementById("tab-" + t).classList.toggle("active", t === tab);
+    document.getElementById("panel-" + t).classList.toggle("active", t === tab);
+  });
+}
+
+// ────────────────────────────────────────────────────────
+// PHONE LOGIN — check subscriber via /api/check-sub
+// ────────────────────────────────────────────────────────
+async function loginWithPhone() {
+  const phone = (document.getElementById("login-phone").value || "").trim();
+  const msg   = document.getElementById("login-msg");
+  const btn   = document.getElementById("login-btn");
+
+  if (!/^\d{10}$/.test(phone)) {
+    msg.className = "login-msg err";
+    msg.textContent = "⚠ Please enter a valid 10-digit mobile number.";
+    return;
+  }
+
+  msg.className = "login-msg";
+  msg.textContent = "⏳ Verifying…";
+  btn.disabled = true;
+
+  try {
+    const r  = await fetch("/api/check-sub", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ phone })
+    });
+    const d  = await r.json();
+
+    if (d.active) {
+      localStorage.setItem("munafa_phone", phone);
+      msg.className = "login-msg ok";
+      msg.textContent = "✅ Welcome back! Subscription active till " + (d.expiry_label || "—");
+      setTimeout(() => { unlockPremium(); }, 800);
+    } else if (d.found) {
+      msg.className = "login-msg err";
+      msg.textContent = "⚠ Subscription expired. Please renew below.";
+      setTimeout(() => switchTab("subscribe"), 1200);
+    } else {
+      msg.className = "login-msg err";
+      msg.textContent = "❌ No subscription found for this number. Please subscribe.";
+      setTimeout(() => switchTab("subscribe"), 1200);
+    }
+  } catch(e) {
+    msg.className = "login-msg err";
+    msg.textContent = "❌ Network error. Please try again.";
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// AUTO-LOGIN on page load — restore from localStorage
+// ────────────────────────────────────────────────────────
+async function autoLogin() {
+  const phone = localStorage.getItem("munafa_phone");
+  if (!phone) return;  // no saved phone → show gate normally
+
+  try {
+    const r = await fetch("/api/check-sub", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ phone })
+    });
+    const d = await r.json();
+    if (d.active) {
+      unlockPremium();   // silent auto-login — no alert, no gate shown
+    } else {
+      localStorage.removeItem("munafa_phone");  // expired → clear, show gate
+    }
+  } catch(e) {
+    // Network error on auto-login → silently skip (gate will show)
   }
 }
 
@@ -1017,7 +1606,7 @@ function unlockPremium() {
   document.getElementById("sub-gate").style.display = "none";
   document.getElementById("status-badge").className = "badge badge-premium";
   document.getElementById("status-badge").textContent = "PREMIUM";
-  document.getElementById("status-text").textContent = "Saare 6 modules unlocked! Enjoy MunaFa Café ☕";
+  document.getElementById("status-text").textContent = "All 7 modules unlocked! Enjoy MunaFa Café ☕";
 
   for (let mi = 1; mi <= 5; mi++) {
     document.getElementById("card-" + mi).classList.remove("locked");
@@ -1046,11 +1635,11 @@ function setLang(l) {
   document.getElementById("btn-en").classList.toggle("active", l === "en");
   document.getElementById("gate-tagline").textContent = UI[l].gateTagline;
 
-  for (let mi = 0; mi <= 5; mi++) {
+  for (let mi = 0; mi <= 6; mi++) {
     const gb = document.getElementById("gen-" + mi);
     if (gb && !gb.disabled) {
-      const locked = !isPremium && mi > 0;
-      gb.textContent = locked ? "🔒 " + UI[l].genBtn[mi] : "📻 " + UI[l].genBtn[mi];
+      const locked = !isPremium && mi > 0 && mi < 6;
+      gb.textContent = locked ? "🔒 " + UI[l].genBtn[mi] : (mi === 6 ? UI[l].genBtn[mi] : "📻 " + UI[l].genBtn[mi]);
     }
   }
 }
@@ -1059,6 +1648,13 @@ function setLang(l) {
 // UTILS
 // ────────────────────────────────────────────────────────
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ────────────────────────────────────────────────────────
+// PAGE INIT — attempt silent auto-login from saved phone
+// ────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+  autoLogin();
+});
 </script>
 </body>
 </html>
