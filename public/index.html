@@ -106,6 +106,11 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 
 footer{text-align:center;padding:30px 20px;color:var(--sub);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
 footer a{color:var(--accent);text-decoration:none}
+/* WhatsApp floating button */
+.wa-fab{position:fixed;bottom:24px;right:24px;z-index:150;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.wa-fab-btn{background:#25d366;color:#fff;border:none;border-radius:50px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(37,211,102,.4);display:flex;align-items:center;gap:8px;transition:all .2s;white-space:nowrap}
+.wa-fab-btn:hover{background:#1ebe57;transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,211,102,.5)}
+.wa-fab-label{background:rgba(0,0,0,.75);color:#fff;font-size:11px;padding:4px 10px;border-radius:8px;pointer-events:none}
 
 /* ── Live Markets ── */
 .markets-section{margin-bottom:24px}
@@ -504,6 +509,15 @@ footer a{color:var(--accent);text-decoration:none}
   <p style="margin-top:6px">Powered by Claude · Gemini · GPT · ElevenLabs</p>
 </footer>
 
+<!-- WhatsApp Mutual Fund floating button -->
+<div class="wa-fab" id="wa-fab">
+  <div class="wa-fab-label" id="wa-label">💼 म्यूचुअल फंड सलाह</div>
+  <button class="wa-fab-btn" onclick="openWA()" title="WhatsApp — Mutual Fund Query">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.553 4.112 1.522 5.84L0 24l6.335-1.505A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.028-1.38l-.36-.214-3.729.885.927-3.64-.235-.374A9.818 9.818 0 1112 21.818z"/></svg>
+    WhatsApp
+  </button>
+</div>
+
 <!-- Razorpay SDK -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -596,6 +610,8 @@ function getPrompt(mi) {
     lang === "hi"
     ? `आप MunaFa Café FM के दो RJ हैं — Anurag (पुरुष, बाज़ार विशेषज्ञ) और Deepa (महिला, जो सरल और तीखे सवाल पूछती हैं)। आज की तारीख है ${d}।
 
+महत्वपूर्ण: शो में RJ का नाम केवल "Anurag" है — "RJ Anurag" नहीं। स्वयं-परिचय में भी केवल "Anurag" कहें।
+
 भाषा नियम — यह बहुत ज़रूरी है:
 - वाक्य संरचना और सभी शब्द शुद्ध हिंदी में लिखें।
 - केवल वे अंग्रेज़ी शब्द रखें जिनका हिंदी में कोई प्रचलित विकल्प नहीं है: Nifty, Sensex, Bank Nifty, SIP, NAV, FII, DII, EBITDA, GDP, IPO, NFO, RSI।
@@ -625,10 +641,10 @@ function getPrompt(mi) {
 "s": "A" = Anurag, "D" = Deepa।
 
 संवाद क्रम:
-Turn 1 (A): शो का परिचय — "नमस्कार श्रोताओं! मैं हूँ Anurag, और साथ में हैं Deepa जी — आपका स्वागत है MunaFa Café में, आपके सुबह के बाज़ार साथी!"
-Turn 2 (D): "Anurag जी, आज रात विश्व बाज़ारों का क्या हाल रहा? क्या भारतीय बाज़ार के लिए कोई चिंता की बात है?"
-Turn 3 (A): Dow Jones, Nasdaq, Nikkei, SGX Nifty के यथार्थवादी अनुमानित स्तर — भारत पर उनका असर, शुद्ध हिंदी में।
-Turn 4 (D): "तो आज Nifty किस दिशा में जाएगा? समर्थन और प्रतिरोध के स्तर क्या हैं?"
+Turn 1 (A): शो का परिचय — "नमस्कार श्रोताओं! मैं हूँ Anurag, और साथ में हैं Deepa — आपका स्वागत है MunaFa Café में, आपके सुबह के बाज़ार साथी!"
+Turn 2 (D): "Anurag, आज के बाज़ार पर नज़र डालने से पहले — कल की महत्वपूर्ण घटनाओं और चालों को याद दिलाइए। कल बाज़ार में क्या हुआ था?"
+Turn 3 (A): कल की प्रमुख घटनाएँ — Nifty और Sensex का कल का बंद स्तर, कल के बड़े चढ़ने-गिरने वाले शेयर, FII/DII की कल की गतिविधि।
+Turn 4 (D): "तो कल की इन घटनाओं के आधार पर — आज Nifty किस दिशा में जाएगा? समर्थन और प्रतिरोध के स्तर क्या हैं?"
 Turn 5 (A): Nifty 50 और Sensex का तकनीकी विश्लेषण — यथार्थवादी अनुमानित स्तर, रुझान, आज क्या देखें।
 Turn 6 (D): "Bank Nifty और अलग-अलग क्षेत्रों की क्या स्थिति है? कौन से क्षेत्र आज मज़बूत दिख रहे हैं?"
 Turn 7 (A): Bank Nifty विश्लेषण, क्षेत्र परिवर्तन — आज कौन से क्षेत्र अनुकूल हैं और क्यों।
@@ -663,10 +679,10 @@ Reply ONLY with this JSON, no extra text:
 ]}
 "s": "A" = Anurag speaking, "D" = Deepa speaking.
 DIALOGUE SEQUENCE:
-Turn 1 (A): Show intro — "Good morning investors! I'm Anurag, joined by the wonderful Deepa — welcome to MunaFa Café, your morning market companion!"
-Turn 2 (D): Deepa asks — "Anurag, how are global markets looking today? Should our listeners be worried?"
-Turn 3 (A): Anurag answers — Dow Jones, Nasdaq, Nikkei, SGX Nifty estimated levels, what they signal for India.
-Turn 4 (D): Deepa — "So where is Nifty headed today? What should investors do right now?"
+Turn 1 (A): Show intro — "Good morning investors! I'm Anurag, joined by Deepa — welcome to MunaFa Café, your morning market companion!"
+Turn 2 (D): Deepa asks — "Anurag, before we look ahead — let's recap yesterday's significant moves. What happened in the market yesterday?"
+Turn 3 (A): Anurag recaps yesterday — Nifty and Sensex closing levels yesterday, top gainers and losers, key event or trigger that moved the market.
+Turn 4 (D): Deepa — "Based on yesterday's action and overnight global cues — where is Nifty headed today? Key support and resistance levels?"
 Turn 5 (A): Anurag — Nifty 50 support/resistance, Sensex trend, technical outlook for the session.
 Turn 6 (D): Deepa — "What about Bank Nifty and sectors — which areas look strong today?"
 Turn 7 (A): Anurag — Bank Nifty analysis, sector rotation, today's favourable sectors with reasons.
@@ -682,7 +698,7 @@ Use realistic estimated market data. Natural, warm FM energy throughout.`,
 
     // 1 — Company Spotlight
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख है ${d}।
+    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" नहीं। आज की तारीख है ${d}।
 Nifty 50 या Nifty Next 50 की एक प्रमुख, चर्चित कंपनी चुनें और उसका विस्तृत विश्लेषण करें।
 भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, EBITDA, FII, DII, PAT, EPS, RSI, IPO, Q2, Q3।
 गलत: "company ka revenue strong hai, growth trajectory positive hai" — यह बिल्कुल नहीं।
@@ -807,7 +823,7 @@ Educational, engaging broadcast style. Use realistic current data estimates.`,
 टर्न 10-11: F&O बाज़ार गतिविधि — ओपन इंटरेस्ट, मैक्स पेन, पुट-कॉल अनुपात का अर्थ।
 टर्न 12-13: म्यूचुअल फंड क्षेत्र — NFO लॉन्च, SIP डेटा, कौन सी श्रेणियों में सबसे अधिक निवेश।
 टर्न 14: SEBI कोना — नए नियम, परिपत्र, अनुपालन अपडेट।
-टर्न 15: RJ Anurag की सलाह — 2-3 शेयर कल की निगरानी सूची में। अस्वीकरण: अपना शोध करें!`
+टर्न 15: Anurag की सलाह — 2-3 शेयर कल की निगरानी सूची में। अस्वीकरण: अपना शोध करें!`
     : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
 Generate a 15-turn market news buzz. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
@@ -838,7 +854,7 @@ Turn 8-9: Circuit breaker stocks — upper and lower circuit stocks, reasons, op
 Turn 10-11: F&O market action — open interest buildup, max pain, put-call ratio, what it signals.
 Turn 12-13: Mutual fund space — NFO launches, SIP data, categories seeing highest inflows.
 Turn 14: SEBI corner — new regulations, circulars, compliance updates affecting investors.
-Turn 15: RJ Anurag's hot picks — 2-3 stocks to watch tomorrow with reasons. Disclaimer: always do your own research!
+Turn 15: Anurag's hot picks — 2-3 stocks to watch tomorrow with reasons. Disclaimer: always do your own research!
 Gossipy, energetic broadcast style. Use realistic examples.`,
 
     // 4 — IPO / NFO Radar
@@ -875,7 +891,7 @@ Gossipy, energetic broadcast style. Use realistic examples.`,
 टर्न 4: IPO #1 शक्तियाँ (S) — बाज़ार स्थिति, विकास दर, ब्रांड, वित्तीय स्वास्थ्य।
 टर्न 5: IPO #1 कमज़ोरियाँ (W) — घाटा, उच्च मूल्यांकन, प्रवर्तक गिरवी, एकाग्रता जोखिम।
 टर्न 6: IPO #1 अवसर (O) — बाज़ार विस्तार, क्षेत्र अनुकूलता, सरकारी नीति लाभ।
-टर्न 7: IPO #1 खतरे और निर्णय (T) — प्रतिस्पर्धा, नियामक जोखिम। RJ Anurag का फैसला: आवेदन करें / बचें / सतर्क दाँव।
+टर्न 7: IPO #1 खतरे और निर्णय (T) — प्रतिस्पर्धा, नियामक जोखिम। Anurag का फैसला: आवेदन करें / बचें / सतर्क दाँव।
 टर्न 8: IPO #2 परिचय — अलग क्षेत्र की कंपनी, निर्गम आकार, मुख्य व्यवसाय।
 टर्न 9: IPO #2 शक्तियाँ — वित्तीय संकेतक, प्रतिस्पर्धी लाभ, प्रवर्तक का ट्रैक रिकॉर्ड।
 टर्न 10: IPO #2 कमज़ोरियाँ — मूल्यांकन चिंता, क्षेत्र जोखिम, निर्भरता समस्याएँ।
@@ -914,7 +930,7 @@ Turn 3: IPO #1 introduction — company name, sector, issue size, price band, su
 Turn 4: IPO #1 STRENGTHS — 2-3 strong points: market position, growth rate, brand strength, financials.
 Turn 5: IPO #1 WEAKNESSES — 2-3 concerns: losses, high valuation, promoter pledging, concentration risk.
 Turn 6: IPO #1 OPPORTUNITIES — market expansion, sector tailwind, government policy benefit.
-Turn 7: IPO #1 THREATS and Verdict — competition, regulatory risk, RJ Anurag's verdict: Apply / Avoid / Risky Bet.
+Turn 7: IPO #1 THREATS and Verdict — competition, regulatory risk, Anurag's verdict: Apply / Avoid / Risky Bet.
 Turn 8: IPO #2 introduction — different sector, issue size, subscription dates, key business.
 Turn 9: IPO #2 STRENGTHS — financial metrics, competitive moat, promoter track record.
 Turn 10: IPO #2 WEAKNESSES — valuation concern, sector risk, dependency issues.
@@ -1140,10 +1156,15 @@ async function generate(mi) {
       let clean = text.slice(start, end + 1);
 
       // Step 2: Repair common AI JSON mistakes
-      // Replace literal newlines inside string values with \\n
-      clean = clean.replace(/:\s*"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
-        const fixed = inner.replace(/\n/g, "\\n").replace(/\r/g, "");
-        return ': "' + fixed + '"';
+      // Fix literal newlines and control characters inside JSON string values
+      // This handles Hindi text, long scripts, and any unescaped newlines
+      clean = clean.replace(/"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
+        const fixed = inner
+          .replace(/\r\n/g, "\\n")  // Windows line endings
+          .replace(/\r/g, "\\n")    // old Mac line endings
+          .replace(/\n/g, "\\n")    // Unix line endings
+          .replace(/\t/g, "\\t");   // tabs
+        return '"' + fixed + '"';
       });
 
       parsed = JSON.parse(clean);
@@ -1240,6 +1261,8 @@ function setupAudio(mi, turns) {
 
     try {
       await playJingle();
+      // Brief AudioContext warm-up pause to prevent first-word clipping
+      await delay(300);
       for (const t of turns) {
         if (stopMe) break;
         await speakTurn(t.t || "", t.s || "A");
@@ -1639,6 +1662,7 @@ function setLang(l) {
   document.getElementById("btn-hi").classList.toggle("active", l === "hi");
   document.getElementById("btn-en").classList.toggle("active", l === "en");
   document.getElementById("gate-tagline").textContent = UI[l].gateTagline;
+  updateWALabel();
 
   for (let mi = 0; mi <= 6; mi++) {
     const gb = document.getElementById("gen-" + mi);
@@ -1655,10 +1679,26 @@ function setLang(l) {
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ────────────────────────────────────────────────────────
+// WHATSAPP MF BUTTON
+// ────────────────────────────────────────────────────────
+function openWA() {
+  // WhatsApp link — opens a chat for mutual fund queries
+  const msg = encodeURIComponent("नमस्ते! MunaFa Café से आ रहा हूँ — म्यूचुअल फंड के बारे में जानकारी चाहिए।");
+  window.open("https://wa.me/919458415065?text=" + msg, "_blank");
+}
+
+// Update WA button label based on language
+function updateWALabel() {
+  const lbl = document.getElementById("wa-label");
+  if (lbl) lbl.textContent = lang === "hi" ? "💼 म्यूचुअल फंड सलाह" : "💼 Mutual Fund Query";
+}
+
+// ────────────────────────────────────────────────────────
 // PAGE INIT — attempt silent auto-login from saved phone
 // ────────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
   autoLogin();
+  updateWALabel();
 });
 </script>
 </body>
