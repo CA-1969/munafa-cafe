@@ -210,14 +210,11 @@ footer a{color:var(--accent);text-decoration:none}
         <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
         {
           "symbols": [
-            {"proName":"NSE:NIFTY50","title":"Nifty 50"},
-            {"proName":"BSE:SENSEX","title":"Sensex"},
-            {"proName":"NSE:BANKNIFTY","title":"Bank Nifty"},
-            {"proName":"NSE:MIDCPNIFTY","title":"Midcap Nifty"},
-            {"proName":"NASDAQ:IXIC","title":"Nasdaq"},
-            {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
-            {"proName":"FOREXCOM:JPN225","title":"Nikkei 225"},
-            {"proName":"FOREXCOM:NSXUSD","title":"Nasdaq 100"},
+            {"proName":"CAPITALCOM:IN50","title":"Nifty 50"},
+            {"proName":"CAPITALCOM:US500","title":"S&P 500"},
+            {"proName":"CAPITALCOM:NASDAQ100","title":"Nasdaq 100"},
+            {"proName":"CAPITALCOM:JP225","title":"Nikkei 225"},
+            {"proName":"CAPITALCOM:DE40","title":"DAX 40"},
             {"proName":"TVC:GOLD","title":"Gold"},
             {"proName":"TVC:USOIL","title":"Crude Oil"},
             {"proName":"FX:USDINR","title":"USD/INR"}
@@ -241,14 +238,14 @@ footer a{color:var(--accent);text-decoration:none}
           <div class="tradingview-widget-container__widget" style="height:100%"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
           {
-            "symbols": [["Nifty 50","NSE:NIFTY|1D"],["Bank Nifty","NSE:BANKNIFTY|1D"],["Sensex","BSE:SENSEX|1D"]],
+            "symbols": [["Nifty 50","CAPITALCOM:IN50|1D"],["S&P 500","CAPITALCOM:US500|1D"],["Gold","CAPITALCOM:GOLD|1D"]],
             "chartOnly": false,
             "width": "100%",
             "height": "100%",
             "locale": "en",
             "colorTheme": "dark",
             "autosize": true,
-            "showVolume": true,
+            "showVolume": false,
             "showMA": true,
             "hideDateRanges": false,
             "hideMarketStatus": false,
@@ -261,7 +258,7 @@ footer a{color:var(--accent);text-decoration:none}
             "valuesTracking": "1",
             "changeMode": "price-and-percent",
             "chartType": "area",
-            "maLineColor": "#2962FF",
+            "maLineColor": "#f0b429",
             "maLineWidth": 1,
             "maLength": 9,
             "lineWidth": 2,
@@ -293,11 +290,11 @@ footer a{color:var(--accent);text-decoration:none}
               {
                 "title": "India",
                 "symbols": [
-                  {"s":"NSE:NIFTY50","d":"Nifty 50"},
-                  {"s":"BSE:SENSEX","d":"Sensex"},
-                  {"s":"NSE:BANKNIFTY","d":"Bank Nifty"},
-                  {"s":"NSE:MIDCPNIFTY","d":"Midcap Nifty"},
-                  {"s":"NSE:CNXINFRA","d":"Infra"}
+                  {"s":"CAPITALCOM:IN50","d":"Nifty 50"},
+                  {"s":"CAPITALCOM:IN50","d":"Sensex"},
+                  {"s":"FOREXCOM:SPXUSD","d":"S&P 500"},
+                  {"s":"CAPITALCOM:DE40","d":"DAX"},
+                  {"s":"CAPITALCOM:JP225","d":"Nikkei"}
                 ],
                 "originalTitle": "India"
               },
@@ -305,11 +302,11 @@ footer a{color:var(--accent);text-decoration:none}
                 "title": "World",
                 "symbols": [
                   {"s":"FOREXCOM:SPXUSD","d":"S&P 500"},
-                  {"s":"NASDAQ:IXIC","d":"Nasdaq"},
-                  {"s":"FOREXCOM:JPN225","d":"Nikkei"},
-                  {"s":"FOREXCOM:DEU40","d":"DAX"},
-                  {"s":"FOREXCOM:UKXGBP","d":"FTSE 100"},
-                  {"s":"HSI:HSI","d":"Hang Seng"}
+                  {"s":"CAPITALCOM:NASDAQ100","d":"Nasdaq 100"},
+                  {"s":"CAPITALCOM:JP225","d":"Nikkei 225"},
+                  {"s":"CAPITALCOM:DE40","d":"DAX 40"},
+                  {"s":"CAPITALCOM:UK100","d":"FTSE 100"},
+                  {"s":"CAPITALCOM:HK50","d":"Hang Seng"}
                 ],
                 "originalTitle": "World"
               },
@@ -336,7 +333,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"FOREXCOM:SPXUSD","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"CAPITALCOM:US500","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
@@ -344,7 +341,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"NASDAQ:IXIC","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"CAPITALCOM:NASDAQ100","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
@@ -352,7 +349,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"FOREXCOM:JPN225","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"CAPITALCOM:JP225","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
@@ -360,7 +357,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"FOREXCOM:DEU40","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"CAPITALCOM:DE40","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
