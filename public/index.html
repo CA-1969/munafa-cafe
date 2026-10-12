@@ -616,8 +616,9 @@ function getPrompt(mi) {
 - वाक्य संरचना और सभी शब्द शुद्ध हिंदी में लिखें।
 - केवल वे अंग्रेज़ी शब्द रखें जिनका हिंदी में कोई प्रचलित विकल्प नहीं है: Nifty, Sensex, Bank Nifty, SIP, NAV, FII, DII, EBITDA, GDP, IPO, NFO, RSI।
 - बाकी सब हिंदी में — "बाज़ार", "गिरावट", "तेज़ी", "निवेशक", "स्तर", "समर्थन", "प्रतिरोध", "क्षेत्र", "कच्चा तेल" आदि।
-- उदाहरण सही शैली: "आज Nifty 24,200 के समर्थन स्तर पर टिका है। FII ने ₹3,800 करोड़ की खरीदारी की — यह सकारात्मक संकेत है।"
+- उदाहरण सही शैली: "आज Nifty 24,200 के समर्थन स्तर पर टिका है। FII ने तीन हज़ार आठ सौ करोड़ रुपये की खरीदारी की — यह सकारात्मक संकेत है।"
 - गलत शैली: "market mein bullish trend hai, sectors perform kar rahe hain" — यह बिल्कुल नहीं चाहिए।
+- मुद्रा नियम: "Rs" या "₹" चिह्न का उपयोग न करें — सभी राशियाँ शब्दों में लिखें। जैसे "तीन हज़ार करोड़ रुपये", "पाँच सौ रुपये", "दो लाख करोड़ रुपये"।
 
 15 turns का संवाद लिखें, हर turn 40-55 शब्द। सिर्फ यह JSON दें, कोई अतिरिक्त टेक्स्ट नहीं:
 {"turns":[
@@ -698,11 +699,12 @@ Use realistic estimated market data. Natural, warm FM energy throughout.`,
 
     // 1 — Company Spotlight
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" नहीं। आज की तारीख है ${d}।
+    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख है ${d}।
 Nifty 50 या Nifty Next 50 की एक प्रमुख, चर्चित कंपनी चुनें और उसका विस्तृत विश्लेषण करें।
 भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, EBITDA, FII, DII, PAT, EPS, RSI, IPO, Q2, Q3।
 गलत: "company ka revenue strong hai, growth trajectory positive hai" — यह बिल्कुल नहीं।
 सही: "कंपनी का राजस्व मज़बूत है, विकास की दिशा सकारात्मक है।"
+मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। सभी राशियाँ शब्दों में — "पाँच हज़ार करोड़ रुपये", "दो सौ रुपये प्रति शेयर" आदि।
 15 turns, हर turn 40-55 शब्द। सिर्फ यह JSON दें:
 {"company":"कंपनी का नाम","turns":[
 {"n":1,"t":"पाठ"},{"n":2,"t":"पाठ"},{"n":3,"t":"पाठ"},{"n":4,"t":"पाठ"},{"n":5,"t":"पाठ"},
@@ -723,7 +725,7 @@ Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly res
 
     // 2 — Macro & Economy
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
 14 टर्न का macro economy विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -746,6 +748,7 @@ Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly res
 - सभी वाक्य शुद्ध हिंदी में लिखें। कोई अंग्रेज़ी वाक्यांश नहीं।
 - केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, GDP, RBI, FII, DII, CPI, WPI, EBITDA, repo rate, MPC
 - गलत: "RBI ne rate cut karke market ko support diya" — सही: "RBI ने ब्याज दर में कटौती कर बाज़ार को समर्थन दिया।"
+- मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। सभी राशियाँ शब्दों में — "दस हज़ार करोड़ रुपये", "छह प्रतिशत" आदि।
 विषय क्रम:
 टर्न 1: ऊर्जावान परिचय — आज के macro अर्थव्यवस्था का पूरा चित्र प्रस्तुत।
 टर्न 2-3: RBI की मौद्रिक नीति — repo rate, MPC का रुख, EMI पर प्रभाव।
@@ -790,7 +793,7 @@ Educational, engaging broadcast style. Use realistic current data estimates.`,
 
     // 3 — Market Buzz
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
 15 टर्न का बाज़ार समाचार विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -814,6 +817,7 @@ Educational, engaging broadcast style. Use realistic current data estimates.`,
 - सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
 - केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, SIP, NAV, FII, DII, SEBI, F&O, IPO, NFO, QIP, NIM, NPA
 - गलत: "aaj market mein bahut action tha" — सही: "आज बाज़ार में काफी हलचल देखी गई।"
+- मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। राशियाँ शब्दों में — "आठ हज़ार करोड़ रुपये", "दो सौ पचास रुपये प्रति शेयर"।
 विषय क्रम:
 टर्न 1: ऊर्जावान परिचय — आज की बड़ी बाज़ार खबरें।
 टर्न 2-3: शीर्ष 2-3 कॉर्पोरेट समाचार — विलय, अधिग्रहण, QIP, साझेदारी।
@@ -859,7 +863,7 @@ Gossipy, energetic broadcast style. Use realistic examples.`,
 
     // 4 — IPO / NFO Radar
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
 16 टर्न का IPO और NFO विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -884,6 +888,7 @@ Gossipy, energetic broadcast style. Use realistic examples.`,
 - सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
 - केवल ये अंग्रेज़ी शब्द अनुमत हैं: IPO, NFO, SWOT, GMP, QIB, HNI, NAV, SEBI, FII, EBITDA, PAT
 - गलत: "is IPO mein strong financials hain" — सही: "इस IPO की वित्तीय स्थिति मज़बूत है।"
+- मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। राशियाँ शब्दों में — "पाँच हज़ार करोड़ रुपये का निर्गम", "एक सौ अस्सी रुपये मूल्य बैंड"।
 विषय क्रम:
 टर्न 1: उत्साहपूर्ण परिचय — आज के IPO/NFO राडार का स्वागत।
 टर्न 2: IPO पाइपलाइन का अवलोकन — इस माह कितने IPO, कुल आकार, बाज़ार भावना।
@@ -944,7 +949,7 @@ Honest, analytical broadcast style. No hype. Use realistic fictional companies i
 
     // 5 — Results Calendar
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
 15 टर्न का परिणाम सत्र विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -968,6 +973,7 @@ Honest, analytical broadcast style. No hype. Use realistic fictional companies i
 - सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
 - केवल ये अंग्रेज़ी शब्द अनुमत हैं: Q1, Q2, Q3, Q4, PAT, EBITDA, NIM, NPA, EPS, YoY, QoQ, IT, NBFC, FII, RBI
 - गलत: "company ne strong results diye, revenue beat hua" — सही: "कंपनी ने मज़बूत परिणाम घोषित किए, राजस्व अनुमान से बेहतर रहा।"
+- मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। राशियाँ शब्दों में — "बारह हज़ार करोड़ रुपये राजस्व", "तीन सौ रुपये प्रति शेयर EPS"।
 विषय क्रम:
 टर्न 1: परिणाम सत्र का उत्साहपूर्ण परिचय — कौन बेहतर करेगा, कौन निराश करेगा?
 टर्न 2: चालू परिणाम सत्र का संदर्भ — कौन सी तिमाही, बाज़ार की अपेक्षाएँ, विश्लेषक EPS वृद्धि अनुमान।
@@ -1025,7 +1031,7 @@ Educational, analytical broadcast style. Use realistic company names and estimat
 
     // 6 — Learn Today (FREE, random topic each time)
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
 आज का विषय: शेयर बाज़ार से संबंधित कोई एक महत्वपूर्ण अवधारणा — जैसे कि एक नई शब्दावली, ट्रेडिंग तकनीक, निवेश रणनीति, या बाज़ार का कोई नियम।
 विषय स्वयं यादृच्छिक रूप से चुनें — हर बार नया और रोचक। उदाहरण: P/E अनुपात, ऑप्शन ग्रीक्स, डेट-टू-इक्विटी, स्टॉप लॉस, कैंडलस्टिक पैटर्न, SEBI नियम, म्यूचुअल फंड NAV, FII/DII प्रवाह, Circuit Breaker, T+1 सेटलमेंट, Futures rollover आदि।
 
@@ -1046,6 +1052,7 @@ Educational, analytical broadcast style. Use realistic company names and estimat
 {"n":12,"t":"TURN_TEXT_HERE"}
 ]}
 भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल प्रचलित वित्तीय अंग्रेज़ी शब्द जैसे Nifty, SEBI, NAV, P/E, EBITDA, RSI, SIP, F&O आदि अनुमत।
+मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। सभी राशियाँ शब्दों में — "पाँच हज़ार रुपये", "दस लाख करोड़ रुपये" आदि।
 पाठ क्रम:
 टर्न 1: विषय की रोचक भूमिका — "आज हम सीखेंगे…" — श्रोताओं को उत्साहित करें।
 टर्न 2: सरल परिभाषा — बिल्कुल आसान भाषा में, जैसे किसी नए निवेशक को समझाना हो।
@@ -1267,7 +1274,7 @@ function setupAudio(mi, turns) {
         if (stopMe) break;
         await speakTurn(t.t || "", t.s || "A");
         // Natural broadcast pause — longer after Anurag's anchor turns, shorter after Deepa
-        await delay(t.s === "D" ? 280 : 420);
+        await delay(t.s === "D" ? 480 : 650);
       }
     } catch(e) { console.warn("Audio error:", e.message); }
 
@@ -1310,7 +1317,8 @@ async function speakTurn(text, speaker) {
         text:           text,
         voice_id:       voiceId,
         model_id:       "eleven_multilingual_v2",
-        voice_settings: XI_SETTINGS[sp]
+        voice_settings: XI_SETTINGS[sp],
+        seed:           sp === "D" ? 42 : 17   // lock voice to prevent variation across calls
       })
     });
     if (!r.ok) throw new Error("TTS proxy " + r.status);
