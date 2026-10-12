@@ -210,13 +210,13 @@ footer a{color:var(--accent);text-decoration:none}
         <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
         {
           "symbols": [
-            {"proName":"NSE:NIFTY","title":"Nifty 50"},
+            {"proName":"NSE:NIFTY50","title":"Nifty 50"},
             {"proName":"BSE:SENSEX","title":"Sensex"},
             {"proName":"NSE:BANKNIFTY","title":"Bank Nifty"},
             {"proName":"NSE:MIDCPNIFTY","title":"Midcap Nifty"},
             {"proName":"NASDAQ:IXIC","title":"Nasdaq"},
             {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
-            {"proName":"INDEX:NKY","title":"Nikkei 225"},
+            {"proName":"FOREXCOM:JPN225","title":"Nikkei 225"},
             {"proName":"FOREXCOM:NSXUSD","title":"Nasdaq 100"},
             {"proName":"TVC:GOLD","title":"Gold"},
             {"proName":"TVC:USOIL","title":"Crude Oil"},
@@ -232,31 +232,41 @@ footer a{color:var(--accent);text-decoration:none}
       </div>
     </div>
 
-    <!-- Main Chart Row: Nifty 50 candles + Market Overview -->
+    <!-- Main Chart Row: Symbol Overview (full-width) + Market Overview -->
     <div class="charts-row">
-      <!-- Nifty 50 Candle Chart -->
+      <!-- Nifty 50 Symbol Overview — free widget, works without TV subscription -->
       <div class="chart-box">
         <div class="chart-label">NIFTY 50 — NSE</div>
         <div class="tradingview-widget-container" style="height:320px">
           <div class="tradingview-widget-container__widget" style="height:100%"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
           {
-            "autosize": true,
-            "symbol": "NSE:NIFTY",
-            "interval": "15",
-            "timezone": "Asia/Kolkata",
-            "theme": "dark",
-            "style": "1",
+            "symbols": [["Nifty 50","NSE:NIFTY|1D"],["Bank Nifty","NSE:BANKNIFTY|1D"],["Sensex","BSE:SENSEX|1D"]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": "100%",
             "locale": "en",
-            "toolbar_bg": "#161b22",
-            "enable_publishing": false,
-            "hide_top_toolbar": false,
-            "hide_legend": false,
-            "save_image": false,
-            "backgroundColor": "rgba(13,17,23,1)",
-            "gridColor": "rgba(48,54,61,0.3)",
-            "studies": ["RSI@tv-basicstudies","MASimple@tv-basicstudies"],
-            "container_id": "tv_chart_nifty"
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": true,
+            "showMA": true,
+            "hideDateRanges": false,
+            "hideMarketStatus": false,
+            "hideSymbolLogo": false,
+            "scalePosition": "right",
+            "scaleMode": "Normal",
+            "fontFamily": "-apple-system,BlinkMacSystemFont,Trebuchet MS,Roboto,Ubuntu,sans-serif",
+            "fontSize": "10",
+            "noTimeScale": false,
+            "valuesTracking": "1",
+            "changeMode": "price-and-percent",
+            "chartType": "area",
+            "maLineColor": "#2962FF",
+            "maLineWidth": 1,
+            "maLength": 9,
+            "lineWidth": 2,
+            "lineType": 0,
+            "dateRanges": ["1d|15","1w|60","1m|1D","12m|1W"]
           }
           </script>
         </div>
@@ -283,7 +293,7 @@ footer a{color:var(--accent);text-decoration:none}
               {
                 "title": "India",
                 "symbols": [
-                  {"s":"NSE:NIFTY","d":"Nifty 50"},
+                  {"s":"NSE:NIFTY50","d":"Nifty 50"},
                   {"s":"BSE:SENSEX","d":"Sensex"},
                   {"s":"NSE:BANKNIFTY","d":"Bank Nifty"},
                   {"s":"NSE:MIDCPNIFTY","d":"Midcap Nifty"},
@@ -296,8 +306,8 @@ footer a{color:var(--accent);text-decoration:none}
                 "symbols": [
                   {"s":"FOREXCOM:SPXUSD","d":"S&P 500"},
                   {"s":"NASDAQ:IXIC","d":"Nasdaq"},
-                  {"s":"INDEX:NKY","d":"Nikkei"},
-                  {"s":"INDEX:DEU40","d":"DAX"},
+                  {"s":"FOREXCOM:JPN225","d":"Nikkei"},
+                  {"s":"FOREXCOM:DEU40","d":"DAX"},
                   {"s":"FOREXCOM:UKXGBP","d":"FTSE 100"},
                   {"s":"HSI:HSI","d":"Hang Seng"}
                 ],
@@ -342,7 +352,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"INDEX:NKY","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"FOREXCOM:JPN225","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
@@ -350,7 +360,7 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"INDEX:DEU40","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"FOREXCOM:DEU40","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
