@@ -517,7 +517,7 @@ footer a{color:var(--accent);text-decoration:none}
 //  Your live key starts with "rzp_live_" (get it from Razorpay Dashboard
 //  → Settings → API Keys → Live Keys → Key ID)
 //
-const RZP_KEY = "rzp_live_TmgKvmK8LiLLB7"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
+const RZP_KEY = "rzp_test_TkizjnkF0yvDCX"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
 //
 //  STEP 2 — UPDATE VERCEL ENVIRONMENT VARIABLES:
 //  Go to Vercel Dashboard → Your Project → Settings → Environment Variables
@@ -1133,13 +1133,22 @@ async function generate(mi) {
     // Parse JSON — strip markdown fences first, then extract JSON object
     let parsed;
     try {
-      // Robustly extract JSON: find first { and last } regardless of fences/whitespace
+      // Step 1: Extract the JSON object (ignore markdown fences, preamble, postamble)
       const start = text.indexOf("{");
       const end   = text.lastIndexOf("}");
       if (start === -1 || end === -1) throw new Error("No JSON object found");
-      const clean = text.slice(start, end + 1);
+      let clean = text.slice(start, end + 1);
+
+      // Step 2: Repair common AI JSON mistakes
+      // Replace literal newlines inside string values with \\n
+      clean = clean.replace(/:\s*"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
+        const fixed = inner.replace(/\n/g, "\\n").replace(/\r/g, "");
+        return ': "' + fixed + '"';
+      });
+
       parsed = JSON.parse(clean);
     } catch(e) {
+      console.warn("JSON parse error:", e.message, "\nRaw text:", text.slice(0, 300));
       // Fallback: display raw text in readable form
       scr.innerHTML = "<div class='turn'><div class='turn-text' style='white-space:pre-wrap'>" + text + "</div></div>";
       bdg.className = "api-badge " + cls;
