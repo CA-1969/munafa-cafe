@@ -538,7 +538,7 @@ footer a{color:var(--accent);text-decoration:none}
 //  Your live key starts with "rzp_live_" (get it from Razorpay Dashboard
 //  → Settings → API Keys → Live Keys → Key ID)
 //
-const RZP_KEY = "rzp_test_TkizjnkF0yvDCX"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
+const RZP_KEY = "rzp_live_TmgKvmK8LiLLB7"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
 //
 //  STEP 2 — UPDATE VERCEL ENVIRONMENT VARIABLES:
 //  Go to Vercel Dashboard → Your Project → Settings → Environment Variables
@@ -1304,8 +1304,8 @@ const XI_VOICE_DEEPA  = "C2S5J6WvmHnrQWjUu6Rg"; // Deepa  (cloned)
 // Anurag: measured, authoritative anchor voice
 // Deepa:  warm, slightly brighter co-host
 const XI_SETTINGS = {
-  A: { stability: 0.48, similarity_boost: 0.82, style: 0.22, use_speaker_boost: true },
-  D: { stability: 0.52, similarity_boost: 0.82, style: 0.38, use_speaker_boost: true }
+  A: { stability: 0.72, similarity_boost: 0.90, style: 0.18, use_speaker_boost: true },  // higher stability = consistent voice across all turns
+  D: { stability: 0.65, similarity_boost: 0.88, style: 0.32, use_speaker_boost: true }
 };
 
 async function speakTurn(text, speaker) {
