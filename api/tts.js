@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "ElevenLabs API key not configured" });
   }
 
-  const { text, voice_id, model_id, voice_settings } = req.body;
+  const { text, voice_id, model_id, voice_settings, seed } = req.body;
 
   if (!text || !voice_id) {
     return res.status(400).json({ error: "Missing text or voice_id" });
@@ -38,7 +38,8 @@ export default async function handler(req, res) {
             similarity_boost: 0.82,
             style: 0.25,
             use_speaker_boost: true
-          }
+          },
+          ...(seed !== undefined && { seed: Number(seed) })  // lock voice — prevents variation across calls
         })
       }
     );
