@@ -275,8 +275,8 @@ footer a{color:var(--accent);text-decoration:none}
         <div id="nse-losers"><div style="padding:12px"><div class="nse-skeleton"></div></div></div>
       </div>
       <div class="nse-panel">
-        <div class="nse-panel-hdr blue">🏦 FII / DII Activity</div>
-        <div id="nse-fiidii"><div style="padding:12px"><div class="nse-skeleton"></div></div></div>
+        <div class="nse-panel-hdr blue">🌡️ Sector Heatmap</div>
+        <div id="nse-sectors"><div style="padding:12px"><div class="nse-skeleton"></div></div></div>
       </div>
     </div>
 
@@ -1915,24 +1915,24 @@ function renderLosers(data) {
   ).join("");
 }
 
-function renderFiiDii(data) {
-  const el = document.getElementById("nse-fiidii");
-  if (!el || !data.fiidii) return;
-  const rows = data.fiidii;
-  if (!rows.length) { el.innerHTML = '<div style="padding:12px;color:var(--sub);font-size:12px">Data unavailable</div>'; return; }
-  // NSE FII/DII fields vary — handle robustly
+function renderSectors(indices) {
+  const el = document.getElementById("nse-sectors");
+  if (!el) return;
+  // Pick sector indices from the full indices array
+  const SECTORS = ["NIFTY IT","BANK NIFTY","NIFTY AUTO","NIFTY FMCG","NIFTY PHARMA","NIFTY MIDCAP 100","INDIA VIX","SENSEX"];
+  const map = {};
+  (indices || []).forEach(r => { map[r.name] = r; });
+  const rows = SECTORS.map(n => map[n]).filter(Boolean);
+  if (!rows.length) { el.innerHTML = '<div style="padding:12px;color:var(--sub);font-size:12px">Loading…</div>'; return; }
   el.innerHTML = rows.map(r => {
-    const date   = r.date || r.Date || "";
-    const cat    = r.category || r.Category || "";
-    const net    = r.netVal   || r.net_val  || r.NET_VAL || r.netPurchase || 0;
-    const netNum = parseFloat(String(net).replace(/,/g,"")) || 0;
-    const cls    = chgClass(netNum);
+    const cls  = chgClass(r.pct);
+    const sign = r.pct > 0 ? "+" : "";
+    // Short label
+    const label = r.name.replace("NIFTY ","").replace("NIFTY","NIFTY").replace("S&P BSE ","");
     return `<div class="nse-row">
-      <div>
-        <div style="font-weight:700;font-size:12px;color:var(--text)">${cat || date}</div>
-        ${cat ? `<div style="font-size:10px;color:var(--sub)">${date}</div>` : ""}
-      </div>
-      <span class="nse-pct ${cls}" style="font-size:11px">${netNum > 0 ? "+" : ""}${fmt(netNum)} Cr</span>
+      <span class="nse-sym" style="font-size:11px">${label}</span>
+      <span style="font-size:11px;color:var(--sub)">${fmt(r.last)}</span>
+      <span class="nse-pct ${cls}">${sign}${fmt(r.pct)}%</span>
     </div>`;
   }).join("");
 }
@@ -1956,12 +1956,7 @@ async function nseLoadAll() {
     renderIndicesGrid(idxData.indices || []);
     renderGainers(gainData);
     renderLosers(lossData);
-
-    // FII/DII — non-blocking
-    nseFetch("fiidii").then(renderFiiDii).catch(() => {
-      const el = document.getElementById("nse-fiidii");
-      if (el) el.innerHTML = '<div style="padding:12px;color:var(--sub);font-size:12px">FII/DII data unavailable</div>';
-    });
+    renderSectors(idxData.indices || []);
 
     const now = new Date().toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
     if (dot) dot.style.background = "var(--green)";
@@ -1982,7 +1977,7 @@ async function nseLoadAll() {
     if (dot) dot.style.background = "var(--red)";
     if (txt) txt.textContent = "NSE data unavailable — " + err.message;
     // Show friendly error in each panel
-    ["nse-gainers","nse-losers","nse-fiidii"].forEach(id => {
+    ["nse-gainers","nse-losers","nse-sectors"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = `<div class="nse-err">Could not load<button class="nse-retry" onclick="nseLoadAll()">Retry</button></div>`;
     });
