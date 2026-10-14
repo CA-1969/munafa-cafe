@@ -63,15 +63,15 @@ async function stooqQuote(symbol) {
 
 // Stooq symbols for Indian indices
 const STOOQ_INDICES = [
-  { sym: "^nsei",   name: "NIFTY 50",        prev_sym: null },
-  { sym: "^bsesn",  name: "S&P BSE SENSEX",  prev_sym: null },
-  { sym: "^nsebank",name: "NIFTY BANK",       prev_sym: null },
-  { sym: "nifmdcp100.ns", name: "NIFTY MIDCAP 100", prev_sym: null },
-  { sym: "^cnxit",  name: "NIFTY IT",         prev_sym: null },
-  { sym: "^cnxauto",name: "NIFTY AUTO",       prev_sym: null },
-  { sym: "^cnxfmcg",name: "NIFTY FMCG",      prev_sym: null },
-  { sym: "^cnxpharma",name:"NIFTY PHARMA",   prev_sym: null },
-  { sym: "^indiavix",name:"INDIA VIX",        prev_sym: null }
+  { sym: "^nsei",      name: "NIFTY 50"        },
+  { sym: "^bsesn",     name: "S&P BSE SENSEX"  },
+  { sym: "^nsebank",   name: "NIFTY BANK"      },
+  { sym: "^cnxmc",     name: "NIFTY MIDCAP 100"},
+  { sym: "^cnxit",     name: "NIFTY IT"        },
+  { sym: "^cnxauto",   name: "NIFTY AUTO"      },
+  { sym: "^cnxfmcg",   name: "NIFTY FMCG"     },
+  { sym: "^cnxpharma", name: "NIFTY PHARMA"   },
+  { sym: "^indiavix",  name: "INDIA VIX"       }
 ];
 
 async function fetchIndicesStooq() {
@@ -80,7 +80,7 @@ async function fetchIndicesStooq() {
     STOOQ_INDICES.map(i => stooqQuote(i.sym))
   );
 
-  const indices = STOOQ_INDICES.map(({ sym, name }, idx) => {
+  const indices = STOOQ_INDICES.map(({ name }, idx) => {
     const r = results[idx].status === "fulfilled" ? results[idx].value : null;
     if (!r) return { name, last: null, change: null, pct: null, open: null, high: null, low: null, prev: null, status: "Closed" };
     // Stooq returns today's OHLC; for change we'd need yesterday's close.
