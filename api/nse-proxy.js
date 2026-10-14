@@ -22,13 +22,6 @@ export default async function handler(req, res) {
     } else if (type === "gainers" || type === "losers") {
       const data = await fetchGainersLosers(type);
       return res.status(200).json(data);
-    } else if (type === "fiidii") {
-      // Yahoo doesn't expose FII/DII; return a helpful empty response
-      return res.status(200).json({
-        timestamp: new Date().toISOString(),
-        fiidii: [],
-        note: "FII/DII data unavailable — NSE blocks server-side access"
-      });
     } else {
       return res.status(400).json({ error: "Unknown type: " + type });
     }
