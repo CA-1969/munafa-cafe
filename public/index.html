@@ -1735,27 +1735,22 @@ Provide realistic data. Keep the FM energy alive.`;
     const { text: raw, badge, cls } = await callApi(prompt);
     const apiUsed = badge;
 
-    // Parse JSON — robust parser matching other modules
+    // Parse JSON — extract outermost {}, repair only if needed
     let data;
     try {
       const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
-      if (start === -1 || end === -1) throw new Error("No JSON object found in response");
-      let clean = raw.slice(start, end + 1);
-      // Fix unescaped newlines/tabs inside any string value (same as callApi modules)
-      clean = clean.replace(/"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
-        const fixed = inner
-          .replace(/\r\n/g, "\\n")
-          .replace(/\r/g, "\\n")
-          .replace(/\n/g, "\\n")
-          .replace(/\t/g, "\\t");
-        return '"' + fixed + '"';
-      });
+      if (start === -1 || end === -1) throw new Error("No JSON object found");
+      // Replace only literal (unescaped) newlines that break JSON strings
+      // Do NOT use /gs regex — it can corrupt multi-line JSON by mismatching quotes
+      let clean = raw.slice(start, end + 1)
+        .replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ").replace(/\t/g, " ");
       data = JSON.parse(clean);
     } catch(parseErr) {
-      throw new Error("JSON parse failed: " + parseErr.message + " | Raw start: " + raw.slice(0,300));
+      throw new Error("JSON parse failed: " + parseErr.message + " | Raw: " + raw.slice(0, 400));
     }
 
     const turns = data.turns || [];
+    console.log("[Company] turns[0]:", JSON.stringify(turns[0]));
     if (turns.length === 0) throw new Error("API returned no turns. Raw: " + raw.slice(0,300));
 
     // Make output area visible and render
@@ -1763,12 +1758,14 @@ Provide realistic data. Keep the FM energy alive.`;
     badgeEl.className = "api-badge " + cls;
     badgeEl.textContent = badge;
 
-    scriptBox.innerHTML = turns.map(t =>
-      `<div class="turn turn-${t.s === "D" ? "D" : "A"}">
-        <span class="speaker">${t.s === "D" ? "Deepa" : "Anurag"}</span>
-        <span class="text">${t.t || ""}</span>
-      </div>`
-    ).join("");
+    scriptBox.innerHTML = turns.map(t => {
+      const txt = t.t || t.text || t.content || "";
+      const spk = (t.s || t.speaker || "A");
+      return `<div class="turn turn-${spk === "D" ? "D" : "A"}">
+        <span class="speaker">${spk === "D" ? "Deepa" : "Anurag"}</span>
+        <span class="text">${txt}</span>
+      </div>`;
+    }).join("");
 
     // Audio controls
     const listenBtn = document.createElement("button");
@@ -1784,7 +1781,7 @@ Provide realistic data. Keep the FM energy alive.`;
       try {
         for (const t of turns) {
           if (stopMe) break;
-          await speakTurn(t.t || "", t.s || "A");
+          await speakTurn(t.t || t.text || t.content || "", t.s || t.speaker || "A");
           await delay(650);
         }
       } catch(e) { console.warn("Audio error:", e.message); }
