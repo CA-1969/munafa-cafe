@@ -121,12 +121,50 @@ footer a{color:var(--accent);text-decoration:none}
 .markets-heading{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .markets-heading::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.ticker-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px}
-.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
-.chart-box{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.chart-label{font-size:11px;font-weight:700;color:var(--sub);padding:8px 12px 0;letter-spacing:.5px}
-.world-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.world-box{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+/* ── NSE Live Dashboard ── */
+.nse-ticker{display:flex;gap:0;overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;padding:0;scrollbar-width:none}
+.nse-ticker::-webkit-scrollbar{display:none}
+.nse-tick-item{flex:0 0 auto;padding:10px 20px;border-right:1px solid var(--border);cursor:default;transition:background .15s}
+.nse-tick-item:hover{background:rgba(255,255,255,.04)}
+.nse-tick-name{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.5px;white-space:nowrap}
+.nse-tick-val{font-size:16px;font-weight:800;color:var(--text);margin-top:2px;letter-spacing:-.3px}
+.nse-tick-chg{font-size:11px;font-weight:700;margin-top:1px}
+.nse-tick-chg.up{color:var(--green)}.nse-tick-chg.dn{color:var(--red)}.nse-tick-chg.nc{color:var(--sub)}
+/* Main index grid */
+.nse-indices-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.nse-idx-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden;transition:border-color .2s}
+.nse-idx-card.up{border-left:3px solid var(--green)}.nse-idx-card.dn{border-left:3px solid var(--red)}.nse-idx-card.nc{border-left:3px solid var(--sub)}
+.nse-idx-label{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.nse-idx-val{font-size:22px;font-weight:900;letter-spacing:-.5px;color:var(--text)}
+.nse-idx-chg{font-size:12px;font-weight:700;margin-top:3px}
+.nse-idx-chg.up{color:var(--green)}.nse-idx-chg.dn{color:var(--red)}.nse-idx-chg.nc{color:var(--sub)}
+.nse-idx-meta{font-size:10px;color:var(--sub);margin-top:4px}
+.nse-idx-adv{font-size:10px;margin-top:6px;display:flex;gap:6px}
+.nse-idx-adv span{padding:2px 6px;border-radius:4px;font-weight:700}
+.adv{background:rgba(63,185,80,.15);color:var(--green)}.dcl{background:rgba(248,81,73,.15);color:var(--red)}.unc{background:rgba(139,148,158,.15);color:var(--sub)}
+/* Bottom row — gainers/losers + FII */
+.nse-bottom-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.nse-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.nse-panel-hdr{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.nse-panel-hdr.green{color:var(--green)}.nse-panel-hdr.red{color:var(--red)}.nse-panel-hdr.blue{color:var(--accent2)}
+.nse-row{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;border-bottom:1px solid rgba(48,54,61,.5);font-size:12px}
+.nse-row:last-child{border-bottom:none}
+.nse-sym{font-weight:700;color:var(--text);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nse-ltp{color:var(--sub)}
+.nse-pct{font-weight:700;font-size:12px;padding:2px 7px;border-radius:5px}
+.nse-pct.up{background:rgba(63,185,80,.15);color:var(--green)}.nse-pct.dn{background:rgba(248,81,73,.15);color:var(--red)}
+/* Skeleton loader */
+.nse-skeleton{background:linear-gradient(90deg,var(--card) 25%,#1e2530 50%,var(--card) 75%);background-size:200% 100%;animation:nse-shimmer 1.4s infinite;border-radius:6px;height:18px;width:80%}
+@keyframes nse-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.nse-status-bar{font-size:10px;color:var(--sub);text-align:right;margin-bottom:10px;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.nse-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;display:inline-block}
+.nse-err{color:var(--red);font-size:12px;padding:16px;text-align:center}
+.nse-retry{background:transparent;border:1px solid var(--border);color:var(--sub);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;margin-left:8px}
+.nse-retry:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:700px){
+  .nse-indices-grid{grid-template-columns:repeat(2,1fr)}
+  .nse-bottom-row{grid-template-columns:1fr}
+}
 
 @media(max-width:600px){
   .modules-grid{grid-template-columns:1fr}
@@ -205,182 +243,47 @@ footer a{color:var(--accent);text-decoration:none}
 
   <!-- ═══════════════ LIVE MARKETS ═══════════════ -->
   <div class="markets-section">
-    <div class="markets-heading">🔴 Live Markets</div>
+    <div class="markets-heading">🔴 Live Markets
+      <span id="nse-status-txt" style="font-size:10px;font-weight:400;color:var(--sub);margin-left:8px;letter-spacing:0">Loading NSE data…</span>
+    </div>
 
-    <!-- Ticker Tape: Nifty, Sensex, Bank Nifty, Dow, Nasdaq, Nikkei, Gold, Crude -->
-    <div class="ticker-wrap">
-      <div class="tradingview-widget-container">
-        <div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-        {
-          "symbols": [
-            {"proName":"CAPITALCOM:IN50","title":"Nifty 50"},
-            {"proName":"CAPITALCOM:US500","title":"S&P 500"},
-            {"proName":"CAPITALCOM:NASDAQ100","title":"Nasdaq 100"},
-            {"proName":"CAPITALCOM:JP225","title":"Nikkei 225"},
-            {"proName":"CAPITALCOM:DE40","title":"DAX 40"},
-            {"proName":"TVC:GOLD","title":"Gold"},
-            {"proName":"TVC:USOIL","title":"Crude Oil"},
-            {"proName":"FX:USDINR","title":"USD/INR"}
-          ],
-          "showSymbolLogo": true,
-          "isTransparent": true,
-          "displayMode": "adaptive",
-          "colorTheme": "dark",
-          "locale": "en"
-        }
-        </script>
+    <!-- NSE Scrolling Ticker -->
+    <div class="nse-ticker" id="nse-ticker">
+      <div class="nse-tick-item"><div class="nse-tick-name">NIFTY 50</div><div class="nse-skeleton"></div></div>
+      <div class="nse-tick-item"><div class="nse-tick-name">SENSEX</div><div class="nse-skeleton"></div></div>
+      <div class="nse-tick-item"><div class="nse-tick-name">BANK NIFTY</div><div class="nse-skeleton"></div></div>
+      <div class="nse-tick-item"><div class="nse-tick-name">MIDCAP 100</div><div class="nse-skeleton"></div></div>
+      <div class="nse-tick-item"><div class="nse-tick-name">NIFTY IT</div><div class="nse-skeleton"></div></div>
+    </div>
+
+    <!-- NSE Main Indices Grid -->
+    <div class="nse-indices-grid" id="nse-indices-grid">
+      <div class="nse-idx-card nc"><div class="nse-idx-label">NIFTY 50</div><div class="nse-skeleton" style="height:28px;width:70%"></div></div>
+      <div class="nse-idx-card nc"><div class="nse-idx-label">SENSEX</div><div class="nse-skeleton" style="height:28px;width:70%"></div></div>
+      <div class="nse-idx-card nc"><div class="nse-idx-label">BANK NIFTY</div><div class="nse-skeleton" style="height:28px;width:70%"></div></div>
+      <div class="nse-idx-card nc"><div class="nse-idx-label">MIDCAP 100</div><div class="nse-skeleton" style="height:28px;width:70%"></div></div>
+    </div>
+
+    <!-- Gainers / Losers / FII-DII Row -->
+    <div class="nse-bottom-row">
+      <div class="nse-panel">
+        <div class="nse-panel-hdr green">📈 Top Gainers</div>
+        <div id="nse-gainers"><div style="padding:12px"><div class="nse-skeleton"></div></div></div>
+      </div>
+      <div class="nse-panel">
+        <div class="nse-panel-hdr red">📉 Top Losers</div>
+        <div id="nse-losers"><div style="padding:12px"><div class="nse-skeleton"></div></div></div>
+      </div>
+      <div class="nse-panel">
+        <div class="nse-panel-hdr blue">🏦 FII / DII Activity</div>
+        <div id="nse-fiidii"><div style="padding:12px"><div class="nse-skeleton"></div></div></div>
       </div>
     </div>
 
-    <!-- Main Chart Row: Symbol Overview (full-width) + Market Overview -->
-    <div class="charts-row">
-      <!-- Nifty 50 Symbol Overview — free widget, works without TV subscription -->
-      <div class="chart-box">
-        <div class="chart-label">NIFTY 50 — NSE</div>
-        <div class="tradingview-widget-container" style="height:320px">
-          <div class="tradingview-widget-container__widget" style="height:100%"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-          {
-            "symbols": [["Nifty 50","CAPITALCOM:IN50|1D"],["S&P 500","CAPITALCOM:US500|1D"],["Gold","CAPITALCOM:GOLD|1D"]],
-            "chartOnly": false,
-            "width": "100%",
-            "height": "100%",
-            "locale": "en",
-            "colorTheme": "dark",
-            "autosize": true,
-            "showVolume": false,
-            "showMA": true,
-            "hideDateRanges": false,
-            "hideMarketStatus": false,
-            "hideSymbolLogo": false,
-            "scalePosition": "right",
-            "scaleMode": "Normal",
-            "fontFamily": "-apple-system,BlinkMacSystemFont,Trebuchet MS,Roboto,Ubuntu,sans-serif",
-            "fontSize": "10",
-            "noTimeScale": false,
-            "valuesTracking": "1",
-            "changeMode": "price-and-percent",
-            "chartType": "area",
-            "maLineColor": "#f0b429",
-            "maLineWidth": 1,
-            "maLength": 9,
-            "lineWidth": 2,
-            "lineType": 0,
-            "dateRanges": ["1d|15","1w|60","1m|1D","12m|1W"]
-          }
-          </script>
-        </div>
-      </div>
-
-      <!-- Market Overview: Indian + Global -->
-      <div class="chart-box">
-        <div class="chart-label">MARKET OVERVIEW</div>
-        <div class="tradingview-widget-container" style="height:320px">
-          <div class="tradingview-widget-container__widget" style="height:100%"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
-          {
-            "colorTheme": "dark",
-            "dateRange": "1D",
-            "showChart": true,
-            "locale": "en",
-            "width": "100%",
-            "height": "100%",
-            "largeChartUrl": "",
-            "isTransparent": true,
-            "showSymbolLogo": true,
-            "showFloatingTooltip": false,
-            "tabs": [
-              {
-                "title": "India",
-                "symbols": [
-                  {"s":"CAPITALCOM:IN50","d":"Nifty 50"},
-                  {"s":"CAPITALCOM:IN50","d":"Sensex"},
-                  {"s":"FOREXCOM:SPXUSD","d":"S&P 500"},
-                  {"s":"CAPITALCOM:DE40","d":"DAX"},
-                  {"s":"CAPITALCOM:JP225","d":"Nikkei"}
-                ],
-                "originalTitle": "India"
-              },
-              {
-                "title": "World",
-                "symbols": [
-                  {"s":"FOREXCOM:SPXUSD","d":"S&P 500"},
-                  {"s":"CAPITALCOM:NASDAQ100","d":"Nasdaq 100"},
-                  {"s":"CAPITALCOM:JP225","d":"Nikkei 225"},
-                  {"s":"CAPITALCOM:DE40","d":"DAX 40"},
-                  {"s":"CAPITALCOM:UK100","d":"FTSE 100"},
-                  {"s":"CAPITALCOM:HK50","d":"Hang Seng"}
-                ],
-                "originalTitle": "World"
-              },
-              {
-                "title": "Commodities",
-                "symbols": [
-                  {"s":"TVC:GOLD","d":"Gold"},
-                  {"s":"TVC:SILVER","d":"Silver"},
-                  {"s":"TVC:USOIL","d":"Crude Oil"},
-                  {"s":"TVC:NATURALGAS","d":"Nat. Gas"}
-                ],
-                "originalTitle": "Commodities"
-              }
-            ]
-          }
-          </script>
-        </div>
-      </div>
-    </div>
-
-    <!-- World Markets Mini Candles Row -->
-    <div class="world-grid">
-      <div class="world-box">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"CAPITALCOM:US500","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
-          </script>
-        </div>
-      </div>
-      <div class="world-box">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"CAPITALCOM:NASDAQ100","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
-          </script>
-        </div>
-      </div>
-      <div class="world-box">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"CAPITALCOM:JP225","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
-          </script>
-        </div>
-      </div>
-      <div class="world-box">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"CAPITALCOM:DE40","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
-          </script>
-        </div>
-      </div>
-      <div class="world-box">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"TVC:GOLD","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
-          </script>
-        </div>
-      </div>
-      <div class="world-box">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"FX:USDINR","width":"100%","height":160,"locale":"en","dateRange":"1D","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":""}
-          </script>
-        </div>
-      </div>
+    <div class="nse-status-bar">
+      <span class="nse-live-dot" id="nse-dot" style="background:var(--sub)"></span>
+      <span id="nse-last-update">—</span>
+      <button class="nse-retry" onclick="nseLoadAll()">↻ Refresh</button>
     </div>
   </div>
   <!-- ═══════════════ END LIVE MARKETS ═══════════════ -->
@@ -1928,6 +1831,175 @@ function openWA() {
 function updateWALabel() {
   const lbl = document.getElementById("wa-label");
   if (lbl) lbl.textContent = lang === "hi" ? "💼 म्यूचुअल फंड सलाह" : "💼 Mutual Fund Query";
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// NSE LIVE DASHBOARD — fetches from /api/nse-proxy (server-side NSE bridge)
+// ════════════════════════════════════════════════════════════════════════
+
+function fmt(n, dec=2) {
+  if (n == null || isNaN(n)) return "—";
+  return Number(n).toLocaleString("en-IN", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function chgClass(v) { return v > 0 ? "up" : v < 0 ? "dn" : "nc"; }
+function arrow(v)    { return v > 0 ? "▲" : v < 0 ? "▼" : ""; }
+
+async function nseFetch(type) {
+  const r = await fetch("/api/nse-proxy?type=" + type);
+  if (!r.ok) throw new Error("NSE proxy returned " + r.status);
+  return r.json();
+}
+
+function renderTicker(indices) {
+  const SHOW = ["NIFTY 50", "S&P BSE SENSEX", "NIFTY BANK", "NIFTY MIDCAP 100", "NIFTY IT", "NIFTY AUTO", "NIFTY FMCG", "INDIA VIX"];
+  const el = document.getElementById("nse-ticker");
+  if (!el) return;
+  const rows = SHOW.map(name => indices.find(i => i.name === name)).filter(Boolean);
+  el.innerHTML = rows.map(r => {
+    const cls = chgClass(r.pct);
+    const sign = r.pct > 0 ? "+" : "";
+    return `<div class="nse-tick-item">
+      <div class="nse-tick-name">${r.name.replace("NIFTY ","").replace("S&P BSE ","")}</div>
+      <div class="nse-tick-val">${fmt(r.last)}</div>
+      <div class="nse-tick-chg ${cls}">${arrow(r.pct)} ${sign}${fmt(r.pct)}%</div>
+    </div>`;
+  }).join("");
+}
+
+function renderIndicesGrid(indices) {
+  const CARDS = [
+    { key: "NIFTY 50",        label: "NIFTY 50" },
+    { key: "S&P BSE SENSEX",  label: "SENSEX" },
+    { key: "NIFTY BANK",      label: "BANK NIFTY" },
+    { key: "NIFTY MIDCAP 100",label: "MIDCAP 100" }
+  ];
+  const el = document.getElementById("nse-indices-grid");
+  if (!el) return;
+  el.innerHTML = CARDS.map(({ key, label }) => {
+    const r = indices.find(i => i.name === key);
+    if (!r) return `<div class="nse-idx-card nc"><div class="nse-idx-label">${label}</div><div style="color:var(--sub);font-size:12px">—</div></div>`;
+    const cls = chgClass(r.pct);
+    const sign = r.pct > 0 ? "+" : "";
+    const advHtml = (r.advance != null)
+      ? `<div class="nse-idx-adv"><span class="adv">▲ ${r.advance}</span><span class="dcl">▼ ${r.decline}</span><span class="unc">— ${r.unch||0}</span></div>`
+      : "";
+    return `<div class="nse-idx-card ${cls}">
+      <div class="nse-idx-label">${label}</div>
+      <div class="nse-idx-val">${fmt(r.last)}</div>
+      <div class="nse-idx-chg ${cls}">${arrow(r.pct)} ${sign}${fmt(r.change)} (${sign}${fmt(r.pct)}%)</div>
+      <div class="nse-idx-meta">H: ${fmt(r.high)} · L: ${fmt(r.low)} · Prev: ${fmt(r.prev)}</div>
+      ${advHtml}
+    </div>`;
+  }).join("");
+}
+
+function renderGainers(data) {
+  const el = document.getElementById("nse-gainers");
+  if (!el || !data.stocks) return;
+  el.innerHTML = data.stocks.slice(0, 7).map(s =>
+    `<div class="nse-row">
+      <span class="nse-sym">${s.symbol}</span>
+      <span class="nse-ltp">${fmt(s.ltp)}</span>
+      <span class="nse-pct up">+${fmt(s.pct)}%</span>
+    </div>`
+  ).join("");
+}
+
+function renderLosers(data) {
+  const el = document.getElementById("nse-losers");
+  if (!el || !data.stocks) return;
+  el.innerHTML = data.stocks.slice(0, 7).map(s =>
+    `<div class="nse-row">
+      <span class="nse-sym">${s.symbol}</span>
+      <span class="nse-ltp">${fmt(s.ltp)}</span>
+      <span class="nse-pct dn">${fmt(s.pct)}%</span>
+    </div>`
+  ).join("");
+}
+
+function renderFiiDii(data) {
+  const el = document.getElementById("nse-fiidii");
+  if (!el || !data.fiidii) return;
+  const rows = data.fiidii;
+  if (!rows.length) { el.innerHTML = '<div style="padding:12px;color:var(--sub);font-size:12px">Data unavailable</div>'; return; }
+  // NSE FII/DII fields vary — handle robustly
+  el.innerHTML = rows.map(r => {
+    const date   = r.date || r.Date || "";
+    const cat    = r.category || r.Category || "";
+    const net    = r.netVal   || r.net_val  || r.NET_VAL || r.netPurchase || 0;
+    const netNum = parseFloat(String(net).replace(/,/g,"")) || 0;
+    const cls    = chgClass(netNum);
+    return `<div class="nse-row">
+      <div>
+        <div style="font-weight:700;font-size:12px;color:var(--text)">${cat || date}</div>
+        ${cat ? `<div style="font-size:10px;color:var(--sub)">${date}</div>` : ""}
+      </div>
+      <span class="nse-pct ${cls}" style="font-size:11px">${netNum > 0 ? "+" : ""}${fmt(netNum)} Cr</span>
+    </div>`;
+  }).join("");
+}
+
+async function nseLoadAll() {
+  const dot = document.getElementById("nse-dot");
+  const txt = document.getElementById("nse-status-txt");
+  const upd = document.getElementById("nse-last-update");
+  if (dot) dot.style.background = "var(--sub)";
+  if (txt) txt.textContent = "Fetching NSE data…";
+
+  try {
+    // Fetch indices, gainers, losers in parallel; FII/DII separately (slower)
+    const [idxData, gainData, lossData] = await Promise.all([
+      nseFetch("indices"),
+      nseFetch("gainers"),
+      nseFetch("losers")
+    ]);
+
+    renderTicker(idxData.indices || []);
+    renderIndicesGrid(idxData.indices || []);
+    renderGainers(gainData);
+    renderLosers(lossData);
+
+    // FII/DII — non-blocking
+    nseFetch("fiidii").then(renderFiiDii).catch(() => {
+      const el = document.getElementById("nse-fiidii");
+      if (el) el.innerHTML = '<div style="padding:12px;color:var(--sub);font-size:12px">FII/DII data unavailable</div>';
+    });
+
+    const now = new Date().toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+    if (dot) dot.style.background = "var(--green)";
+    if (txt) txt.textContent = "";
+    if (upd) upd.textContent = "NSE · Updated " + now;
+
+    // Check if market is live (Mon–Fri 9:15–15:30 IST)
+    const ist = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    const day = ist.getDay();
+    const hr = ist.getHours(), mn = ist.getMinutes();
+    const isMarketHours = day >= 1 && day <= 5 &&
+      (hr > 9 || (hr === 9 && mn >= 15)) && (hr < 15 || (hr === 15 && mn <= 30));
+    document.getElementById("nse-status-txt").textContent =
+      isMarketHours ? "🟢 Market Open" : "🔴 Market Closed";
+
+  } catch (err) {
+    console.error("NSE load error:", err.message);
+    if (dot) dot.style.background = "var(--red)";
+    if (txt) txt.textContent = "NSE data unavailable — " + err.message;
+    // Show friendly error in each panel
+    ["nse-gainers","nse-losers","nse-fiidii"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div class="nse-err">Could not load<button class="nse-retry" onclick="nseLoadAll()">Retry</button></div>`;
+    });
+  }
+}
+
+// Auto-refresh every 2 minutes during market hours; 10 min otherwise
+function nseScheduleRefresh() {
+  const ist = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  const day = ist.getDay();
+  const hr = ist.getHours(), mn = ist.getMinutes();
+  const isMarketHours = day >= 1 && day <= 5 &&
+    (hr > 9 || (hr === 9 && mn >= 15)) && (hr < 15 || (hr === 15 && mn <= 30));
+  const interval = isMarketHours ? 2 * 60 * 1000 : 10 * 60 * 1000;
+  setTimeout(() => { nseLoadAll(); nseScheduleRefresh(); }, interval);
 }
 
 // ────────────────────────────────────────────────────────
