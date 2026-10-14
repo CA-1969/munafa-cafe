@@ -1066,7 +1066,7 @@ async function callApi(prompt) {
       });
       if (!r.ok) { console.warn(api.name + " HTTP " + r.status); continue; }
       const d = await r.json();
-      const text = d.text || "";
+      const text = d.content || d.text || "";
       if (text.length > 80) return { text, badge: api.badge, cls: api.cls };
     } catch(e) {
       console.warn(api.name + " error:", e.message);
@@ -1661,12 +1661,14 @@ async function generateCompany() {
   const scriptBox = document.getElementById("script-7");
   const badgeEl   = document.getElementById("badge-7");
   const audEl     = document.getElementById("audio-7");
+  const outEl     = document.getElementById("out-7");
 
   btn.disabled = true;
   btn.textContent = UI[lang].generating;
   scriptBox.innerHTML = "";
   audEl.innerHTML = "";
   badgeEl.textContent = "";
+  if (outEl) outEl.classList.remove("visible");
 
   const d = new Date().toLocaleDateString("en-IN", {
     weekday:"long", day:"numeric", month:"long", year:"numeric"
@@ -1729,58 +1731,37 @@ Turn 12: Conclusion — Buy/Hold/Avoid, target price range, final word. "Stay in
 Provide realistic data. Keep the FM energy alive.`;
 
   try {
-    // Call AI APIs (same triple-fallback as other modules)
-    let raw = null;
-    let apiUsed = "";
+    // Use shared callApi (Claude → Gemini → GPT fallback chain)
+    const { text: raw, badge, cls } = await callApi(prompt);
+    const apiUsed = badge;
 
-    // Claude
-    try {
-      const r = await fetch("/api/claude", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ prompt })
-      });
-      if (r.ok) { const j = await r.json(); raw = j.content; apiUsed = "Claude"; }
-    } catch(e) {}
-
-    // Gemini fallback
-    if (!raw) {
-      try {
-        const r = await fetch("/api/gemini", {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ prompt })
-        });
-        if (r.ok) { const j = await r.json(); raw = j.content; apiUsed = "Gemini"; }
-      } catch(e) {}
-    }
-
-    // GPT fallback
-    if (!raw) {
-      try {
-        const r = await fetch("/api/gpt", {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ prompt })
-        });
-        if (r.ok) { const j = await r.json(); raw = j.content; apiUsed = "GPT-4o"; }
-      } catch(e) {}
-    }
-
-    if (!raw) throw new Error("All APIs failed");
-
-    // Parse JSON
+    // Parse JSON — robust parser matching other modules
     let data;
     try {
-      const s = raw.indexOf("{"), e = raw.lastIndexOf("}");
-      let js = (s !== -1 && e !== -1) ? raw.slice(s, e+1) : raw;
-      js = js.replace(/"t"\s*:\s*"((?:[^"\\]|\\.)*)"/g, (m, v) =>
-        '"t": "' + v.replace(/\n/g, ' ').replace(/\r/g, '') + '"');
-      data = JSON.parse(js);
-    } catch(e) { throw new Error("JSON parse failed: " + e.message); }
+      const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
+      if (start === -1 || end === -1) throw new Error("No JSON object found in response");
+      let clean = raw.slice(start, end + 1);
+      // Fix unescaped newlines/tabs inside any string value (same as callApi modules)
+      clean = clean.replace(/"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
+        const fixed = inner
+          .replace(/\r\n/g, "\\n")
+          .replace(/\r/g, "\\n")
+          .replace(/\n/g, "\\n")
+          .replace(/\t/g, "\\t");
+        return '"' + fixed + '"';
+      });
+      data = JSON.parse(clean);
+    } catch(parseErr) {
+      throw new Error("JSON parse failed: " + parseErr.message + " | Raw start: " + raw.slice(0,300));
+    }
 
     const turns = data.turns || [];
+    if (turns.length === 0) throw new Error("API returned no turns. Raw: " + raw.slice(0,300));
 
-    // Render script
-    badgeEl.className = "api-badge api-" + (apiUsed === "Claude" ? "claude" : apiUsed === "Gemini" ? "gemini" : "gpt");
-    badgeEl.textContent = "via " + apiUsed;
+    // Make output area visible and render
+    if (outEl) outEl.classList.add("visible");
+    badgeEl.className = "api-badge " + cls;
+    badgeEl.textContent = badge;
 
     scriptBox.innerHTML = turns.map(t =>
       `<div class="turn turn-${t.s === "D" ? "D" : "A"}">
