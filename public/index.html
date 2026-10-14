@@ -1765,10 +1765,8 @@ Provide realistic data. Keep the FM energy alive.`;
     try {
       const s = raw.indexOf("{"), e = raw.lastIndexOf("}");
       let js = (s !== -1 && e !== -1) ? raw.slice(s, e+1) : raw;
-      js = js.replace(/"t"\s*:\s*"((?:[^"\]|\.)*)"/g, (m, v) =>
-        '"t": "' + v.replace(/
-/g, ' ').replace(/
-/g, '') + '"');
+      js = js.replace(/"t"\s*:\s*"((?:[^"\\]|\\.)*)"/g, (m, v) =>
+        '"t": "' + v.replace(/\n/g, ' ').replace(/\r/g, '') + '"');
       data = JSON.parse(js);
     } catch(e) { throw new Error("JSON parse failed: " + e.message); }
 
