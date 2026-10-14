@@ -415,13 +415,13 @@ footer a{color:var(--accent);text-decoration:none}
       </div>
     </div>
 
-    <!-- MODULE 7: Company Request (FREE — visitor asks about any company) -->
-    <div class="module-card" id="card-7" style="grid-column:1/-1;border-color:rgba(240,165,0,.35)">
+    <!-- MODULE 7: Company Analysis (PREMIUM) -->
+    <div class="module-card locked" id="card-7" style="grid-column:1/-1;border-color:rgba(240,165,0,.35)">
       <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
       <div class="module-header">
         <div class="module-icon">🔍</div>
         <div>
-          <div class="module-title">Company Analysis <span style="font-size:11px;background:rgba(240,165,0,.15);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px">FREE</span></div>
+          <div class="module-title">Company Analysis <span style="font-size:11px;background:rgba(240,165,0,.15);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px">PREMIUM</span></div>
           <div class="module-desc" id="company-desc">Kisi bhi company ka naam likhein — AI se poora analysis paayein: fundamentals, technicals, outlook</div>
         </div>
       </div>
@@ -474,7 +474,7 @@ footer a{color:var(--accent);text-decoration:none}
 //  Your live key starts with "rzp_live_" (get it from Razorpay Dashboard
 //  → Settings → API Keys → Live Keys → Key ID)
 //
-const RZP_KEY = "rzp_live_TmgKvmK8LiLLB7"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
+const RZP_KEY = "rzp_test_TkizjnkF0yvDCX"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
 //
 //  STEP 2 — UPDATE VERCEL ENVIRONMENT VARIABLES:
 //  Go to Vercel Dashboard → Your Project → Settings → Environment Variables
@@ -1599,6 +1599,11 @@ function unlockPremium() {
     gb.className = "gen-btn";
     gb.textContent = "📻 " + UI[lang].genBtn[mi];
   }
+  // Unlock card-7 (Company Analysis) for premium users
+  const c7 = document.getElementById("card-7");
+  if (c7) c7.classList.remove("locked");
+  const g7 = document.getElementById("gen-7");
+  if (g7) { g7.className = "gen-btn"; g7.style.background = "linear-gradient(135deg,var(--accent),#d4920a)"; g7.style.color = "#000"; }
 }
 
 function useFree() {
@@ -1643,6 +1648,7 @@ function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 // MODULE 7 — Company Analysis (user-specified company)
 // ────────────────────────────────────────────────────────
 async function generateCompany() {
+  if (!isPremium) { showGate(); return; }
   const input = document.getElementById("company-input");
   const company = (input ? input.value.trim() : "") || "";
   if (!company) {
@@ -1919,7 +1925,7 @@ function renderSectors(indices) {
   const el = document.getElementById("nse-sectors");
   if (!el) return;
   // Pick sector indices from the full indices array
-  const SECTORS = ["NIFTY IT","BANK NIFTY","NIFTY AUTO","NIFTY FMCG","NIFTY PHARMA","NIFTY MIDCAP 100","INDIA VIX","SENSEX"];
+  const SECTORS = ["NIFTY IT","NIFTY BANK","NIFTY AUTO","NIFTY FMCG","NIFTY PHARMA","NIFTY MIDCAP 100","INDIA VIX","S&P BSE SENSEX"];
   const map = {};
   (indices || []).forEach(r => { map[r.name] = r; });
   const rows = SECTORS.map(n => map[n]).filter(Boolean);
