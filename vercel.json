@@ -1,10 +1,15 @@
 {
   "version": 2,
   "functions": {
-    "api/claude.js": { "maxDuration": 60 },
-    "api/gemini.js": { "maxDuration": 60 },
-    "api/gpt.js":    { "maxDuration": 60 },
-    "api/tts.js":    { "maxDuration": 60 }
+    "api/claude.js":          { "maxDuration": 60 },
+    "api/gemini.js":          { "maxDuration": 60 },
+    "api/gpt.js":             { "maxDuration": 60 },
+    "api/tts.js":             { "maxDuration": 60 },
+    "api/nse-proxy.js":       { "maxDuration": 30 },
+    "api/angel-login.js":     { "maxDuration": 15 },
+    "api/check-sub.js":       { "maxDuration": 10 },
+    "api/verify-payment.js":  { "maxDuration": 10 },
+    "api/seed-sub.js":        { "maxDuration": 10 }
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
