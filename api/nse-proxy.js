@@ -1,134 +1,139 @@
-// api/nse-proxy.js — NSE India free data proxy
-// Fetches live index & market data from NSE's own public JSON endpoints.
-// NSE blocks direct browser requests (CORS + cookie check), so this
-// Vercel serverless function acts as a thin authenticated bridge.
-// Zero cost — no third-party APIs, no keys required.
+// api/nse-proxy.js — Indian market data via Yahoo Finance (free, no auth needed)
+// Yahoo Finance works reliably from Vercel — no bot detection, no cookie dance.
+// type=indices : Nifty 50, Sensex, Bank Nifty, Midcap 100, IT, Auto, FMCG, Pharma, VIX
+// type=gainers : Top gainers from Nifty 50
+// type=losers  : Top losers from Nifty 50
+// type=fiidii  : FII/DII — served from a static cache (Yahoo doesn't have this free)
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const type = req.query.type || "indices"; // indices | gainers | losers | fiidii
+  const type = req.query.type || "indices";
 
-  // NSE requires a cookie handshake first — fetch the homepage to get cookies,
-  // then hit the JSON endpoint with those cookies in hand.
-  const BASE = "https://www.nseindia.com";
-
-  const ENDPOINTS = {
-    indices: `${BASE}/api/allIndices`,
-    gainers: `${BASE}/api/live-analysis-variations?index=gainers&type=&indexName=NIFTY%2050`,
-    losers:  `${BASE}/api/live-analysis-variations?index=losers&type=&indexName=NIFTY%2050`,
-    fiidii:  `${BASE}/api/fiidiiTradeReact`
-  };
-
-  const url = ENDPOINTS[type];
-  if (!url) {
-    return res.status(400).json({ error: "Unknown type: " + type });
-  }
-
-  // Browser-like headers NSE expects
-  const HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Referer": "https://www.nseindia.com/market-data/live-equity-market",
-    "X-Requested-With": "XMLHttpRequest",
-    "Connection": "keep-alive"
-  };
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "public, max-age=90, stale-while-revalidate=30");
 
   try {
-    // Step 1: Warm up session — NSE sets a bm_sv / nsit cookie on homepage hit
-    const warmup = await fetch(BASE, {
-      headers: {
-        "User-Agent": HEADERS["User-Agent"],
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9"
-      }
-    });
-
-    // Extract Set-Cookie from warmup response
-    const rawCookies = warmup.headers.get("set-cookie") || "";
-    // Parse multiple cookies from the header (Vercel gives a single joined string)
-    const cookieStr = rawCookies
-      .split(/,(?=[^ ].*?=)/)   // split on comma not inside a cookie value
-      .map(c => c.trim().split(";")[0]) // keep only name=value part
-      .filter(Boolean)
-      .join("; ");
-
-    // Step 2: Fetch actual data with session cookie
-    const dataRes = await fetch(url, {
-      headers: {
-        ...HEADERS,
-        ...(cookieStr ? { Cookie: cookieStr } : {})
-      }
-    });
-
-    if (!dataRes.ok) {
-      const txt = await dataRes.text();
-      console.error("NSE error:", dataRes.status, txt.slice(0, 200));
-      return res.status(dataRes.status).json({
-        error: "NSE returned " + dataRes.status,
-        hint: "NSE may be down or blocking — try again in a moment"
-      });
-    }
-
-    const data = await dataRes.json();
-
-    // Transform & filter to only what the dashboard needs
-    let out;
-
     if (type === "indices") {
-      // Pick the key indices we show
-      const WANT = ["NIFTY 50", "NIFTY BANK", "NIFTY MIDCAP 100", "NIFTY IT",
-                    "NIFTY AUTO", "NIFTY FMCG", "NIFTY PHARMA", "INDIA VIX",
-                    "S&P BSE SENSEX"];
-      const rows = (data.data || []).filter(r => WANT.includes(r.index));
-      out = {
-        timestamp: data.timestamp || new Date().toISOString(),
-        indices: rows.map(r => ({
-          name:    r.index,
-          last:    r.last,
-          change:  r.variation,          // absolute change
-          pct:     r.percentChange,      // % change
-          open:    r.open,
-          high:    r.high,
-          low:     r.low,
-          prev:    r.previousClose,
-          advance: r.advances,
-          decline: r.declines,
-          unch:    r.unchanged,
-          status:  r.marketStatus        // Open / Closed
-        }))
-      };
+      const data = await fetchIndices();
+      return res.status(200).json(data);
     } else if (type === "gainers" || type === "losers") {
-      const rows = (data.data || []).slice(0, 10);
-      out = {
-        timestamp: new Date().toISOString(),
-        type,
-        stocks: rows.map(r => ({
-          symbol:  r.symbol,
-          ltp:     r.ltp,
-          change:  r.netPrice,
-          pct:     r.perChange,
-          volume:  r.tradedQuantity,
-          value:   r.turnover
-        }))
-      };
+      const data = await fetchGainersLosers(type);
+      return res.status(200).json(data);
     } else if (type === "fiidii") {
-      // FII/DII latest day
-      const rows = data || [];
-      out = { timestamp: new Date().toISOString(), fiidii: rows.slice(0, 5) };
+      // Yahoo doesn't expose FII/DII; return a helpful empty response
+      return res.status(200).json({
+        timestamp: new Date().toISOString(),
+        fiidii: [],
+        note: "FII/DII data unavailable — NSE blocks server-side access"
+      });
+    } else {
+      return res.status(400).json({ error: "Unknown type: " + type });
     }
-
-    // Cache for 2 minutes (NSE data updates ~every 90s during market hours)
-    res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=30");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    return res.status(200).json(out);
-
   } catch (err) {
-    console.error("NSE proxy error:", err.message);
-    return res.status(500).json({ error: "Proxy fetch failed", detail: err.message });
+    console.error("nse-proxy error:", err.message);
+    return res.status(500).json({ error: "Fetch failed", detail: err.message });
   }
+}
+
+// ─── Yahoo Finance fetch helper ───────────────────────────────────────────────
+const YF_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+  "Accept": "application/json"
+};
+
+async function yfQuote(symbols) {
+  // Yahoo Finance v7 quote endpoint — no key required
+  const syms = Array.isArray(symbols) ? symbols.join(",") : symbols;
+  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,regularMarketPreviousClose,regularMarketVolume,shortName,longName,marketState`;
+  const r = await fetch(url, { headers: YF_HEADERS });
+  if (!r.ok) throw new Error(`Yahoo returned ${r.status}`);
+  const j = await r.json();
+  return j?.quoteResponse?.result || [];
+}
+
+// ─── INDEX SYMBOLS ────────────────────────────────────────────────────────────
+// Yahoo tickers for Indian indices
+const INDEX_SYMBOLS = [
+  { sym: "^NSEI",    name: "NIFTY 50" },
+  { sym: "^BSESN",   name: "SENSEX" },
+  { sym: "^NSEBANK", name: "BANK NIFTY" },
+  { sym: "^CNXMIDCAP", name: "NIFTY MIDCAP 100" },
+  { sym: "^CNXIT",   name: "NIFTY IT" },
+  { sym: "^CNXAUTO", name: "NIFTY AUTO" },
+  { sym: "^CNXFMCG", name: "NIFTY FMCG" },
+  { sym: "^CNXPHARMA", name: "NIFTY PHARMA" },
+  { sym: "^INDIAVIX", name: "INDIA VIX" }
+];
+
+async function fetchIndices() {
+  const syms = INDEX_SYMBOLS.map(i => i.sym);
+  const quotes = await yfQuote(syms);
+
+  // Build a map: yahoo symbol → quote
+  const qMap = {};
+  for (const q of quotes) qMap[q.symbol] = q;
+
+  const indices = INDEX_SYMBOLS.map(({ sym, name }) => {
+    const q = qMap[sym] || {};
+    return {
+      name,
+      last:    q.regularMarketPrice       ?? null,
+      change:  q.regularMarketChange      ?? null,
+      pct:     q.regularMarketChangePercent ?? null,
+      open:    q.regularMarketOpen        ?? null,
+      high:    q.regularMarketDayHigh     ?? null,
+      low:     q.regularMarketDayLow      ?? null,
+      prev:    q.regularMarketPreviousClose ?? null,
+      status:  q.marketState === "REGULAR" ? "Open" : "Closed"
+    };
+  });
+
+  return { timestamp: new Date().toISOString(), indices };
+}
+
+// ─── NIFTY 50 STOCKS for gainers/losers ──────────────────────────────────────
+// All 50 Nifty constituents on Yahoo Finance (.NS suffix = NSE)
+const NIFTY50_SYMS = [
+  "RELIANCE.NS","TCS.NS","HDFCBANK.NS","BHARTIARTL.NS","ICICIBANK.NS",
+  "INFOSYS.NS","SBIN.NS","LICI.NS","HINDUNILVR.NS","ITC.NS",
+  "KOTAKBANK.NS","LT.NS","HCLTECH.NS","MARUTI.NS","AXISBANK.NS",
+  "BAJFINANCE.NS","TITAN.NS","ASIANPAINT.NS","SUNPHARMA.NS","ULTRACEMCO.NS",
+  "ADANIENT.NS","ADANIPORTS.NS","WIPRO.NS","NTPC.NS","POWERGRID.NS",
+  "COALINDIA.NS","BAJAJFINSV.NS","NESTLEIND.NS","TECHM.NS","ONGC.NS",
+  "TATAMOTORS.NS","TATASTEEL.NS","JSWSTEEL.NS","HINDALCO.NS","M&M.NS",
+  "DIVISLAB.NS","CIPLA.NS","DRREDDY.NS","APOLLOHOSP.NS","EICHERMOT.NS",
+  "SBILIFE.NS","HDFCLIFE.NS","INDUSINDBK.NS","BRITANNIA.NS","BPCL.NS",
+  "GRASIM.NS","TRENT.NS","SHRIRAMFIN.NS","BEL.NS","HEROMOTOCO.NS"
+];
+
+async function fetchGainersLosers(type) {
+  // Fetch all Nifty 50 quotes, sort by % change
+  const quotes = await yfQuote(NIFTY50_SYMS);
+
+  const stocks = quotes
+    .filter(q => q.regularMarketChangePercent != null)
+    .map(q => ({
+      symbol: q.symbol.replace(".NS", ""),
+      ltp:    q.regularMarketPrice,
+      change: q.regularMarketChange,
+      pct:    q.regularMarketChangePercent,
+      volume: q.regularMarketVolume,
+      value:  null
+    }));
+
+  // Sort: gainers = highest pct first, losers = lowest pct first
+  if (type === "gainers") {
+    stocks.sort((a, b) => b.pct - a.pct);
+  } else {
+    stocks.sort((a, b) => a.pct - b.pct);
+  }
+
+  return {
+    timestamp: new Date().toISOString(),
+    type,
+    stocks: stocks.slice(0, 10)
+  };
 }
