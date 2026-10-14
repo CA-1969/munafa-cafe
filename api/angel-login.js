@@ -4,7 +4,7 @@
 // POST /api/angel-login  (no body needed — credentials come from env vars)
 
 import { Redis } from "@upstash/redis";
-import { totp } from "otplib";
+import { authenticator } from "otplib";
 
 const redis = new Redis({
   url:   process.env.KV_REST_API_URL,
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
   try {
     // Generate current TOTP from secret
-    const totpToken = totp.generate(totpSecret);
+    const totpToken = authenticator.generate(totpSecret);
 
     const loginRes = await fetch("https://apiconnect.angelbroking.com/rest/auth/angelbroking/user/v1/loginByPassword", {
       method: "POST",
