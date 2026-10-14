@@ -1,32 +1,40 @@
+// api/gemini.js — Google Gemini proxy for MunaFa Café FM scripts
+// GEMINI_API_KEY lives in Vercel env vars only — never reaches the browser.
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return res.status(500).json({ error: "GEMINI_API_KEY not set" });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: "Gemini API key not configured" });
 
   const { prompt } = req.body || {};
-  if (!prompt) return res.status(400).json({ error: "No prompt" });
+  if (!prompt) return res.status(400).json({ error: "Missing prompt" });
 
-  const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
+      })
+    });
 
-  for (const model of models) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-      const r = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 1500 },
-        }),
-      });
-      const d = await r.json();
-      if (!r.ok) { console.error(model, d?.error?.message); continue; }
-      const text = d?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      if (!text) continue;
-      return res.status(200).json({ text });
-    } catch (e) { console.error(model, e.message); }
+    if (!r.ok) {
+      const err = await r.text();
+      console.error("Gemini error:", r.status, err);
+      return res.status(r.status).json({ error: "Gemini error", detail: err });
+    }
+
+    const j = await r.json();
+    const content = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    return res.status(200).json({ content });
+
+  } catch (err) {
+    console.error("api/gemini error:", err.message);
+    return res.status(500).json({ error: "Internal error", detail: err.message });
   }
-  return res.status(500).json({ error: "Gemini unavailable" });
 }
