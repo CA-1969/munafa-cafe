@@ -74,8 +74,8 @@ const ANGEL_API_KEY = process.env.ANGEL_API_KEY;
 // exchangeType: 1=NSE, 3=BSE
 const ANGEL_INDICES = [
   { token: "99926000", exchange: "NSE", name: "NIFTY 50" },
-  { token: "99919000", exchange: "BSE", name: "SENSEX" },
-  { token: "99926009", exchange: "NSE", name: "BANK NIFTY" },
+  { token: "99919000", exchange: "BSE", name: "S&P BSE SENSEX" },
+  { token: "99926009", exchange: "NSE", name: "NIFTY BANK" },
   { token: "99926011", exchange: "NSE", name: "NIFTY MIDCAP 100" },
   { token: "99926013", exchange: "NSE", name: "NIFTY IT" },
   { token: "99926010", exchange: "NSE", name: "NIFTY AUTO" },
@@ -246,8 +246,8 @@ async function yfQuote(symbols) {
 
 const INDEX_SYMBOLS = [
   { sym: "^NSEI",      name: "NIFTY 50" },
-  { sym: "^BSESN",     name: "SENSEX" },
-  { sym: "^NSEBANK",   name: "BANK NIFTY" },
+  { sym: "^BSESN",     name: "S&P BSE SENSEX" },
+  { sym: "^NSEBANK",   name: "NIFTY BANK" },
   { sym: "^CNXMIDCAP", name: "NIFTY MIDCAP 100" },
   { sym: "^CNXIT",     name: "NIFTY IT" },
   { sym: "^CNXAUTO",   name: "NIFTY AUTO" },
