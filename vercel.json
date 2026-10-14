@@ -11,7 +11,8 @@
     "api/verify-payment.js":  { "maxDuration": 10 },
     "api/seed-sub.js":        { "maxDuration": 10 }
   },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/public/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)",     "dest": "/public/index.html" }
   ]
 }
