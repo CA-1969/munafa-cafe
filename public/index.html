@@ -99,10 +99,12 @@ main{padding:20px;max-width:1100px;margin:0 auto}
 .api-gemini{background:rgba(37,99,235,.2);color:#60a5fa}
 .api-gpt{background:rgba(63,185,80,.2);color:var(--green)}
 
-.audio-controls{display:flex;gap:8px;flex-wrap:wrap}
-.audio-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--sub);cursor:pointer;font-size:12px;transition:all .2s}
-.audio-btn:hover{border-color:var(--accent2);color:var(--accent2)}
-.audio-btn.playing{background:rgba(0,188,212,.1);border-color:var(--accent2);color:var(--accent2)}
+.audio-controls{display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;margin-top:14px;background:linear-gradient(135deg,rgba(0,188,212,.08),rgba(240,165,0,.06));border:1px solid rgba(0,188,212,.25);border-radius:12px;align-items:center}
+.audio-controls-label{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-right:4px;white-space:nowrap}
+.audio-btn{padding:12px 28px;border-radius:10px;border:2px solid var(--accent2);background:rgba(0,188,212,.12);color:var(--accent2);cursor:pointer;font-size:15px;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:8px;letter-spacing:.3px}
+.audio-btn:hover{background:rgba(0,188,212,.22);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,188,212,.25)}
+.audio-btn.playing{background:rgba(240,165,0,.15);border-color:var(--accent);color:var(--accent);animation:pulse-btn 1.8s ease-in-out infinite}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 0 0 rgba(240,165,0,.4)}50%{box-shadow:0 0 0 8px rgba(240,165,0,0)}}
 
 footer{text-align:center;padding:30px 20px;color:var(--sub);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
 footer a{color:var(--accent);text-decoration:none}
@@ -613,8 +615,8 @@ const UI = {
       "🎓 आज क्या सीखें?"
     ],
     generating: "स्क्रिप्ट तैयार हो रही है… कृपया प्रतीक्षा करें ☕",
-    listenAll: "▶ सब सुनें",
-    stop: "⏹ रोकें",
+    listenAll: "🎧 सुनें — Listen Now",
+    stop: "⏹ रोकें (Stop)",
     gateTagline: "आपका AI-powered निवेशक FM शो। हर सुबह बाज़ार की चाय के साथ।"
   },
   en: {
@@ -628,7 +630,7 @@ const UI = {
       "🎓 Learn Today"
     ],
     generating: "Generating script… please wait ☕",
-    listenAll: "▶ Listen All",
+    listenAll: "🎧 Listen Now",
     stop: "⏹ Stop",
     gateTagline: "Your AI-powered Investor FM Show. Every morning with market chai."
   }
@@ -1321,6 +1323,10 @@ function setupAudio(mi, turns) {
     listenBtn.textContent = UI[lang].listenAll;
   };
 
+  const lbl = document.createElement("span");
+  lbl.className = "audio-controls-label";
+  lbl.textContent = "🎙️ FM Audio";
+  aud.appendChild(lbl);
   aud.appendChild(listenBtn);
 }
 
@@ -1898,6 +1904,10 @@ Provide realistic data. Keep the FM energy alive.`;
       listenBtn.className = "audio-btn";
       listenBtn.textContent = UI[lang].listenAll;
     };
+    const lbl2 = document.createElement("span");
+    lbl2.className = "audio-controls-label";
+    lbl2.textContent = "🎙️ FM Audio";
+    audEl.appendChild(lbl2);
     audEl.appendChild(listenBtn);
 
   } catch(err) {
