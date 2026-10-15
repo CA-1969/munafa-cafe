@@ -1193,8 +1193,12 @@ async function fetchMarketSnapshot(force = false) {
 // Admin: regenerate Redis cache by calling /api/generate-cache
 // Show Regen button only for admin (URL ?admin=1 or localStorage flag)
 function checkAdminAccess() {
-  const isAdmin = new URLSearchParams(window.location.search).get("admin") === "1"
-                  || localStorage.getItem("munafa_admin") === "1";
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("admin") === "1") {
+    // Persist admin flag so Regen stays visible after reload
+    localStorage.setItem("munafa_admin", "1");
+  }
+  const isAdmin = localStorage.getItem("munafa_admin") === "1";
   const btn = document.getElementById("regen-btn");
   if (btn) btn.style.display = isAdmin ? "inline-block" : "none";
 }
@@ -2218,6 +2222,7 @@ window.addEventListener("DOMContentLoaded", () => {
   autoLogin();
   updateWALabel();
   // Pre-warm: check cache and mark buttons "Ready" if scripts are available
+  checkAdminAccess();
   setTimeout(warmCacheButtons, 1200);
 });
 </script>
