@@ -1076,6 +1076,37 @@ async function callApi(prompt) {
 }
 
 // ────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────
+// CACHE HELPERS — fetch pre-generated scripts from Redis
+// ────────────────────────────────────────────────────────
+async function fetchCached(mi) {
+  try {
+    const r = await fetch(`/api/get-cached?mi=${mi}&lang=${lang}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (!d.cached || !d.content) return null;
+    return d; // { content, generated_at, cached }
+  } catch(e) {
+    console.warn("[Cache] fetch failed:", e.message);
+    return null;
+  }
+}
+
+// Pre-fetch all module scripts once on page load and mark buttons as "Ready"
+async function warmCacheButtons() {
+  for (let mi = 0; mi <= 6; mi++) {
+    const gb = document.getElementById("gen-" + mi);
+    if (!gb) continue;
+    const cached = await fetchCached(mi);
+    if (cached && cached.content) {
+      gb.dataset.cachedContent   = cached.content;
+      gb.dataset.cachedAt        = cached.generated_at || "";
+      const readyLabel = lang === "hi" ? "▶ तैयार है — चलाएँ" : "▶ Ready — Play Now";
+      gb.textContent = readyLabel;
+    }
+  }
+}
+
 // GENERATE MODULE
 // ────────────────────────────────────────────────────────
 async function generate(mi) {
@@ -1087,6 +1118,19 @@ async function generate(mi) {
   const bdg  = document.getElementById("badge-" + mi);
   const aud  = document.getElementById("audio-" + mi);
 
+  // ── Try cached content first (instant load) ──────────────────
+  const cachedContent = gb.dataset.cachedContent;
+  if (cachedContent) {
+    gb.disabled = true;
+    gb.textContent = UI[lang].generating;
+    out.classList.remove("visible");
+    scr.innerHTML = "";
+    aud.innerHTML = "";
+    // Render from cache with "cached" badge
+    renderModuleOutput(mi, cachedContent, "📦 Cached", "api-claude", out, scr, bdg, aud, gb, cachedContent);
+    return;
+  }
+
   gb.disabled = true;
   gb.textContent = UI[lang].generating;
   out.classList.remove("visible");
@@ -1094,84 +1138,15 @@ async function generate(mi) {
   aud.innerHTML = "";
 
   try {
-    const { text, badge, cls } = await callApi(getPrompt(mi));
-
-    // Parse JSON — strip markdown fences first, then extract JSON object
-    let parsed;
-    try {
-      // Step 1: Extract the JSON object (ignore markdown fences, preamble, postamble)
-      const start = text.indexOf("{");
-      const end   = text.lastIndexOf("}");
-      if (start === -1 || end === -1) throw new Error("No JSON object found");
-      let clean = text.slice(start, end + 1);
-
-      // Step 2: Repair common AI JSON mistakes
-      // Fix literal newlines and control characters inside JSON string values
-      // This handles Hindi text, long scripts, and any unescaped newlines
-      clean = clean.replace(/"((?:[^"\\]|\\.)*)"/gs, (match, inner) => {
-        const fixed = inner
-          .replace(/\r\n/g, "\\n")  // Windows line endings
-          .replace(/\r/g, "\\n")    // old Mac line endings
-          .replace(/\n/g, "\\n")    // Unix line endings
-          .replace(/\t/g, "\\t");   // tabs
-        return '"' + fixed + '"';
-      });
-
-      parsed = JSON.parse(clean);
-    } catch(e) {
-      console.warn("JSON parse error:", e.message, "\nRaw text:", text.slice(0, 300));
-      // Fallback: display raw text in readable form
-      scr.innerHTML = "<div class='turn'><div class='turn-text' style='white-space:pre-wrap'>" + text + "</div></div>";
-      bdg.className = "api-badge " + cls;
-      bdg.textContent = badge + " · parse error";
-      out.classList.add("visible");
-      setupAudio(mi, [{ n:1, t: text, s:"A" }]);
+    // Try live API cache endpoint once more (in case warm didn't run yet)
+    const freshCache = await fetchCached(mi);
+    if (freshCache && freshCache.content) {
+      renderModuleOutput(mi, freshCache.content, "📦 Cached", "api-claude", out, scr, bdg, aud, gb, freshCache.content);
       return;
     }
 
-    const turns = Array.isArray(parsed.turns) ? parsed.turns : [];
-
-    if (parsed.company) {
-      scr.innerHTML = "<div style='font-size:11px;color:var(--accent);margin-bottom:10px;font-weight:700'>🏢 " + parsed.company + "</div>";
-    } else if (parsed.topic) {
-      scr.innerHTML = "<div style='font-size:13px;color:var(--accent2);margin-bottom:12px;font-weight:700;padding:8px 12px;background:rgba(0,188,212,.08);border-radius:8px;border:1px solid rgba(0,188,212,.2)'>🎓 आज का विषय / Today's Topic: " + parsed.topic + "</div>";
-      // Also update the card subtitle with topic
-      const ld = document.getElementById("learn-desc");
-      if (ld) ld.textContent = "Today: " + parsed.topic;
-    } else {
-      scr.innerHTML = "";
-    }
-
-    // Module 0 = Anurag-Deepa dialogue bubbles; others = plain turns
-    if (mi === 0) {
-      const dlg = document.createElement("div");
-      dlg.className = "dialogue";
-      turns.forEach(t => {
-        const isDeep = (t.s === "D");
-        const bubble = document.createElement("div");
-        bubble.className = "dlg-bubble" + (isDeep ? " deepa" : "");
-        bubble.innerHTML =
-          "<div class='dlg-avatar " + (isDeep ? "av-d" : "av-a") + "'>" + (isDeep ? "D" : "A") + "</div>" +
-          "<div class='dlg-body'>" +
-            "<div class='dlg-name " + (isDeep ? "nm-d" : "nm-a") + "'>" + (isDeep ? "Deepa" : "Anurag") + "</div>" +
-            "<div class='dlg-text " + (isDeep ? "tx-d" : "tx-a") + "'>" + (t.t || "") + "</div>" +
-          "</div>";
-        dlg.appendChild(bubble);
-      });
-      scr.appendChild(dlg);
-    } else {
-      turns.forEach(t => {
-        const div = document.createElement("div");
-        div.className = "turn";
-        div.innerHTML = "<div class='turn-num'>Turn " + t.n + "</div><div class='turn-text'>" + (t.t || "") + "</div>";
-        scr.appendChild(div);
-      });
-    }
-
-    bdg.className = "api-badge " + cls;
-    bdg.textContent = badge + " · " + turns.length + " turns";
-    out.classList.add("visible");
-    setupAudio(mi, turns);
+    const { text, badge, cls } = await callApi(getPrompt(mi));
+    renderModuleOutput(mi, text, badge, cls, out, scr, bdg, aud, gb, text);
 
   } catch(e) {
     scr.innerHTML = "<div style='color:var(--red);padding:12px'>❌ " + e.message + "</div>";
@@ -1179,7 +1154,96 @@ async function generate(mi) {
   } finally {
     const d = new Date();
     const ds = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
-    gb.textContent = "🔄 Refresh — " + ds;
+    if (!gb.dataset.cachedContent) gb.textContent = "🔄 Refresh — " + ds;
+    else {
+      const readyLabel = lang === "hi" ? "▶ तैयार है — चलाएँ" : "▶ Ready — Play Now";
+      gb.textContent = readyLabel;
+    }
+    gb.disabled = false;
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// RENDER MODULE OUTPUT — shared by generate() and cache path
+// ────────────────────────────────────────────────────────
+function renderModuleOutput(mi, text, badge, cls, out, scr, bdg, aud, gb, rawText) {
+  // Parse JSON — strip markdown fences first, then extract JSON object
+  let parsed;
+  try {
+    const start = text.indexOf("{");
+    const end   = text.lastIndexOf("}");
+    if (start === -1 || end === -1) throw new Error("No JSON object found");
+    let clean = text.slice(start, end + 1)
+      .replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ").replace(/\t/g, " ");
+    parsed = JSON.parse(clean);
+  } catch(e) {
+    console.warn("JSON parse error:", e.message, "\nRaw:", text.slice(0, 300));
+    scr.innerHTML = "<div class='turn'><div class='turn-text' style='white-space:pre-wrap'>" + text + "</div></div>";
+    bdg.className = "api-badge " + cls;
+    bdg.textContent = badge + " · parse error";
+    out.classList.add("visible");
+    setupAudio(mi, [{ n:1, t: text, s:"A" }]);
+    const d = new Date();
+    const ds = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
+    if (gb) { gb.textContent = "🔄 Refresh — " + ds; gb.disabled = false; }
+    return;
+  }
+
+  const turns = Array.isArray(parsed.turns) ? parsed.turns : [];
+
+  if (parsed.company) {
+    scr.innerHTML = "<div style='font-size:11px;color:var(--accent);margin-bottom:10px;font-weight:700'>🏢 " + parsed.company + "</div>";
+  } else if (parsed.topic) {
+    scr.innerHTML = "<div style='font-size:13px;color:var(--accent2);margin-bottom:12px;font-weight:700;padding:8px 12px;background:rgba(0,188,212,.08);border-radius:8px;border:1px solid rgba(0,188,212,.2)'>🎓 आज का विषय / Today's Topic: " + parsed.topic + "</div>";
+    const ld = document.getElementById("learn-desc");
+    if (ld) ld.textContent = "Today: " + parsed.topic;
+  } else {
+    scr.innerHTML = "";
+  }
+
+  // Module 0 = Anurag-Deepa dialogue bubbles; others = plain turns
+  if (mi === 0) {
+    const dlg = document.createElement("div");
+    dlg.className = "dialogue";
+    turns.forEach(t => {
+      const txt = t.t || t.text || t.content || Object.values(t).find(v => typeof v === "string" && v.length > 5) || "";
+      const spk = t.s || t.speaker || "A";
+      const isDeep = (spk === "D");
+      const bubble = document.createElement("div");
+      bubble.className = "dlg-bubble" + (isDeep ? " deepa" : "");
+      bubble.innerHTML =
+        "<div class='dlg-avatar " + (isDeep ? "av-d" : "av-a") + "'>" + (isDeep ? "D" : "A") + "</div>" +
+        "<div class='dlg-body'>" +
+          "<div class='dlg-name " + (isDeep ? "nm-d" : "nm-a") + "'>" + (isDeep ? "Deepa" : "Anurag") + "</div>" +
+          "<div class='dlg-text " + (isDeep ? "tx-d" : "tx-a") + "'>" + txt + "</div>" +
+        "</div>";
+      dlg.appendChild(bubble);
+    });
+    scr.appendChild(dlg);
+  } else {
+    turns.forEach(t => {
+      const txt = t.t || t.text || t.content || Object.values(t).find(v => typeof v === "string" && v.length > 5) || "";
+      const div = document.createElement("div");
+      div.className = "turn";
+      div.innerHTML = "<div class='turn-num'>Turn " + t.n + "</div><div class='turn-text'>" + txt + "</div>";
+      scr.appendChild(div);
+    });
+  }
+
+  bdg.className = "api-badge " + cls;
+  bdg.textContent = badge + " · " + turns.length + " turns";
+  out.classList.add("visible");
+  setupAudio(mi, turns);
+
+  const d = new Date();
+  const ds = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
+  if (gb) {
+    if (badge === "📦 Cached") {
+      const readyLabel = lang === "hi" ? "▶ तैयार है — चलाएँ" : "▶ Ready — Play Now";
+      gb.textContent = readyLabel;
+    } else {
+      gb.textContent = "🔄 Refresh — " + ds;
+    }
     gb.disabled = false;
   }
 }
@@ -1758,8 +1822,14 @@ Provide realistic data. Keep the FM energy alive.`;
     badgeEl.className = "api-badge " + cls;
     badgeEl.textContent = badge;
 
+    // Debug: show what keys each turn has
+    const firstTurn = turns[0] || {};
+    const firstKeys = Object.keys(firstTurn).join(",");
+    const firstTxt  = firstTurn.t || firstTurn.text || firstTurn.content || "[empty]";
+    console.log("[Company] turn keys:", firstKeys, "| first text:", firstTxt.slice(0,80));
+
     scriptBox.innerHTML = turns.map(t => {
-      const txt = t.t || t.text || t.content || "";
+      const txt = t.t || t.text || t.content || Object.values(t).find(v => typeof v === "string" && v.length > 5) || "";
       const spk = (t.s || t.speaker || "A");
       return `<div class="turn turn-${spk === "D" ? "D" : "A"}">
         <span class="speaker">${spk === "D" ? "Deepa" : "Anurag"}</span>
@@ -1985,6 +2055,8 @@ function nseScheduleRefresh() {
 window.addEventListener("DOMContentLoaded", () => {
   autoLogin();
   updateWALabel();
+  // Pre-warm: check cache and mark buttons "Ready" if scripts are available
+  setTimeout(warmCacheButtons, 1200);
 });
 </script>
 </body>
