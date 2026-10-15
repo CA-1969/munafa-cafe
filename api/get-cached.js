@@ -1,5 +1,6 @@
 // api/get-cached.js — Serve pre-generated module scripts from Redis cache
-// GET /api/get-cached?mi=0&lang=hi
+// GET /api/get-cached?mi=0&lang=hi         → cached module script
+// GET /api/get-cached?type=snapshot        → market data snapshot (for live AI calls)
 // Returns: { content: string, generated_at: string, cached: true } or { cached: false }
 
 import { Redis } from "@upstash/redis";
@@ -15,6 +16,20 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=60");
 
+  // ── Market snapshot endpoint ──────────────────────────────────────────────
+  if (req.query.type === "snapshot") {
+    try {
+      const snap = await redis.get("cache:market_snapshot");
+      if (!snap) return res.status(200).json({ cached: false });
+      const data = typeof snap === "string" ? JSON.parse(snap) : snap;
+      return res.status(200).json({ cached: true, snapshot: data });
+    } catch (err) {
+      console.error("snapshot error:", err.message);
+      return res.status(500).json({ error: "Redis error", detail: err.message });
+    }
+  }
+
+  // ── Module script endpoint ────────────────────────────────────────────────
   const mi   = req.query.mi   || "0";
   const lang = (req.query.lang || "hi").toLowerCase();
 
