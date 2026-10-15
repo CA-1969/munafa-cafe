@@ -12,7 +12,6 @@
     "api/seed-sub.js":          { "maxDuration": 10 },
     "api/generate-cache.js":    { "maxDuration": 300 },
     "api/get-cached.js":        { "maxDuration": 10 },
-    "api/whatsapp-broadcast.js":{ "maxDuration": 120 },
     "api/sms-broadcast.js":     { "maxDuration": 120 }
   },
   "crons": [
