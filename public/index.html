@@ -444,7 +444,13 @@ footer a{color:var(--accent);text-decoration:none}
 </main>
 
 <footer>
-  <p>MunaFa Café © 2026 · <a href="https://munaapha.co.in">munaapha.co.in</a> · AI-generated content — not SEBI registered advice · Always do your own research</p>
+  <p style="font-size:11px;color:#6e7681;line-height:1.7;max-width:720px;margin:0 auto 10px">
+    ⚠️ <strong style="color:var(--sub)">Disclaimer:</strong> MunaFa Café is an AI-generated educational platform for general awareness only.
+    Content does not constitute investment advice. We are <strong>not SEBI Registered Investment Advisers</strong>.
+    Consult a qualified financial advisor before making any investment decisions.
+    Past performance is not indicative of future results. Invest responsibly.
+  </p>
+  <p>MunaFa Café © 2026 · <a href="https://munaapha.co.in">munaapha.co.in</a></p>
   <p style="margin-top:6px">Powered by Claude · Gemini · GPT · ElevenLabs</p>
 </footer>
 
@@ -923,25 +929,26 @@ Honest, analytical broadcast style. No hype. Use realistic fictional companies i
 
     // 5 — Results Calendar
     lang === "hi"
-    ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
-15 टर्न का परिणाम सत्र विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
+    ? `आप MunaFa Café FM के Anurag और Deepa हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" नहीं। आज की तारीख ${d} है।
+IMPORTANT: केवल raw JSON दें, कोई markdown fences नहीं।
+15 टर्न का परिणाम सत्र dialogue तैयार करें। प्रत्येक टर्न 40-55 असली बोले जाने वाले शब्दों का हो। "t" field में असली script होनी चाहिए, placeholder नहीं।
 केवल इस JSON में उत्तर दें:
 {"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"}
+{"n":1,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":2,"s":"D","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":3,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":4,"s":"D","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":5,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":6,"s":"D","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":7,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":8,"s":"D","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":9,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":10,"s":"D","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":11,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":12,"s":"D","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":13,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":14,"s":"D","t":"[40-55 शब्दों की असली script यहाँ लिखें]"},
+{"n":15,"s":"A","t":"[40-55 शब्दों की असली script यहाँ लिखें]"}
 ]}
 भाषा नियम (अनिवार्य):
 - सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
@@ -964,26 +971,26 @@ Honest, analytical broadcast style. No hype. Use realistic fictional companies i
 टर्न 13: प्रबंधन टिप्पणी का अर्थ — "सतर्क आशावाद", "अपेक्षाओं के अनुरूप", "चुनौतीपूर्ण माहौल" का वास्तविक अर्थ।
 टर्न 14: आय आश्चर्य का इतिहास — जो कंपनियाँ लगातार बेहतर या बदतर प्रदर्शन करती हैं, क्यों मायने रखता है।
 टर्न 15: परिणाम सत्र निवेश रणनीति — पोर्टफोलियो कैसे तैयार करें, किन परिणामों पर कार्य करें, जोखिम प्रबंधन।`
-    : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+    : `You are Anurag and Deepa on MunaFa Café FM, an AI investor radio show. Say your name as "Anurag" only, never "RJ Anurag". Today is ${d}.
 IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
-Generate a 15-turn results season analysis. Each turn must be 40-55 words.
+Generate a 15-turn dialogue about this results season. Each turn must be 40-55 words of ACTUAL spoken script. The "t" field must contain REAL spoken words, not placeholders.
 Reply ONLY with this JSON:
 {"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"}
+{"n":1,"s":"A","t":"[write actual 40-55 word script here]"},
+{"n":2,"s":"D","t":"[write actual 40-55 word script here]"},
+{"n":3,"s":"A","t":"[write actual 40-55 word script here]"},
+{"n":4,"s":"D","t":"[write actual 40-55 word script here]"},
+{"n":5,"s":"A","t":"[write actual 40-55 word script here]"},
+{"n":6,"s":"D","t":"[write actual 40-55 word script here]"},
+{"n":7,"s":"A","t":"[write actual 40-55 word script here]"},
+{"n":8,"s":"D","t":"[write actual 40-55 word script here]"},
+{"n":9,"s":"A","t":"[write actual 40-55 word script here]"},
+{"n":10,"s":"D","t":"[write actual 40-55 word script here]"},
+{"n":11,"s":"A","t":"[write actual 40-55 word script here]"},
+{"n":12,"s":"D","t":"[write actual 40-55 word script here]"},
+{"n":13,"s":"A","t":"[write actual 40-55 word script here]"},
+{"n":14,"s":"D","t":"[write actual 40-55 word script here]"},
+{"n":15,"s":"A","t":"[write actual 40-55 word script here]"}
 ]}
 Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
@@ -1125,19 +1132,60 @@ async function fetchCached(mi) {
   }
 }
 
-// Fetch real market snapshot from Redis (stored by generate-cache.js)
-let marketSnap = null; // cached snapshot for live AI calls
-async function fetchMarketSnapshot() {
-  if (marketSnap) return marketSnap;
+// Fetch real market snapshot — tries live nse-proxy first, then Redis cache
+let marketSnap = null; // in-memory cache (cleared on page reload)
+async function fetchMarketSnapshot(force = false) {
+  if (marketSnap && !force) return marketSnap;
+  try {
+    // Try live nse-proxy for fresh data (indices + gainers/losers)
+    const [idxRes, gRes, lRes] = await Promise.all([
+      fetch("/api/nse-proxy?type=indices"),
+      fetch("/api/nse-proxy?type=gainers"),
+      fetch("/api/nse-proxy?type=losers")
+    ]);
+    if (idxRes.ok) {
+      const idxData = await idxRes.json();
+      const gainersData = gRes.ok ? await gRes.json() : [];
+      const losersData  = lRes.ok ? await lRes.json() : [];
+      // nse-proxy returns { indices: [{name, last, change, pct, status}, ...] }
+      const indices = idxData.indices || [];
+      const findIdx = (keyword) => indices.find(i => i.name && i.name.toUpperCase().includes(keyword.toUpperCase()));
+      const niftyIdx    = findIdx("NIFTY 50");
+      const sensexIdx   = findIdx("SENSEX");
+      const bankNiftyIdx= findIdx("NIFTY BANK");
+      const vixIdx      = findIdx("VIX");
+      const fmtVal = (v) => v ? Math.round(v).toLocaleString("en-IN") : "N/A";
+      const fmtChg = (c, p) => c != null ? `${c >= 0 ? "+" : ""}${c.toFixed(1)}, ${p >= 0 ? "+" : ""}${p.toFixed(2)}%` : "N/A";
+      const lines = [];
+      if (niftyIdx)     lines.push(`Nifty 50: ${fmtVal(niftyIdx.last)} (${fmtChg(niftyIdx.change, niftyIdx.pct)})`);
+      if (sensexIdx)    lines.push(`Sensex: ${fmtVal(sensexIdx.last)} (${fmtChg(sensexIdx.change, sensexIdx.pct)})`);
+      if (bankNiftyIdx) lines.push(`Bank Nifty: ${fmtVal(bankNiftyIdx.last)} (${fmtChg(bankNiftyIdx.change, bankNiftyIdx.pct)})`);
+      if (vixIdx)       lines.push(`India VIX: ${vixIdx.last ? vixIdx.last.toFixed(2) : "N/A"}`);
+      if (gainersData.length) lines.push("Top Gainers: " + gainersData.slice(0,5).map(g => `${g.symbol||g.name} +${(g.pct||0).toFixed(2)}%`).join(", "));
+      if (losersData.length)  lines.push("Top Losers: " + losersData.slice(0,5).map(l => `${l.symbol||l.name} ${(l.pct||0).toFixed(2)}%`).join(", "));
+      marketSnap = {
+        nifty:     niftyIdx     ? { close: niftyIdx.last,     chg: niftyIdx.change,     pct: niftyIdx.pct }     : null,
+        sensex:    sensexIdx    ? { close: sensexIdx.last,    chg: sensexIdx.change,    pct: sensexIdx.pct }    : null,
+        bankNifty: bankNiftyIdx ? { close: bankNiftyIdx.last, chg: bankNiftyIdx.change, pct: bankNiftyIdx.pct } : null,
+        vix:       vixIdx       ? { close: vixIdx.last } : null,
+        gainers: gainersData, losers: losersData,
+        summary: lines.join(" | ")
+      };
+      return marketSnap;
+    }
+  } catch(e) {
+    console.warn("[Snapshot] live fetch failed:", e.message, "— trying Redis...");
+  }
+  // Fallback: Redis snapshot from last generate-cache run
   try {
     const r = await fetch("/api/get-cached?type=snapshot");
     if (!r.ok) return null;
     const d = await r.json();
     if (!d.cached || !d.snapshot) return null;
-    marketSnap = d.snapshot; // { summary, nifty, sensex, bankNifty, vix, gainers, losers, ... }
+    marketSnap = d.snapshot;
     return marketSnap;
   } catch(e) {
-    console.warn("[Snapshot] fetch failed:", e.message);
+    console.warn("[Snapshot] Redis fallback failed:", e.message);
     return null;
   }
 }
@@ -1226,8 +1274,8 @@ async function generate(mi) {
   aud.innerHTML = "";
 
   try {
-    // Fetch real market snapshot for live AI prompt injection
-    const snap = await fetchMarketSnapshot();
+    // Fetch fresh market snapshot for live AI prompt injection (force=true bypasses cache)
+    const snap = await fetchMarketSnapshot(true);
     const { text, badge, cls } = await callApi(getPrompt(mi, snap));
     renderModuleOutput(mi, text, badge, cls, out, scr, bdg, aud, gb, text);
 
