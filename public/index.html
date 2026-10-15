@@ -159,8 +159,8 @@ footer a{color:var(--accent);text-decoration:none}
 .nse-status-bar{font-size:10px;color:var(--sub);text-align:right;margin-bottom:10px;display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .nse-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;display:inline-block}
 .nse-err{color:var(--red);font-size:12px;padding:16px;text-align:center}
-.nse-retry{background:transparent;border:1px solid var(--border);color:var(--sub);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;margin-left:8px}
-.nse-retry:hover{border-color:var(--accent);color:var(--accent)}
+.nse-retry{background:rgba(240,165,0,.12);border:2px solid var(--accent);color:var(--accent);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:13px;font-weight:700;margin-left:10px;letter-spacing:.3px}
+.nse-retry:hover{background:var(--accent);color:#000}
 @media(max-width:700px){
   .nse-indices-grid{grid-template-columns:repeat(2,1fr)}
   .nse-bottom-row{grid-template-columns:1fr}
@@ -231,7 +231,7 @@ footer a{color:var(--accent);text-decoration:none}
   <div class="lang-toggle">
     <button class="lang-btn active" onclick="setLang('hi')" id="btn-hi">हिं</button>
     <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
-    <button class="lang-btn" id="regen-btn" onclick="regenCache()" title="Regenerate all scripts from AI (flushes Redis cache)" style="background:#1a2a1a;border-color:#3fb950;color:#3fb950;font-size:10px;padding:5px 10px">⚡ Regen</button>
+    <button class="lang-btn" id="regen-btn" onclick="regenCache()" title="Regenerate all scripts from AI" style="background:#1a2a1a;border-color:#3fb950;color:#3fb950;font-size:10px;padding:5px 10px;display:none">⚡ Regen</button>
   </div>
 </header>
 
@@ -591,21 +591,21 @@ function getPrompt(mi, snap) {
 
 15 turns का संवाद लिखें, हर turn 40-55 शब्द। सिर्फ यह JSON दें, कोई अतिरिक्त टेक्स्ट नहीं:
 {"turns":[
-{"n":1,"s":"A","t":"TEXT"},
-{"n":2,"s":"D","t":"TEXT"},
-{"n":3,"s":"A","t":"TEXT"},
-{"n":4,"s":"D","t":"TEXT"},
-{"n":5,"s":"A","t":"TEXT"},
-{"n":6,"s":"D","t":"TEXT"},
-{"n":7,"s":"A","t":"TEXT"},
-{"n":8,"s":"D","t":"TEXT"},
-{"n":9,"s":"A","t":"TEXT"},
-{"n":10,"s":"D","t":"TEXT"},
-{"n":11,"s":"A","t":"TEXT"},
-{"n":12,"s":"D","t":"TEXT"},
-{"n":13,"s":"A","t":"TEXT"},
-{"n":14,"s":"D","t":"TEXT"},
-{"n":15,"s":"A","t":"TEXT"}
+{"n":1,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":2,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":3,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":4,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":5,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":6,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":7,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":8,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":9,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":10,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":11,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":12,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":13,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":14,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":15,"s":"A","t":"[write actual script text here, 40-55 words]"}
 ]}
 
 "s": "A" = Anurag, "D" = Deepa।
@@ -632,21 +632,21 @@ IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no expla
 This is the Morning Market Brief — a natural radio dialogue. Write 15 turns, each 40-55 words, in pure English only (financial terms like Nifty, Sensex are fine).
 Reply ONLY with this JSON, no extra text:
 {"turns":[
-{"n":1,"s":"A","t":"TEXT"},
-{"n":2,"s":"D","t":"TEXT"},
-{"n":3,"s":"A","t":"TEXT"},
-{"n":4,"s":"D","t":"TEXT"},
-{"n":5,"s":"A","t":"TEXT"},
-{"n":6,"s":"D","t":"TEXT"},
-{"n":7,"s":"A","t":"TEXT"},
-{"n":8,"s":"D","t":"TEXT"},
-{"n":9,"s":"A","t":"TEXT"},
-{"n":10,"s":"D","t":"TEXT"},
-{"n":11,"s":"A","t":"TEXT"},
-{"n":12,"s":"D","t":"TEXT"},
-{"n":13,"s":"A","t":"TEXT"},
-{"n":14,"s":"D","t":"TEXT"},
-{"n":15,"s":"A","t":"TEXT"}
+{"n":1,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":2,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":3,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":4,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":5,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":6,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":7,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":8,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":9,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":10,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":11,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":12,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":13,"s":"A","t":"[write actual script text here, 40-55 words]"},
+{"n":14,"s":"D","t":"[write actual script text here, 40-55 words]"},
+{"n":15,"s":"A","t":"[write actual script text here, 40-55 words]"}
 ]}
 "s": "A" = Anurag speaking, "D" = Deepa speaking.
 DIALOGUE SEQUENCE:
@@ -688,9 +688,9 @@ Pick ONE major Indian listed company from Nifty 50 or Nifty Next 50 that is news
 Language: Pure English only. No Hindi words at all.
 15 turns, each 40-55 words. Reply ONLY with this JSON:
 {"company":"COMPANY NAME","turns":[
-{"n":1,"t":"TEXT"},{"n":2,"t":"TEXT"},{"n":3,"t":"TEXT"},{"n":4,"t":"TEXT"},{"n":5,"t":"TEXT"},
-{"n":6,"t":"TEXT"},{"n":7,"t":"TEXT"},{"n":8,"t":"TEXT"},{"n":9,"t":"TEXT"},{"n":10,"t":"TEXT"},
-{"n":11,"t":"TEXT"},{"n":12,"t":"TEXT"},{"n":13,"t":"TEXT"},{"n":14,"t":"TEXT"},{"n":15,"t":"TEXT"}
+{"n":1,"t":"[write actual script text here, 40-55 words]"},{"n":2,"t":"[write actual script text here, 40-55 words]"},{"n":3,"t":"[write actual script text here, 40-55 words]"},{"n":4,"t":"[write actual script text here, 40-55 words]"},{"n":5,"t":"[write actual script text here, 40-55 words]"},
+{"n":6,"t":"[write actual script text here, 40-55 words]"},{"n":7,"t":"[write actual script text here, 40-55 words]"},{"n":8,"t":"[write actual script text here, 40-55 words]"},{"n":9,"t":"[write actual script text here, 40-55 words]"},{"n":10,"t":"[write actual script text here, 40-55 words]"},
+{"n":11,"t":"[write actual script text here, 40-55 words]"},{"n":12,"t":"[write actual script text here, 40-55 words]"},{"n":13,"t":"[write actual script text here, 40-55 words]"},{"n":14,"t":"[write actual script text here, 40-55 words]"},{"n":15,"t":"[write actual script text here, 40-55 words]"}
 ]}
 Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly results vs expectations. Turn 6-7 technical chart — support/resistance, RSI, trend. Turn 8-9 promoter holding, FII/DII changes. Turn 10-11 sector position, competitive moat. Turn 12 management quality. Turn 13 key risks. Turn 14 analyst targets and consensus. Turn 15 your honest verdict — buy/hold/watch with reasons.`,
 
@@ -1143,6 +1143,14 @@ async function fetchMarketSnapshot() {
 }
 
 // Admin: regenerate Redis cache by calling /api/generate-cache
+// Show Regen button only for admin (URL ?admin=1 or localStorage flag)
+function checkAdminAccess() {
+  const isAdmin = new URLSearchParams(window.location.search).get("admin") === "1"
+                  || localStorage.getItem("munafa_admin") === "1";
+  const btn = document.getElementById("regen-btn");
+  if (btn) btn.style.display = isAdmin ? "inline-block" : "none";
+}
+
 async function regenCache() {
   const btn = document.getElementById("regen-btn");
   const secret = prompt("Enter CRON_SECRET to regenerate all scripts:");
@@ -1399,7 +1407,7 @@ const XI_VOICE_DEEPA  = "C2S5J6WvmHnrQWjUu6Rg"; // Deepa  (cloned)
 // Anurag: measured, authoritative anchor voice
 // Deepa:  warm, slightly brighter co-host
 const XI_SETTINGS = {
-  A: { stability: 0.72, similarity_boost: 0.90, style: 0.18, use_speaker_boost: true },  // higher stability = consistent voice across all turns
+  A: { stability: 1.0, similarity_boost: 0.95, style: 0.0, use_speaker_boost: true },  // max stability = fully locked voice, no variation
   D: { stability: 0.65, similarity_boost: 0.88, style: 0.32, use_speaker_boost: true }
 };
 
@@ -1429,11 +1437,27 @@ async function speakTurn(text, speaker) {
       throw new Error("TTS " + r.status + " " + errDetail);
     }
     const buf = await r.arrayBuffer();
+    if (buf.byteLength < 100) throw new Error("TTS returned empty audio");
     audioCache[cacheKey] = buf;
     await playBuffer(buf);
   } catch(e) {
-    console.warn("⚠️ TTS failed (browser fallback):", e.message);
-    await browserSpeak(text, sp);
+    console.warn("⚠️ TTS failed:", e.message, "— retrying once…");
+    // Retry once before browser fallback
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      const r2 = await fetch("/api/tts", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, voice_id: voiceId, model_id: "eleven_multilingual_v2", voice_settings: XI_SETTINGS[sp], seed: sp === "D" ? 42 : 17 })
+      });
+      if (!r2.ok) throw new Error("retry " + r2.status);
+      const buf2 = await r2.arrayBuffer();
+      if (buf2.byteLength < 100) throw new Error("retry empty");
+      audioCache[cacheKey] = buf2;
+      await playBuffer(buf2);
+    } catch(e2) {
+      console.warn("⚠️ TTS retry failed:", e2.message, "— browser speech fallback");
+      await browserSpeak(text, sp);
+    }
   }
 }
 
