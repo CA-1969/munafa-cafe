@@ -1169,19 +1169,23 @@ async function generate(mi) {
   const bdg  = document.getElementById("badge-" + mi);
   const aud  = document.getElementById("audio-" + mi);
 
-  // ── Try cached content first (instant load) ──────────────────
+  // ── First click: serve from pre-loaded cache (instant) ───────
+  // On subsequent clicks (Refresh), skip cache and call live AI
   const cachedContent = gb.dataset.cachedContent;
-  if (cachedContent) {
+  const isFirstLoad = !!cachedContent;
+  if (isFirstLoad) {
     gb.disabled = true;
     gb.textContent = UI[lang].generating;
     out.classList.remove("visible");
     scr.innerHTML = "";
     aud.innerHTML = "";
-    // Render from cache with "cached" badge
+    // Clear so next click goes live
+    delete gb.dataset.cachedContent;
     renderModuleOutput(mi, cachedContent, "📦 Cached", "api-claude", out, scr, bdg, aud, gb, cachedContent);
     return;
   }
 
+  // ── Refresh / live generation ─────────────────────────────────
   gb.disabled = true;
   gb.textContent = UI[lang].generating;
   out.classList.remove("visible");
@@ -1189,13 +1193,6 @@ async function generate(mi) {
   aud.innerHTML = "";
 
   try {
-    // Try live API cache endpoint once more (in case warm didn't run yet)
-    const freshCache = await fetchCached(mi);
-    if (freshCache && freshCache.content) {
-      renderModuleOutput(mi, freshCache.content, "📦 Cached", "api-claude", out, scr, bdg, aud, gb, freshCache.content);
-      return;
-    }
-
     // Fetch real market snapshot for live AI prompt injection
     const snap = await fetchMarketSnapshot();
     const { text, badge, cls } = await callApi(getPrompt(mi, snap));
@@ -1207,11 +1204,7 @@ async function generate(mi) {
   } finally {
     const d = new Date();
     const ds = d.getDate() + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
-    if (!gb.dataset.cachedContent) gb.textContent = "🔄 Refresh — " + ds;
-    else {
-      const readyLabel = lang === "hi" ? "▶ तैयार है — चलाएँ" : "▶ Ready — Play Now";
-      gb.textContent = readyLabel;
-    }
+    gb.textContent = "🔄 Refresh — " + ds;
     gb.disabled = false;
   }
 }
