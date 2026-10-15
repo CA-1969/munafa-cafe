@@ -1,16 +1,25 @@
 {
   "version": 2,
   "functions": {
-    "api/claude.js":          { "maxDuration": 60 },
-    "api/gemini.js":          { "maxDuration": 60 },
-    "api/gpt.js":             { "maxDuration": 60 },
-    "api/tts.js":             { "maxDuration": 60 },
-    "api/nse-proxy.js":       { "maxDuration": 30 },
-    "api/angel-login.js":     { "maxDuration": 15 },
-    "api/check-sub.js":       { "maxDuration": 10 },
-    "api/verify-payment.js":  { "maxDuration": 10 },
-    "api/seed-sub.js":        { "maxDuration": 10 }
+    "api/claude.js":            { "maxDuration": 60 },
+    "api/gemini.js":            { "maxDuration": 60 },
+    "api/gpt.js":               { "maxDuration": 60 },
+    "api/tts.js":               { "maxDuration": 60 },
+    "api/nse-proxy.js":         { "maxDuration": 30 },
+    "api/angel-login.js":       { "maxDuration": 15 },
+    "api/check-sub.js":         { "maxDuration": 10 },
+    "api/verify-payment.js":    { "maxDuration": 10 },
+    "api/seed-sub.js":          { "maxDuration": 10 },
+    "api/generate-cache.js":    { "maxDuration": 300 },
+    "api/get-cached.js":        { "maxDuration": 10 },
+    "api/whatsapp-broadcast.js":{ "maxDuration": 120 },
+    "api/sms-broadcast.js":     { "maxDuration": 120 }
   },
+  "crons": [
+    { "path": "/api/generate-cache", "schedule": "30 18 * * *" },
+    { "path": "/api/generate-cache", "schedule": "30 6 * * *"  },
+    { "path": "/api/sms-broadcast",  "schedule": "30 2 * * *"  }
+  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)",     "dest": "/public/index.html" }
