@@ -231,6 +231,7 @@ footer a{color:var(--accent);text-decoration:none}
   <div class="lang-toggle">
     <button class="lang-btn active" onclick="setLang('hi')" id="btn-hi">हिं</button>
     <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+    <button class="lang-btn" id="regen-btn" onclick="regenCache()" title="Regenerate all scripts from AI (flushes Redis cache)" style="background:#1a2a1a;border-color:#3fb950;color:#3fb950;font-size:10px;padding:5px 10px">⚡ Regen</button>
   </div>
 </header>
 
@@ -1141,6 +1142,30 @@ async function fetchMarketSnapshot() {
   }
 }
 
+// Admin: regenerate Redis cache by calling /api/generate-cache
+async function regenCache() {
+  const btn = document.getElementById("regen-btn");
+  const secret = prompt("Enter CRON_SECRET to regenerate all scripts:");
+  if (!secret) return;
+  btn.disabled = true;
+  btn.textContent = "⏳ Running...";
+  try {
+    const r = await fetch("/api/generate-cache?secret=" + encodeURIComponent(secret));
+    const d = await r.json();
+    if (r.ok) {
+      alert("✅ Cache regenerated! Reload the page to see fresh scripts.\n\n" + (d.message || ""));
+      window.location.reload();
+    } else {
+      alert("❌ Error: " + (d.error || r.status));
+    }
+  } catch(e) {
+    alert("❌ Failed: " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "⚡ Regen";
+  }
+}
+
 // Pre-fetch all module scripts once on page load and mark buttons as "Ready"
 async function warmCacheButtons() {
   // Also pre-fetch market snapshot in the background for live fallback calls
@@ -1398,12 +1423,16 @@ async function speakTurn(text, speaker) {
         seed:           sp === "D" ? 42 : 17   // lock voice to prevent variation across calls
       })
     });
-    if (!r.ok) throw new Error("TTS proxy " + r.status);
+    if (!r.ok) {
+      let errDetail = "";
+      try { const j = await r.json(); errDetail = j.detail || j.error || ""; } catch(_) {}
+      throw new Error("TTS " + r.status + " " + errDetail);
+    }
     const buf = await r.arrayBuffer();
     audioCache[cacheKey] = buf;
     await playBuffer(buf);
   } catch(e) {
-    console.warn("TTS proxy failed, using browser speech:", e.message);
+    console.warn("⚠️ TTS failed (browser fallback):", e.message);
     await browserSpeak(text, sp);
   }
 }
@@ -1414,7 +1443,7 @@ function browserSpeak(text, speaker) {
   // Deepa:  slightly faster, brighter (rate 0.90, pitch 1.15)
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
-    speechSynthesis.cancel(); // clear any queued utterances
+    // Do NOT cancel here — cancelling kills the currently playing turn
     const u = new SpeechSynthesisUtterance(text);
     u.lang   = lang === "hi" ? "hi-IN" : "en-IN";
     u.rate   = speaker === "D" ? 0.90 : 0.84;
@@ -1813,12 +1842,12 @@ async function generateCompany() {
 - केवल ये अंग्रेज़ी शब्द रखें: company का नाम, Nifty, Sensex, SIP, NAV, EBITDA, PE, ROE, RSI, MACD, EPS, IPO, NFO, FII, DII।
 - मुद्रा नियम: "Rs" या "₹" न लिखें — सभी राशियाँ शब्दों में। जैसे "पाँच हज़ार करोड़ रुपये", "दो सौ रुपये प्रति शेयर"।
 
-निम्नलिखित 12 turns का Anurag का एकल monologue लिखें, हर turn 40-55 शब्द:
+निम्नलिखित 12 turns का Anurag का एकल monologue लिखें, हर turn 40-55 शब्द।
+JSON format — हर turn में "t" field में असली script text होना चाहिए, न कोई placeholder:
 {"turns":[
-{"n":1,"s":"A","t":"TEXT"},{"n":2,"s":"A","t":"TEXT"},{"n":3,"s":"A","t":"TEXT"},
-{"n":4,"s":"A","t":"TEXT"},{"n":5,"s":"A","t":"TEXT"},{"n":6,"s":"A","t":"TEXT"},
-{"n":7,"s":"A","t":"TEXT"},{"n":8,"s":"A","t":"TEXT"},{"n":9,"s":"A","t":"TEXT"},
-{"n":10,"s":"A","t":"TEXT"},{"n":11,"s":"A","t":"TEXT"},{"n":12,"s":"A","t":"TEXT"}
+{"n":1,"s":"A","t":"यहाँ Turn 1 की असली script लिखें — 40-55 शब्द"},
+{"n":2,"s":"A","t":"यहाँ Turn 2 की असली script लिखें — 40-55 शब्द"},
+... इसी तरह 12 तक
 ]}
 
 संरचना:
@@ -1839,12 +1868,12 @@ Turn 12: निष्कर्ष — Buy/Hold/Avoid और क्यों, tar
 IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Topic: In-depth analysis of "${company}".
 Write a 12-turn solo monologue (Anurag only), each turn 40-55 words, in clear English.
-Reply ONLY with this JSON:
+Reply ONLY with raw JSON — no markdown fences. Each turn's "t" field must contain the ACTUAL spoken script text, not a placeholder like "TEXT".
+Example of correct format (fill ALL 12 turns with real content):
 {"turns":[
-{"n":1,"s":"A","t":"TEXT"},{"n":2,"s":"A","t":"TEXT"},{"n":3,"s":"A","t":"TEXT"},
-{"n":4,"s":"A","t":"TEXT"},{"n":5,"s":"A","t":"TEXT"},{"n":6,"s":"A","t":"TEXT"},
-{"n":7,"s":"A","t":"TEXT"},{"n":8,"s":"A","t":"TEXT"},{"n":9,"s":"A","t":"TEXT"},
-{"n":10,"s":"A","t":"TEXT"},{"n":11,"s":"A","t":"TEXT"},{"n":12,"s":"A","t":"TEXT"}
+{"n":1,"s":"A","t":"Good morning investors! Today we spotlight ${company} — one of India's most watched stocks. Whether you are a seasoned investor or just starting out, this deep-dive will give you everything you need to make an informed decision. Let us begin!"},
+{"n":2,"s":"A","t":"actual script for turn 2 here..."},
+... continue through n:12
 ]}
 Structure:
 Turn 1: Intro — "Good morning investors! Today we spotlight ${company} — let's break it all down for you."
