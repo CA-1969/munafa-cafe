@@ -627,6 +627,7 @@ Turn 14 (D): "आज के लिए कोई महत्वपूर्ण �
 Turn 15 (A): आज की प्रमुख घटनाएँ — earnings, आर्थिक आँकड़े, और जोशीली विदाई: "निवेश करते रहें, सीखते रहें, MunaFa Café के साथ बने रहें — नमस्कार!"
 ${realDataInjectionHi}स्वाभाविक FM ऊर्जा और गर्मजोशी हो।`
     : `You are two RJs on MunaFa Café FM — Anurag (male, market expert) and Deepa (female, who asks smart questions and simplifies for listeners). Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 This is the Morning Market Brief — a natural radio dialogue. Write 15 turns, each 40-55 words, in pure English only (financial terms like Nifty, Sensex are fine).
 Reply ONLY with this JSON, no extra text:
 {"turns":[
@@ -667,7 +668,7 @@ ${realDataInjectionEn}Natural, warm FM energy throughout.`,
 
     // 1 — Company Spotlight
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख है ${d}।
+    ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख है ${d}।
 Nifty 50 या Nifty Next 50 की एक प्रमुख, चर्चित कंपनी चुनें और उसका विस्तृत विश्लेषण करें।
 भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, EBITDA, FII, DII, PAT, EPS, RSI, IPO, Q2, Q3।
 गलत: "company ka revenue strong hai, growth trajectory positive hai" — यह बिल्कुल नहीं।
@@ -680,7 +681,8 @@ Nifty 50 या Nifty Next 50 की एक प्रमुख, चर्चि�
 {"n":11,"t":"पाठ"},{"n":12,"t":"पाठ"},{"n":13,"t":"पाठ"},{"n":14,"t":"पाठ"},{"n":15,"t":"पाठ"}
 ]}
 क्रम: Turn 1 उत्साही परिचय। Turn 2-3 व्यापार मॉडल। Turn 4-5 तिमाही परिणाम — राजस्व, PAT, EBITDA। Turn 6-7 तकनीकी विश्लेषण — समर्थन/प्रतिरोध, RSI। Turn 8-9 प्रवर्तक हिस्सेदारी, FII/DII बदलाव। Turn 10-11 क्षेत्र में स्थिति। Turn 12 प्रबंधन गुणवत्ता। Turn 13 प्रमुख जोखिम। Turn 14 विश्लेषकों की राय। Turn 15 आपकी राय — खरीदें/रखें/देखें।`
-    : `You are RJ Anurag on MunaFa Café FM. Today is ${d}.
+    : `You are Anurag on MunaFa Café FM. Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Pick ONE major Indian listed company from Nifty 50 or Nifty Next 50 that is newsworthy this week.
 Language: Pure English only. No Hindi words at all.
 15 turns, each 40-55 words. Reply ONLY with this JSON:
@@ -693,7 +695,7 @@ Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly res
 
     // 2 — Macro & Economy
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
 14 टर्न का macro economy विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -727,7 +729,8 @@ Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly res
 टर्न 12: सरकारी व्यय — पूंजीगत व्यय बनाम राजकोषीय घाटा, बुनियादी ढांचा।
 टर्न 13: वैश्विक जोखिम — अमेरिकी Fed के निर्णय, चीन की मंदी, मध्य पूर्व तनाव, तेल मूल्य।
 टर्न 14: निवेशक निष्कर्ष — कौन से क्षेत्र लाभकारी? कौन से बचें? सरल सुझाव।${realDataInjectionHi}`
-    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+    : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Generate a 14-turn macro economy brief. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
@@ -761,7 +764,7 @@ ${realDataInjectionEn}Educational, engaging broadcast style.`,
 
     // 3 — Market Buzz
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
 15 टर्न का बाज़ार समाचार विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -796,7 +799,8 @@ ${realDataInjectionEn}Educational, engaging broadcast style.`,
 टर्न 12-13: म्यूचुअल फंड क्षेत्र — NFO लॉन्च, SIP डेटा, कौन सी श्रेणियों में सबसे अधिक निवेश।
 टर्न 14: SEBI कोना — नए नियम, परिपत्र, अनुपालन अपडेट।
 टर्न 15: Anurag की सलाह — 2-3 शेयर कल की निगरानी सूची में। अस्वीकरण: अपना शोध करें!${realDataInjectionHi}`
-    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+    : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Generate a 15-turn market news buzz. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
@@ -831,7 +835,7 @@ ${realDataInjectionEn}Gossipy, energetic broadcast style.`,
 
     // 4 — IPO / NFO Radar
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
 16 टर्न का IPO और NFO विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -874,7 +878,8 @@ ${realDataInjectionEn}Gossipy, energetic broadcast style.`,
 टर्न 14: सदस्यता विश्लेषण — दिन 1, 2, 3 के आँकड़े पढ़ने का तरीका, QIB/HNI/खुदरा विभाजन।
 टर्न 15: आवंटन रणनीति — लॉट आकार, आवेदन राशि, अधिकतम आवंटन के उपाय।
 टर्न 16: अंतिम सलाह — IPO को पोर्टफोलियो में कैसे जगह दें, लिस्टिंग दिवस की रणनीति।`
-    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+    : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Generate a 16-turn IPO and NFO analysis. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
@@ -917,7 +922,7 @@ Honest, analytical broadcast style. No hype. Use realistic fictional companies i
 
     // 5 — Results Calendar
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
 15 टर्न का परिणाम सत्र विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
 केवल इस JSON में उत्तर दें:
 {"turns":[
@@ -958,7 +963,8 @@ Honest, analytical broadcast style. No hype. Use realistic fictional companies i
 टर्न 13: प्रबंधन टिप्पणी का अर्थ — "सतर्क आशावाद", "अपेक्षाओं के अनुरूप", "चुनौतीपूर्ण माहौल" का वास्तविक अर्थ।
 टर्न 14: आय आश्चर्य का इतिहास — जो कंपनियाँ लगातार बेहतर या बदतर प्रदर्शन करती हैं, क्यों मायने रखता है।
 टर्न 15: परिणाम सत्र निवेश रणनीति — पोर्टफोलियो कैसे तैयार करें, किन परिणामों पर कार्य करें, जोखिम प्रबंधन।`
-    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+    : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Generate a 15-turn results season analysis. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
 {"turns":[
@@ -999,7 +1005,7 @@ Educational, analytical broadcast style. Use realistic company names and estimat
 
     // 6 — Learn Today (FREE, random topic each time)
     lang === "hi"
-    ? `आप MunaFa Café FM के RJ Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें, "RJ Anurag" कभी नहीं। आज की तारीख ${d} है।
+    ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
 आज का विषय: शेयर बाज़ार से संबंधित कोई एक महत्वपूर्ण अवधारणा — जैसे कि एक नई शब्दावली, ट्रेडिंग तकनीक, निवेश रणनीति, या बाज़ार का कोई नियम।
 विषय स्वयं यादृच्छिक रूप से चुनें — हर बार नया और रोचक। उदाहरण: P/E अनुपात, ऑप्शन ग्रीक्स, डेट-टू-इक्विटी, स्टॉप लॉस, कैंडलस्टिक पैटर्न, SEBI नियम, म्यूचुअल फंड NAV, FII/DII प्रवाह, Circuit Breaker, T+1 सेटलमेंट, Futures rollover आदि।
 
@@ -1034,7 +1040,8 @@ Educational, analytical broadcast style. Use realistic company names and estimat
 टर्न 10: व्यावहारिक सुझाव — इसे अपने पोर्टफोलियो में कैसे लागू करें।
 टर्न 11: एक त्वरित प्रश्नोत्तरी — श्रोताओं से एक प्रश्न और उसका उत्तर।
 टर्न 12: आज का सारांश और कल की झलक — "आज हमने सीखा…"`
-    : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+    : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Pick ONE interesting stock market topic to teach today — randomly chosen, fresh each time. Examples: P/E ratio, Options Greeks, Debt-to-Equity, Stop Loss mechanics, Candlestick patterns, SEBI regulations, Mutual Fund NAV, FII/DII flows, Circuit Breakers, T+1 settlement, Futures rollover, Bid-Ask spread, Short Selling, Dividend Yield, Book Value vs Market Value, ROCE vs ROE, etc.
 
 Generate a 12-turn educational lesson. Each turn must be 40-55 words.
@@ -1212,16 +1219,36 @@ async function generate(mi) {
 // ────────────────────────────────────────────────────────
 // RENDER MODULE OUTPUT — shared by generate() and cache path
 // ────────────────────────────────────────────────────────
+function cleanAndParseJSON(text) {
+  // 1. Strip markdown fences ```json ... ``` or ``` ... ```
+  let s = text.replace(/^```(?:json)?\s*/im, "").replace(/\s*```\s*$/im, "").trim();
+  // 2. Extract from first { to last }
+  const start = s.indexOf("{");
+  const end   = s.lastIndexOf("}");
+  if (start === -1 || end === -1) throw new Error("No JSON object found");
+  s = s.slice(start, end + 1);
+  // 3. Try direct parse first
+  try { return JSON.parse(s); } catch(_) {}
+  // 4. Fix common AI JSON issues: unescaped newlines inside strings
+  // Replace literal newlines/tabs inside string values only
+  let fixed = "";
+  let inStr = false, escape = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escape) { fixed += c; escape = false; continue; }
+    if (c === "\\") { escape = true; fixed += c; continue; }
+    if (c === '"') { inStr = !inStr; fixed += c; continue; }
+    if (inStr && (c === "\n" || c === "\r")) { fixed += " "; continue; }
+    if (inStr && c === "\t") { fixed += " "; continue; }
+    fixed += c;
+  }
+  return JSON.parse(fixed);
+}
+
 function renderModuleOutput(mi, text, badge, cls, out, scr, bdg, aud, gb, rawText) {
-  // Parse JSON — strip markdown fences first, then extract JSON object
   let parsed;
   try {
-    const start = text.indexOf("{");
-    const end   = text.lastIndexOf("}");
-    if (start === -1 || end === -1) throw new Error("No JSON object found");
-    let clean = text.slice(start, end + 1)
-      .replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ").replace(/\t/g, " ");
-    parsed = JSON.parse(clean);
+    parsed = cleanAndParseJSON(text);
   } catch(e) {
     console.warn("JSON parse error:", e.message, "\nRaw:", text.slice(0, 300));
     scr.innerHTML = "<div class='turn'><div class='turn-text' style='white-space:pre-wrap'>" + text + "</div></div>";
@@ -1785,7 +1812,7 @@ async function generateCompany() {
   });
 
   const prompt = lang === "hi"
-    ? `आप MunaFa Café FM के विशेषज्ञ RJ Anurag हैं। आज की तारीख है ${d}।
+    ? `आप MunaFa Café FM के विशेषज्ञ Anurag हैं। आज की तारीख है ${d}। केवल raw JSON में उत्तर दें — कोई markdown fences नहीं।
 विषय: "${company}" — इस company का विस्तृत विश्लेषण।
 
 महत्वपूर्ण भाषा नियम:
@@ -1815,7 +1842,8 @@ Turn 10: भविष्य की संभावनाएं — growth driver
 Turn 11: SIP/Mutual Fund कनेक्शन — क्या इस company के stocks वाले MF उपयुक्त हैं?
 Turn 12: निष्कर्ष — Buy/Hold/Avoid और क्यों, target price range, अंतिम सलाह। "MunaFa Café के साथ बने रहें — नमस्कार!"
 यथार्थवादी डेटा दें। FM ऊर्जा और स्पष्टता हो।`
-    : `You are RJ Anurag on MunaFa Café FM, an expert market analyst. Today is ${d}.
+    : `You are Anurag on MunaFa Café FM, an expert market analyst. Today is ${d}.
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Topic: In-depth analysis of "${company}".
 Write a 12-turn solo monologue (Anurag only), each turn 40-55 words, in clear English.
 Reply ONLY with this JSON:
@@ -1845,16 +1873,10 @@ Provide realistic data. Keep the FM energy alive.`;
     const { text: raw, badge, cls } = await callApi(prompt);
     const apiUsed = badge;
 
-    // Parse JSON — extract outermost {}, repair only if needed
+    // Parse JSON — use robust cleanAndParseJSON (strips fences, repairs unescaped newlines)
     let data;
     try {
-      const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
-      if (start === -1 || end === -1) throw new Error("No JSON object found");
-      // Replace only literal (unescaped) newlines that break JSON strings
-      // Do NOT use /gs regex — it can corrupt multi-line JSON by mismatching quotes
-      let clean = raw.slice(start, end + 1)
-        .replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ").replace(/\t/g, " ");
-      data = JSON.parse(clean);
+      data = cleanAndParseJSON(raw);
     } catch(parseErr) {
       throw new Error("JSON parse failed: " + parseErr.message + " | Raw: " + raw.slice(0, 400));
     }
