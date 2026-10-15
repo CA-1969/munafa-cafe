@@ -703,24 +703,11 @@ Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly res
     // 2 — Macro & Economy
     lang === "hi"
     ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
+IMPORTANT: केवल raw JSON दें। कोई markdown fences, कोई \`\`\`json नहीं, JSON के बाहर कोई टेक्स्ट नहीं।
 14 टर्न का macro economy विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
-केवल इस JSON में उत्तर दें:
-{"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"}
-]}
+"t" field में असली बोली जाने वाली script होनी चाहिए — placeholder नहीं।
+केवल इस JSON format में उत्तर दें (14 turns, n=1 से n=14 तक):
+{"turns":[{"n":1,"t":"[असली script]"},{"n":2,"t":"[असली script]"},...,{"n":14,"t":"[असली script]"}]}
 भाषा नियम (अनिवार्य):
 - सभी वाक्य शुद्ध हिंदी में लिखें। कोई अंग्रेज़ी वाक्यांश नहीं।
 - केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, GDP, RBI, FII, DII, CPI, WPI, EBITDA, repo rate, MPC
@@ -738,24 +725,9 @@ Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly res
 टर्न 14: निवेशक निष्कर्ष — कौन से क्षेत्र लाभकारी? कौन से बचें? सरल सुझाव।${realDataInjectionHi}`
     : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
 IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
-Generate a 14-turn macro economy brief. Each turn must be 40-55 words.
-Reply ONLY with this JSON:
-{"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"}
-]}
+Generate a 14-turn macro economy brief. Each turn must be 40-55 words of ACTUAL spoken script. The "t" field must contain REAL broadcast words, never placeholder text.
+Reply ONLY with this JSON format (14 turns, n=1 through n=14):
+{"turns":[{"n":1,"t":"[actual script]"},{"n":2,"t":"[actual script]"},...,{"n":14,"t":"[actual script]"}]}
 Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
 Turn 1: Energetic intro — big-picture macro overview for today's show.
@@ -772,25 +744,11 @@ ${realDataInjectionEn}Educational, engaging broadcast style.`,
     // 3 — Market Buzz
     lang === "hi"
     ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
+IMPORTANT: केवल raw JSON दें। कोई markdown fences, कोई \`\`\`json नहीं, JSON के बाहर कोई टेक्स्ट नहीं।
 15 टर्न का बाज़ार समाचार विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
-केवल इस JSON में उत्तर दें:
-{"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"}
-]}
+"t" field में असली बोली जाने वाली script होनी चाहिए — placeholder नहीं।
+केवल इस JSON format में उत्तर दें (15 turns, n=1 से n=15 तक):
+{"turns":[{"n":1,"t":"[असली script]"},{"n":2,"t":"[असली script]"},...,{"n":15,"t":"[असली script]"}]}
 भाषा नियम (अनिवार्य):
 - सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
 - केवल ये अंग्रेज़ी शब्द अनुमत हैं: Nifty, Sensex, SIP, NAV, FII, DII, SEBI, F&O, IPO, NFO, QIP, NIM, NPA
@@ -808,25 +766,9 @@ ${realDataInjectionEn}Educational, engaging broadcast style.`,
 टर्न 15: Anurag की सलाह — 2-3 शेयर कल की निगरानी सूची में। अस्वीकरण: अपना शोध करें!${realDataInjectionHi}`
     : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
 IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
-Generate a 15-turn market news buzz. Each turn must be 40-55 words.
-Reply ONLY with this JSON:
-{"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"}
-]}
+Generate a 15-turn market news buzz. Each turn must be 40-55 words of ACTUAL spoken script. The "t" field must contain REAL broadcast words, never placeholder text.
+Reply ONLY with this JSON format (15 turns, n=1 through n=15):
+{"turns":[{"n":1,"t":"[actual script]"},{"n":2,"t":"[actual script]"},...,{"n":15,"t":"[actual script]"}]}
 Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
 Turn 1: High-energy buzz intro — today's top market highlights.
@@ -843,26 +785,11 @@ ${realDataInjectionEn}Gossipy, energetic broadcast style.`,
     // 4 — IPO / NFO Radar
     lang === "hi"
     ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
+IMPORTANT: केवल raw JSON दें। कोई markdown fences, कोई \`\`\`json नहीं, JSON के बाहर कोई टेक्स्ट नहीं।
 16 टर्न का IPO और NFO विश्लेषण तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
-केवल इस JSON में उत्तर दें:
-{"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"},
-{"n":16,"t":"TURN_TEXT_HERE"}
-]}
+"t" field में असली बोली जाने वाली script होनी चाहिए — placeholder नहीं।
+केवल इस JSON format में उत्तर दें (16 turns, n=1 से n=16 तक):
+{"turns":[{"n":1,"t":"[असली script]"},{"n":2,"t":"[असली script]"},...,{"n":16,"t":"[असली script]"}]}
 भाषा नियम (अनिवार्य):
 - सभी वाक्य शुद्ध हिंदी में। कोई अंग्रेज़ी वाक्यांश नहीं।
 - केवल ये अंग्रेज़ी शब्द अनुमत हैं: IPO, NFO, SWOT, GMP, QIB, HNI, NAV, SEBI, FII, EBITDA, PAT
@@ -887,26 +814,9 @@ ${realDataInjectionEn}Gossipy, energetic broadcast style.`,
 टर्न 16: अंतिम सलाह — IPO को पोर्टफोलियो में कैसे जगह दें, लिस्टिंग दिवस की रणनीति।`
     : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
 IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
-Generate a 16-turn IPO and NFO analysis. Each turn must be 40-55 words.
-Reply ONLY with this JSON:
-{"turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"},
-{"n":13,"t":"TURN_TEXT_HERE"},
-{"n":14,"t":"TURN_TEXT_HERE"},
-{"n":15,"t":"TURN_TEXT_HERE"},
-{"n":16,"t":"TURN_TEXT_HERE"}
-]}
+Generate a 16-turn IPO and NFO analysis. Each turn must be 40-55 words of ACTUAL spoken script. The "t" field must contain REAL broadcast words, never placeholder text.
+Reply ONLY with this JSON format (16 turns, n=1 through n=16):
+{"turns":[{"n":1,"t":"[actual script]"},{"n":2,"t":"[actual script]"},...,{"n":16,"t":"[actual script]"}]}
 Language rule: Pure English only. No Hindi words at all.
 CONTENT SEQUENCE:
 Turn 1: Excited intro — IPO season welcome, what's on today's radar.
@@ -1017,22 +927,11 @@ Educational, analytical broadcast style. Use realistic company names and estimat
 आज का विषय: शेयर बाज़ार से संबंधित कोई एक महत्वपूर्ण अवधारणा — जैसे कि एक नई शब्दावली, ट्रेडिंग तकनीक, निवेश रणनीति, या बाज़ार का कोई नियम।
 विषय स्वयं यादृच्छिक रूप से चुनें — हर बार नया और रोचक। उदाहरण: P/E अनुपात, ऑप्शन ग्रीक्स, डेट-टू-इक्विटी, स्टॉप लॉस, कैंडलस्टिक पैटर्न, SEBI नियम, म्यूचुअल फंड NAV, FII/DII प्रवाह, Circuit Breaker, T+1 सेटलमेंट, Futures rollover आदि।
 
+IMPORTANT: केवल raw JSON दें। कोई markdown fences, कोई \`\`\`json नहीं, JSON के बाहर कोई टेक्स्ट नहीं।
 12 टर्न का शैक्षिक पाठ तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
-केवल इस JSON में उत्तर दें:
-{"topic":"TOPIC_NAME_HERE","turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"}
-]}
+"topic" में असली विषय का नाम और "t" field में असली बोली जाने वाली script होनी चाहिए — placeholder नहीं।
+केवल इस JSON format में उत्तर दें (12 turns, n=1 से n=12 तक):
+{"topic":"[असली विषय नाम]","turns":[{"n":1,"t":"[असली script]"},{"n":2,"t":"[असली script]"},...,{"n":12,"t":"[असली script]"}]}
 भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल प्रचलित वित्तीय अंग्रेज़ी शब्द जैसे Nifty, SEBI, NAV, P/E, EBITDA, RSI, SIP, F&O आदि अनुमत।
 मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। सभी राशियाँ शब्दों में — "पाँच हज़ार रुपये", "दस लाख करोड़ रुपये" आदि।
 पाठ क्रम:
@@ -1052,22 +951,9 @@ Educational, analytical broadcast style. Use realistic company names and estimat
 IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
 Pick ONE interesting stock market topic to teach today — randomly chosen, fresh each time. Examples: P/E ratio, Options Greeks, Debt-to-Equity, Stop Loss mechanics, Candlestick patterns, SEBI regulations, Mutual Fund NAV, FII/DII flows, Circuit Breakers, T+1 settlement, Futures rollover, Bid-Ask spread, Short Selling, Dividend Yield, Book Value vs Market Value, ROCE vs ROE, etc.
 
-Generate a 12-turn educational lesson. Each turn must be 40-55 words.
-Reply ONLY with this JSON:
-{"topic":"TOPIC_NAME_HERE","turns":[
-{"n":1,"t":"TURN_TEXT_HERE"},
-{"n":2,"t":"TURN_TEXT_HERE"},
-{"n":3,"t":"TURN_TEXT_HERE"},
-{"n":4,"t":"TURN_TEXT_HERE"},
-{"n":5,"t":"TURN_TEXT_HERE"},
-{"n":6,"t":"TURN_TEXT_HERE"},
-{"n":7,"t":"TURN_TEXT_HERE"},
-{"n":8,"t":"TURN_TEXT_HERE"},
-{"n":9,"t":"TURN_TEXT_HERE"},
-{"n":10,"t":"TURN_TEXT_HERE"},
-{"n":11,"t":"TURN_TEXT_HERE"},
-{"n":12,"t":"TURN_TEXT_HERE"}
-]}
+Generate a 12-turn educational lesson. Each turn must be 40-55 words of ACTUAL spoken script. The "topic" field must be the REAL topic name and "t" fields must contain REAL broadcast words, never placeholder text.
+Reply ONLY with this JSON format (12 turns, n=1 through n=12):
+{"topic":"[real topic name]","turns":[{"n":1,"t":"[actual script]"},{"n":2,"t":"[actual script]"},...,{"n":12,"t":"[actual script]"}]}
 Language rule: Pure English only. No Hindi words.
 LESSON SEQUENCE:
 Turn 1: Exciting topic intro — "Today we're learning about…" — hook the listener.
@@ -1145,8 +1031,11 @@ async function fetchMarketSnapshot(force = false) {
     ]);
     if (idxRes.ok) {
       const idxData = await idxRes.json();
-      const gainersData = gRes.ok ? await gRes.json() : [];
-      const losersData  = lRes.ok ? await lRes.json() : [];
+      // nse-proxy returns { stocks: [...] } for gainers/losers (not a bare array)
+      const gainersRaw  = gRes.ok ? await gRes.json() : {};
+      const losersRaw   = lRes.ok ? await lRes.json() : {};
+      const gainersData = gainersRaw.stocks || [];
+      const losersData  = losersRaw.stocks  || [];
       // nse-proxy returns { indices: [{name, last, change, pct, status}, ...] }
       const indices = idxData.indices || [];
       const findIdx = (keyword) => indices.find(i => i.name && i.name.toUpperCase().includes(keyword.toUpperCase()));
