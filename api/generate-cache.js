@@ -69,134 +69,88 @@ export default async function handler(req, res) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// REAL MARKET DATA FETCH — Stooq CSV (same source as nse-proxy.js)
+// REAL MARKET DATA — via internal /api/nse-proxy (Angel One → Stooq fallback)
+// Calling own endpoint avoids Vercel outbound allowlist issues with stooq.com
 // ─────────────────────────────────────────────────────────────────────────────
-async function stooqQuote(symbol) {
-  try {
-    const url = `https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcv&h&e=csv`;
-    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-    if (!r.ok) return null;
-    const text = await r.text();
-    const lines = text.trim().split("\n");
-    if (lines.length < 2) return null;
-    const parts = lines[1].split(",");
-    const close = parseFloat(parts[6]);
-    const open  = parseFloat(parts[3]);
-    if (!close || isNaN(close)) return null;
-    const chg = close - open;
-    const pct = open ? (chg / open) * 100 : 0;
-    return { close, open, high: parseFloat(parts[4]), low: parseFloat(parts[5]), chg, pct };
-  } catch(e) {
-    console.warn("Stooq fetch failed for", symbol, e.message);
-    return null;
-  }
-}
 
 function fmt(val, dec = 2) {
-  if (!val || isNaN(val)) return "N/A";
-  return val.toLocaleString("en-IN", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  if (val == null || isNaN(val)) return "N/A";
+  return Number(val).toLocaleString("en-IN", { minimumFractionDigits: dec, maximumFractionDigits: dec });
 }
 function fmtChg(val) {
-  if (!val || isNaN(val)) return "N/A";
+  if (val == null || isNaN(val)) return "N/A";
   return (val >= 0 ? "+" : "") + fmt(val);
 }
 function fmtPct(val) {
-  if (!val || isNaN(val)) return "N/A";
+  if (val == null || isNaN(val)) return "N/A";
   return (val >= 0 ? "+" : "") + fmt(val) + "%";
 }
 
-const INDICES = [
-  { sym: "^nsei",      name: "Nifty 50"         },
-  { sym: "^bsesn",     name: "Sensex"            },
-  { sym: "^nsebank",   name: "Bank Nifty"        },
-  { sym: "^cnxmc",     name: "Nifty Midcap 100"  },
-  { sym: "^cnxit",     name: "Nifty IT"          },
-  { sym: "^cnxfmcg",   name: "Nifty FMCG"       },
-  { sym: "^cnxpharma", name: "Nifty Pharma"      },
-  { sym: "^cnxauto",   name: "Nifty Auto"        },
-  { sym: "^indiavix",  name: "India VIX"         }
-];
-
-const NIFTY50_STOCKS = [
-  { sym: "reliance.ns", name: "RELIANCE" }, { sym: "tcs.ns", name: "TCS" },
-  { sym: "hdfcbank.ns", name: "HDFCBANK" }, { sym: "icicibank.ns", name: "ICICIBANK" },
-  { sym: "infy.ns", name: "INFOSYS" },      { sym: "sbin.ns", name: "SBIN" },
-  { sym: "bhartiartl.ns", name: "BHARTIARTL" }, { sym: "kotakbank.ns", name: "KOTAKBANK" },
-  { sym: "lt.ns", name: "LT" },             { sym: "hcltech.ns", name: "HCLTECH" },
-  { sym: "maruti.ns", name: "MARUTI" },     { sym: "axisbank.ns", name: "AXISBANK" },
-  { sym: "bajfinance.ns", name: "BAJFINANCE" }, { sym: "titan.ns", name: "TITAN" },
-  { sym: "asianpaint.ns", name: "ASIANPAINT" }, { sym: "sunpharma.ns", name: "SUNPHARMA" },
-  { sym: "ultracemco.ns", name: "ULTRACEMCO" }, { sym: "wipro.ns", name: "WIPRO" },
-  { sym: "ntpc.ns", name: "NTPC" },         { sym: "tatamotors.ns", name: "TATAMOTORS" },
-  { sym: "tatasteel.ns", name: "TATASTEEL" }, { sym: "adanient.ns", name: "ADANIENT" },
-  { sym: "hindalco.ns", name: "HINDALCO" }, { sym: "cipla.ns", name: "CIPLA" },
-  { sym: "drreddy.ns", name: "DRREDDY" },   { sym: "techm.ns", name: "TECHM" }
-];
-
 async function fetchMarketData() {
-  // Fetch indices and stocks in parallel
-  const [indexResults, stockResults] = await Promise.all([
-    Promise.allSettled(INDICES.map(i => stooqQuote(i.sym))),
-    Promise.allSettled(NIFTY50_STOCKS.map(s => stooqQuote(s.sym)))
-  ]);
+  // Call our own nse-proxy endpoint — same domain, always allowed
+  const base = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "https://munafa-cafe.vercel.app";
 
-  // Build index map
-  const idx = {};
-  INDICES.forEach(({ name }, i) => {
-    const r = indexResults[i].status === "fulfilled" ? indexResults[i].value : null;
-    idx[name] = r;
-  });
+  let indicesData = null, gainersData = null, losersData = null;
 
-  // Build gainers/losers from stocks
-  const stocks = NIFTY50_STOCKS.map(({ name }, i) => {
-    const r = stockResults[i].status === "fulfilled" ? stockResults[i].value : null;
-    if (!r) return null;
-    return { name, close: r.close, pct: r.pct, chg: r.chg };
-  }).filter(Boolean);
+  try {
+    const [ri, rg, rl] = await Promise.all([
+      fetch(`${base}/api/nse-proxy?type=indices`),
+      fetch(`${base}/api/nse-proxy?type=gainers`),
+      fetch(`${base}/api/nse-proxy?type=losers`)
+    ]);
+    if (ri.ok) indicesData = await ri.json();
+    if (rg.ok) gainersData = await rg.json();
+    if (rl.ok) losersData  = await rl.json();
+  } catch(e) {
+    console.warn("nse-proxy fetch failed:", e.message);
+  }
 
-  stocks.sort((a, b) => b.pct - a.pct);
-  const gainers = stocks.slice(0, 5);
-  const losers  = stocks.slice(-5).reverse();
+  // Parse indices
+  const find = (name) => indicesData?.indices?.find(i => i.name === name) || null;
+  const nifty     = find("NIFTY 50");
+  const sensex    = find("S&P BSE SENSEX");
+  const bankNifty = find("NIFTY BANK");
+  const midcap    = find("NIFTY MIDCAP 100");
+  const vix       = find("INDIA VIX");
+  const niftyIT   = find("NIFTY IT");
+  const niftyFMCG = find("NIFTY FMCG");
+  const niftyPharma = find("NIFTY PHARMA");
+  const niftyAuto = find("NIFTY AUTO");
 
-  // Format into readable strings for prompt injection
-  const nifty    = idx["Nifty 50"];
-  const sensex   = idx["Sensex"];
-  const bankNifty = idx["Bank Nifty"];
-  const midcap   = idx["Nifty Midcap 100"];
-  const vix      = idx["India VIX"];
-  const niftyIT  = idx["Nifty IT"];
-  const niftyFMCG = idx["Nifty FMCG"];
-  const niftyPharma = idx["Nifty Pharma"];
-  const niftyAuto = idx["Nifty Auto"];
+  // Parse gainers/losers (top 5 each)
+  const gainers = (gainersData?.stocks || []).slice(0, 5);
+  const losers  = (losersData?.stocks  || []).slice(0, 5);
+
+  const n = (idx) => idx ? { val: fmt(idx.last, 0), chg: fmtChg(idx.change), pct: fmtPct(idx.pct), high: fmt(idx.high, 0), low: fmt(idx.low, 0) } : null;
 
   return {
-    // Raw values for prompt use
-    nifty:     nifty    ? { val: fmt(nifty.close, 0),    chg: fmtChg(nifty.chg),    pct: fmtPct(nifty.pct),    high: fmt(nifty.high, 0),   low: fmt(nifty.low, 0)   } : null,
-    sensex:    sensex   ? { val: fmt(sensex.close, 0),   chg: fmtChg(sensex.chg),   pct: fmtPct(sensex.pct),   high: fmt(sensex.high, 0),  low: fmt(sensex.low, 0)  } : null,
-    bankNifty: bankNifty? { val: fmt(bankNifty.close, 0),chg: fmtChg(bankNifty.chg),pct: fmtPct(bankNifty.pct),high: fmt(bankNifty.high, 0),low: fmt(bankNifty.low, 0)} : null,
-    midcap:    midcap   ? { val: fmt(midcap.close, 0),   pct: fmtPct(midcap.pct)   } : null,
-    vix:       vix      ? { val: fmt(vix.close),         pct: fmtPct(vix.pct)      } : null,
+    nifty:     n(nifty),
+    sensex:    n(sensex),
+    bankNifty: n(bankNifty),
+    midcap:    midcap ? { val: fmt(midcap.last, 0), pct: fmtPct(midcap.pct) } : null,
+    vix:       vix    ? { val: fmt(vix.last),        pct: fmtPct(vix.pct)   } : null,
     sectors: {
       it:     niftyIT    ? fmtPct(niftyIT.pct)    : "N/A",
       fmcg:   niftyFMCG  ? fmtPct(niftyFMCG.pct)  : "N/A",
       pharma: niftyPharma? fmtPct(niftyPharma.pct) : "N/A",
       auto:   niftyAuto  ? fmtPct(niftyAuto.pct)   : "N/A"
     },
-    gainers: gainers.map(s => `${s.name} ${fmtPct(s.pct)}`).join(", "),
-    losers:  losers.map(s  => `${s.name} ${fmtPct(s.pct)}`).join(", "),
-    // Compact summary string for prompt injection
+    gainers: gainers.map(s => `${s.symbol} ${fmtPct(s.pct)}`).join(", ") || "",
+    losers:  losers.map(s  => `${s.symbol} ${fmtPct(s.pct)}`).join(", ") || "",
     summary: buildSummary(nifty, sensex, bankNifty, vix, gainers, losers)
   };
 }
 
 function buildSummary(nifty, sensex, bankNifty, vix, gainers, losers) {
   const lines = [];
-  if (nifty)    lines.push(`Nifty 50: ${fmt(nifty.close, 0)} (${fmtChg(nifty.chg)}, ${fmtPct(nifty.pct)}) | High: ${fmt(nifty.high, 0)} | Low: ${fmt(nifty.low, 0)}`);
-  if (sensex)   lines.push(`Sensex: ${fmt(sensex.close, 0)} (${fmtChg(sensex.chg)}, ${fmtPct(sensex.pct)})`);
-  if (bankNifty)lines.push(`Bank Nifty: ${fmt(bankNifty.close, 0)} (${fmtChg(bankNifty.chg)}, ${fmtPct(bankNifty.pct)})`);
-  if (vix)      lines.push(`India VIX: ${fmt(vix.close)} (${fmtPct(vix.pct)})`);
-  if (gainers.length) lines.push(`Top Gainers: ${gainers.map(s => `${s.name} ${fmtPct(s.pct)}`).join(", ")}`);
-  if (losers.length)  lines.push(`Top Losers: ${losers.map(s => `${s.name} ${fmtPct(s.pct)}`).join(", ")}`);
+  if (nifty)     lines.push(`Nifty 50: ${fmt(nifty.last, 0)} (${fmtChg(nifty.change)}, ${fmtPct(nifty.pct)}) | High: ${fmt(nifty.high, 0)} | Low: ${fmt(nifty.low, 0)}`);
+  if (sensex)    lines.push(`Sensex: ${fmt(sensex.last, 0)} (${fmtChg(sensex.change)}, ${fmtPct(sensex.pct)})`);
+  if (bankNifty) lines.push(`Bank Nifty: ${fmt(bankNifty.last, 0)} (${fmtChg(bankNifty.change)}, ${fmtPct(bankNifty.pct)})`);
+  if (vix)       lines.push(`India VIX: ${fmt(vix.last)} (${fmtPct(vix.pct)})`);
+  if (gainers.length) lines.push(`Top Gainers: ${gainers.map(s => `${s.symbol} ${fmtPct(s.pct)}`).join(", ")}`);
+  if (losers.length)  lines.push(`Top Losers: ${losers.map(s  => `${s.symbol} ${fmtPct(s.pct)}`).join(", ")}`);
   return lines.join("\n") || "Market data unavailable — use realistic estimates.";
 }
 
