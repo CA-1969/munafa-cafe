@@ -474,7 +474,7 @@ footer a{color:var(--accent);text-decoration:none}
 //  Your live key starts with "rzp_live_" (get it from Razorpay Dashboard
 //  → Settings → API Keys → Live Keys → Key ID)
 //
-const RZP_KEY = "rzp_live_TmgKvmK8LiLLB7"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
+const RZP_KEY = "rzp_test_TkizjnkF0yvDCX"; // ← REPLACE WITH: rzp_live_XXXXXXXXXXXXXXXX
 //
 //  STEP 2 — UPDATE VERCEL ENVIRONMENT VARIABLES:
 //  Go to Vercel Dashboard → Your Project → Settings → Environment Variables
@@ -542,10 +542,35 @@ const UI = {
 // ────────────────────────────────────────────────────────
 // MODULE PROMPTS — 5 minutes (14–16 turns, 40–55 words each)
 // ────────────────────────────────────────────────────────
-function getPrompt(mi) {
+function getPrompt(mi, snap) {
   const d = new Date().toLocaleDateString("en-IN", {
     weekday:"long", day:"numeric", month:"long", year:"numeric"
   });
+
+  // Build real market data block from Redis snapshot (if available)
+  let marketBlock = "";
+  if (snap && snap.summary) {
+    marketBlock = snap.summary;
+  } else if (snap) {
+    // Build summary manually if only raw fields available
+    const lines = [];
+    if (snap.nifty)     lines.push(`Nifty 50: ${snap.nifty.close} (${snap.nifty.chg >= 0 ? "+" : ""}${snap.nifty.chg}, ${snap.nifty.pct >= 0 ? "+" : ""}${snap.nifty.pct}%)`);
+    if (snap.sensex)    lines.push(`Sensex: ${snap.sensex.close} (${snap.sensex.chg >= 0 ? "+" : ""}${snap.sensex.chg}, ${snap.sensex.pct >= 0 ? "+" : ""}${snap.sensex.pct}%)`);
+    if (snap.bankNifty) lines.push(`Bank Nifty: ${snap.bankNifty.close} (${snap.bankNifty.chg >= 0 ? "+" : ""}${snap.bankNifty.chg}, ${snap.bankNifty.pct >= 0 ? "+" : ""}${snap.bankNifty.pct}%)`);
+    if (snap.vix)       lines.push(`India VIX: ${snap.vix.close}`);
+    if (snap.gainers && snap.gainers.length) lines.push(`Top Gainers: ${snap.gainers.map(g => g.name + " " + (g.pct >= 0 ? "+" : "") + g.pct + "%").join(", ")}`);
+    if (snap.losers  && snap.losers.length)  lines.push(`Top Losers: ${snap.losers.map(l => l.name + " " + l.pct + "%").join(", ")}`);
+    marketBlock = lines.join("\n");
+  }
+
+  // Inject instruction for modules that use index/market data
+  const hasRealData = marketBlock.length > 0;
+  const realDataInjectionHi = hasRealData
+    ? `\n\n📊 आज के REAL बाज़ार आंकड़े (इन्हीं का उपयोग करें, बदलें नहीं):\n${marketBlock}\nCRITICAL: ऊपर दिए गए EXACT आंकड़े ही उपयोग करें। कोई भी संख्या स्वयं मत बनाएँ।\n`
+    : "\nयथार्थवादी बाज़ार डेटा का उपयोग करें।\n";
+  const realDataInjectionEn = hasRealData
+    ? `\n\n📊 TODAY'S REAL MARKET DATA (use these exact figures, do NOT invent numbers):\n${marketBlock}\nCRITICAL: Use ONLY the figures above. Do NOT substitute invented numbers.\n`
+    : "\nUse realistic estimated market data.\n";
 
   const prompts = [
 
@@ -600,7 +625,7 @@ Turn 12 (D): "जिंस बाज़ार की बात करें — 
 Turn 13 (A): सोना, चाँदी, कच्चे तेल के यथार्थवादी अनुमानित भाव — भारतीय शेयर बाज़ार पर उनका प्रभाव।
 Turn 14 (D): "आज के लिए कोई महत्वपूर्ण घटनाएँ, परिणाम या आर्थिक आँकड़े आने वाले हैं क्या?"
 Turn 15 (A): आज की प्रमुख घटनाएँ — earnings, आर्थिक आँकड़े, और जोशीली विदाई: "निवेश करते रहें, सीखते रहें, MunaFa Café के साथ बने रहें — नमस्कार!"
-यथार्थवादी बाज़ार डेटा दें। स्वाभाविक FM ऊर्जा और गर्मजोशी हो।`
+${realDataInjectionHi}स्वाभाविक FM ऊर्जा और गर्मजोशी हो।`
     : `You are two RJs on MunaFa Café FM — Anurag (male, market expert) and Deepa (female, who asks smart questions and simplifies for listeners). Today is ${d}.
 This is the Morning Market Brief — a natural radio dialogue. Write 15 turns, each 40-55 words, in pure English only (financial terms like Nifty, Sensex are fine).
 Reply ONLY with this JSON, no extra text:
@@ -638,7 +663,7 @@ Turn 12 (D): Deepa — "Let's talk commodities — gold, silver, crude oil. What
 Turn 13 (A): Anurag — Gold, silver, crude oil estimated prices and their impact on Indian equities.
 Turn 14 (D): Deepa — "Any key events or results scheduled for today that listeners should know about?"
 Turn 15 (A): Anurag — Key events, earnings calendar, warm sign-off — "Keep investing, keep learning, and stay with MunaFa Café!"
-Use realistic estimated market data. Natural, warm FM energy throughout.`,
+${realDataInjectionEn}Natural, warm FM energy throughout.`,
 
     // 1 — Company Spotlight
     lang === "hi"
@@ -701,7 +726,7 @@ Sequence: Turn 1 exciting intro. Turn 2-3 business model. Turn 4-5 quarterly res
 टर्न 10-11: रुपये की कहानी — USD/INR स्तर, RBI हस्तक्षेप, निर्यात-आयात प्रतिस्पर्धा।
 टर्न 12: सरकारी व्यय — पूंजीगत व्यय बनाम राजकोषीय घाटा, बुनियादी ढांचा।
 टर्न 13: वैश्विक जोखिम — अमेरिकी Fed के निर्णय, चीन की मंदी, मध्य पूर्व तनाव, तेल मूल्य।
-टर्न 14: निवेशक निष्कर्ष — कौन से क्षेत्र लाभकारी? कौन से बचें? सरल सुझाव।`
+टर्न 14: निवेशक निष्कर्ष — कौन से क्षेत्र लाभकारी? कौन से बचें? सरल सुझाव।${realDataInjectionHi}`
     : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
 Generate a 14-turn macro economy brief. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
@@ -732,7 +757,7 @@ Turn 10-11: Rupee story — USD/INR level, RBI intervention, trade competitivene
 Turn 12: Government spending — capex vs fiscal deficit, budget targets, infrastructure push.
 Turn 13: Global macro risks — US Fed decisions, China slowdown, geopolitics, oil price.
 Turn 14: Investor takeaway — winning sectors in current macro, what to avoid, clear action points.
-Educational, engaging broadcast style. Use realistic current data estimates.`,
+${realDataInjectionEn}Educational, engaging broadcast style.`,
 
     // 3 — Market Buzz
     lang === "hi"
@@ -770,7 +795,7 @@ Educational, engaging broadcast style. Use realistic current data estimates.`,
 टर्न 10-11: F&O बाज़ार गतिविधि — ओपन इंटरेस्ट, मैक्स पेन, पुट-कॉल अनुपात का अर्थ।
 टर्न 12-13: म्यूचुअल फंड क्षेत्र — NFO लॉन्च, SIP डेटा, कौन सी श्रेणियों में सबसे अधिक निवेश।
 टर्न 14: SEBI कोना — नए नियम, परिपत्र, अनुपालन अपडेट।
-टर्न 15: Anurag की सलाह — 2-3 शेयर कल की निगरानी सूची में। अस्वीकरण: अपना शोध करें!`
+टर्न 15: Anurag की सलाह — 2-3 शेयर कल की निगरानी सूची में। अस्वीकरण: अपना शोध करें!${realDataInjectionHi}`
     : `You are RJ Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
 Generate a 15-turn market news buzz. Each turn must be 40-55 words.
 Reply ONLY with this JSON:
@@ -802,7 +827,7 @@ Turn 10-11: F&O market action — open interest buildup, max pain, put-call rati
 Turn 12-13: Mutual fund space — NFO launches, SIP data, categories seeing highest inflows.
 Turn 14: SEBI corner — new regulations, circulars, compliance updates affecting investors.
 Turn 15: Anurag's hot picks — 2-3 stocks to watch tomorrow with reasons. Disclaimer: always do your own research!
-Gossipy, energetic broadcast style. Use realistic examples.`,
+${realDataInjectionEn}Gossipy, energetic broadcast style.`,
 
     // 4 — IPO / NFO Radar
     lang === "hi"
@@ -1092,8 +1117,27 @@ async function fetchCached(mi) {
   }
 }
 
+// Fetch real market snapshot from Redis (stored by generate-cache.js)
+let marketSnap = null; // cached snapshot for live AI calls
+async function fetchMarketSnapshot() {
+  if (marketSnap) return marketSnap;
+  try {
+    const r = await fetch("/api/get-cached?type=snapshot");
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (!d.cached || !d.snapshot) return null;
+    marketSnap = d.snapshot; // { summary, nifty, sensex, bankNifty, vix, gainers, losers, ... }
+    return marketSnap;
+  } catch(e) {
+    console.warn("[Snapshot] fetch failed:", e.message);
+    return null;
+  }
+}
+
 // Pre-fetch all module scripts once on page load and mark buttons as "Ready"
 async function warmCacheButtons() {
+  // Also pre-fetch market snapshot in the background for live fallback calls
+  fetchMarketSnapshot();
   for (let mi = 0; mi <= 6; mi++) {
     const gb = document.getElementById("gen-" + mi);
     if (!gb) continue;
@@ -1145,7 +1189,9 @@ async function generate(mi) {
       return;
     }
 
-    const { text, badge, cls } = await callApi(getPrompt(mi));
+    // Fetch real market snapshot for live AI prompt injection
+    const snap = await fetchMarketSnapshot();
+    const { text, badge, cls } = await callApi(getPrompt(mi, snap));
     renderModuleOutput(mi, text, badge, cls, out, scr, bdg, aud, gb, text);
 
   } catch(e) {
