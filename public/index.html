@@ -1334,16 +1334,25 @@ function setupAudio(mi, turns) {
     listenBtn.textContent = UI[lang].stop;
 
     try {
+      // Resume AudioContext if browser suspended it (required after user inactivity)
+      if (audioCtx && audioCtx.state === "suspended") await audioCtx.resume();
       await playJingle();
-      // Brief AudioContext warm-up pause to prevent first-word clipping
       await delay(300);
       for (const t of turns) {
         if (stopMe) break;
-        await speakTurn(t.t || "", t.s || "A");
+        // Resume context before each turn — browser may suspend between turns
+        if (audioCtx && audioCtx.state === "suspended") await audioCtx.resume();
+        try {
+          await speakTurn(t.t || "", t.s || "A");
+        } catch(turnErr) {
+          // One turn failing must not stop the show — log and continue
+          console.warn("Turn", t.n, "audio failed:", turnErr.message, "— continuing");
+          await browserSpeak(t.t || "", t.s || "A"); // device voice as fallback for this turn
+        }
         // Natural broadcast pause — longer after Anurag's anchor turns, shorter after Deepa
-        await delay(t.s === "D" ? 480 : 650);
+        if (!stopMe) await delay(t.s === "D" ? 480 : 650);
       }
-    } catch(e) { console.warn("Audio error:", e.message); }
+    } catch(e) { console.warn("Audio session error:", e.message); }
 
     playing = false; stopMe = false;
     listenBtn.className = "audio-btn";
@@ -1923,13 +1932,17 @@ Provide realistic data. Keep the FM energy alive.`;
       playing = true;
       listenBtn.className = "audio-btn playing";
       listenBtn.textContent = UI[lang].stop;
-      try {
-        for (const t of turns) {
-          if (stopMe) break;
+      for (const t of turns) {
+        if (stopMe) break;
+        if (audioCtx && audioCtx.state === "suspended") await audioCtx.resume();
+        try {
           await speakTurn(t.t || t.text || t.content || "", t.s || t.speaker || "A");
-          await delay(650);
+        } catch(turnErr) {
+          console.warn("Turn", t.n, "audio failed:", turnErr.message, "— continuing");
+          await browserSpeak(t.t || t.text || t.content || "", t.s || t.speaker || "A");
         }
-      } catch(e) { console.warn("Audio error:", e.message); }
+        if (!stopMe) await delay(650);
+      }
       playing = false; stopMe = false;
       listenBtn.className = "audio-btn";
       listenBtn.textContent = UI[lang].listenAll;
