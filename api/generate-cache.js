@@ -31,15 +31,42 @@ export default async function handler(req, res) {
     weekday: "long", day: "numeric", month: "long", year: "numeric"
   });
 
-  // ── STEP 1: Fetch real market data ────────────────────────────────────────
-  console.log("Fetching real market data from Stooq...");
+  // ── SINGLE MODULE MODE: ?mi=X&lang=hi|en ─────────────────────────────────
+  // Called per-module from the admin Regen button (fits in Vercel 10s limit)
+  if (req.query.mi !== undefined) {
+    const mi   = parseInt(req.query.mi, 10);
+    const lang = req.query.lang === "en" ? "en" : "hi";
+    if (isNaN(mi) || mi < 0 || mi > 6) return res.status(400).json({ error: "Invalid mi" });
+
+    const mkt = await fetchMarketData();
+    const modules = buildPrompts(dateStr, mkt);
+
+    // keys are built as cache:module:{mi}:{lang}, filter to the one we want
+    const target = modules.find(m => m.key === `cache:module:${mi}:${lang}`);
+    if (!target) return res.status(400).json({ error: "Module not found" });
+
+    try {
+      const raw     = await callAI(target.prompt);
+      const content = cleanJSON(raw);
+      if (content && content.length > 100) {
+        await redis.set(target.key, content, { ex: CACHE_TTL });
+        // Save market snapshot and generated_at on every call (cheap overwrite)
+        await redis.set("cache:generated_at",     new Date().toISOString(),  { ex: CACHE_TTL });
+        await redis.set("cache:market_snapshot",  JSON.stringify(mkt),       { ex: CACHE_TTL });
+        return res.status(200).json({ key: target.key, status: "ok", len: content.length });
+      } else {
+        return res.status(200).json({ key: target.key, status: "empty" });
+      }
+    } catch(e) {
+      return res.status(500).json({ key: target.key, status: "error", error: e.message });
+    }
+  }
+
+  // ── FULL BATCH MODE: cron or ?secret= without mi ─────────────────────────
   const mkt = await fetchMarketData();
   console.log("Market data:", JSON.stringify(mkt));
-
-  // ── STEP 2: Build prompts with real data injected ─────────────────────────
   const modules = buildPrompts(dateStr, mkt);
 
-  // ── STEP 3: Generate and cache each module ────────────────────────────────
   const results = [];
   let success = 0, failed = 0;
 
@@ -59,8 +86,7 @@ export default async function handler(req, res) {
       results.push({ key, status: "error", error: e.message });
       failed++;
     }
-    // Small pause between AI calls to avoid rate limits
-    await sleep(1500);
+    await sleep(1000);
   }
 
   await redis.set("cache:generated_at", new Date().toISOString(), { ex: CACHE_TTL });
@@ -250,9 +276,9 @@ function buildPrompts(d, mkt) {
 // ─────────────────────────────────────────────────────────────────────────────
 function cleanJSON(text) {
   if (!text) return "";
-  // Strip ```json ... ``` or ``` ... ``` fences
-  let s = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
-  // Extract from first { to last }
+  // Strip ALL markdown fences globally (```json, ```, etc.)
+  let s = text.replace(/```(?:json)?/gi, "").trim();
+  // Extract from first { to last } (removes any surrounding text)
   const start = s.indexOf("{");
   const end   = s.lastIndexOf("}");
   if (start !== -1 && end !== -1 && end > start) {
