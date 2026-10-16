@@ -1097,22 +1097,42 @@ async function regenCache() {
   const secret = prompt("Enter CRON_SECRET to regenerate all scripts:");
   if (!secret) return;
   btn.disabled = true;
-  btn.textContent = "⏳ Running...";
-  try {
-    const r = await fetch("/api/generate-cache?secret=" + encodeURIComponent(secret));
-    const d = await r.json();
-    if (r.ok) {
-      alert("✅ Cache regenerated! Reload the page to see fresh scripts.\n\n" + (d.message || ""));
-      window.location.reload();
-    } else {
-      alert("❌ Error: " + (d.error || r.status));
+
+  // Generate each module × language separately (each call fits within Vercel's 10s limit)
+  const total = 14; // 7 modules × 2 languages
+  let done = 0, failed = 0;
+
+  const updateBtn = () => {
+    btn.textContent = `⏳ ${done}/${total} done${failed ? " (" + failed + " failed)" : ""}…`;
+  };
+  updateBtn();
+
+  for (let mi = 0; mi <= 6; mi++) {
+    for (const lng of ["hi", "en"]) {
+      try {
+        const url = `/api/generate-cache?secret=${encodeURIComponent(secret)}&mi=${mi}&lang=${lng}`;
+        const r = await fetch(url);
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || d.status === "error") {
+          console.warn(`Module ${mi}:${lng} failed:`, d.error || r.status);
+          failed++;
+        } else {
+          done++;
+        }
+      } catch(e) {
+        console.warn(`Module ${mi}:${lng} exception:`, e.message);
+        failed++;
+      }
+      updateBtn();
     }
-  } catch(e) {
-    alert("❌ Failed: " + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "⚡ Regen";
   }
+
+  if (failed === 0) {
+    alert("✅ All 14 scripts regenerated! Reloading…");
+  } else {
+    alert(`⚠️ Done — ${done} succeeded, ${failed} failed. Check console for details. Reloading…`);
+  }
+  window.location.reload();
 }
 
 // Pre-fetch all module scripts once on page load and mark buttons as "Ready"
@@ -1187,8 +1207,8 @@ async function generate(mi) {
 // RENDER MODULE OUTPUT — shared by generate() and cache path
 // ────────────────────────────────────────────────────────
 function cleanAndParseJSON(text) {
-  // 1. Strip markdown fences ```json ... ``` or ``` ... ```
-  let s = text.replace(/^```(?:json)?\s*/im, "").replace(/\s*```\s*$/im, "").trim();
+  // 1. Strip ALL markdown fences globally (```json, ```, etc.)
+  let s = text.replace(/```(?:json)?/gi, "").trim();
   // 2. Extract from first { to last }
   const start = s.indexOf("{");
   const end   = s.lastIndexOf("}");
