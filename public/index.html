@@ -496,7 +496,6 @@ const RZP_KEY = "rzp_live_TmgKvmK8LiLLB7"; // ← REPLACE WITH: rzp_live_XXXXXXX
 
 // ElevenLabs TTS — key lives ONLY in Vercel env var ELEVENLABS_API_KEY
 // Frontend calls /api/tts which proxies to ElevenLabs securely
-const XI_VOICE_ID = "ErXwobaYiN019PkySvjV"; // unused legacy constant
 
 // ────────────────────────────────────────────────────────
 // STATE
@@ -1369,94 +1368,105 @@ function setupAudio(mi, turns) {
 // ────────────────────────────────────────────────────────
 // TTS — ElevenLabs with browser fallback
 // ────────────────────────────────────────────────────────
-// ── Cloned ElevenLabs voice IDs ──────────────────────────
-const XI_VOICE_ANURAG = "czQ9pLzjRaF61EAYjcPC"; // Anurag (cloned — updated voice)
-const XI_VOICE_DEEPA  = "C2S5J6WvmHnrQWjUu6Rg"; // Deepa  (cloned)
+// ── ElevenLabs cloned voice IDs — DO NOT CHANGE ──────────
+// Anurag = male anchor voice  | ID: czQ9pLzjRaF61EAYjcPC
+// Deepa  = female co-host     | ID: C2S5J6WvmHnrQWjUu6Rg
+const XI_VOICES = {
+  A: "czQ9pLzjRaF61EAYjcPC",   // Anurag — male
+  D: "C2S5J6WvmHnrQWjUu6Rg"    // Deepa  — female
+};
 
-// Voice settings tuned for broadcast FM quality
-// Anurag: measured, authoritative anchor voice
-// Deepa:  warm, slightly brighter co-host
+// Voice settings locked for broadcast quality
 const XI_SETTINGS = {
-  A: { stability: 1.0, similarity_boost: 0.95, style: 0.0, use_speaker_boost: true },  // max stability = fully locked voice, no variation
+  A: { stability: 1.0, similarity_boost: 0.95, style: 0.0,  use_speaker_boost: true },
   D: { stability: 0.65, similarity_boost: 0.88, style: 0.32, use_speaker_boost: true }
 };
 
+// Seeds lock each voice to a consistent sound across all calls
+const XI_SEEDS = { A: 17, D: 42 };
+
 async function speakTurn(text, speaker) {
-  const sp       = (speaker === "D") ? "D" : "A";
-  const voiceId  = (sp === "D") ? XI_VOICE_DEEPA : XI_VOICE_ANURAG;
-  const cacheKey = sp + "_" + text.slice(0, 60);
+  // Resolve speaker strictly: only "D" maps to Deepa, everything else is Anurag
+  const sp      = (speaker === "D") ? "D" : "A";
+  const voiceId = XI_VOICES[sp];      // always resolves to the correct ID
+  const settings = XI_SETTINGS[sp];
+  const seed     = XI_SEEDS[sp];
+  const cacheKey = sp + "|" + text.slice(0, 80);
+
+  // Serve from cache if already fetched this session
   if (audioCache[cacheKey]) { await playBuffer(audioCache[cacheKey]); return; }
 
+  const payload = JSON.stringify({
+    text,
+    voice_id:       voiceId,
+    model_id:       "eleven_multilingual_v2",
+    voice_settings: settings,
+    seed
+  });
+
+  // First attempt
   try {
-    // Calls /api/tts — a Vercel serverless function that holds the ElevenLabs key
-    // Key never touches the browser. See api/tts.js in your repo.
     const r = await fetch("/api/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text:           text,
-        voice_id:       voiceId,
-        model_id:       "eleven_multilingual_v2",
-        voice_settings: XI_SETTINGS[sp],
-        seed:           sp === "D" ? 42 : 17   // lock voice to prevent variation across calls
-      })
+      method: "POST", headers: { "Content-Type": "application/json" }, body: payload
     });
     if (!r.ok) {
-      let errDetail = "";
-      try { const j = await r.json(); errDetail = j.detail || j.error || ""; } catch(_) {}
-      throw new Error("TTS " + r.status + " " + errDetail);
+      let detail = ""; try { const j = await r.json(); detail = j.detail || j.error || ""; } catch(_) {}
+      throw new Error("TTS " + r.status + " " + detail);
     }
     const buf = await r.arrayBuffer();
-    if (buf.byteLength < 100) throw new Error("TTS returned empty audio");
+    if (buf.byteLength < 100) throw new Error("empty audio");
     audioCache[cacheKey] = buf;
     await playBuffer(buf);
+    return;
   } catch(e) {
-    console.warn("⚠️ TTS failed:", e.message, "— retrying once…");
-    // Retry once before browser fallback
-    try {
-      await new Promise(r => setTimeout(r, 800));
-      const r2 = await fetch("/api/tts", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, voice_id: voiceId, model_id: "eleven_multilingual_v2", voice_settings: XI_SETTINGS[sp], seed: sp === "D" ? 42 : 17 })
-      });
-      if (!r2.ok) throw new Error("retry " + r2.status);
-      const buf2 = await r2.arrayBuffer();
-      if (buf2.byteLength < 100) throw new Error("retry empty");
-      audioCache[cacheKey] = buf2;
-      await playBuffer(buf2);
-    } catch(e2) {
-      console.warn("⚠️ TTS retry failed:", e2.message, "— browser speech fallback");
-      await browserSpeak(text, sp);
-    }
+    console.warn("⚠️ TTS attempt 1 failed [" + sp + "]:", e.message, "— retrying…");
   }
+
+  // One retry after a short pause
+  try {
+    await new Promise(r => setTimeout(r, 1000));
+    const r2 = await fetch("/api/tts", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: payload
+    });
+    if (!r2.ok) throw new Error("retry " + r2.status);
+    const buf2 = await r2.arrayBuffer();
+    if (buf2.byteLength < 100) throw new Error("retry empty");
+    audioCache[cacheKey] = buf2;
+    await playBuffer(buf2);
+    return;
+  } catch(e2) {
+    console.warn("⚠️ TTS attempt 2 failed [" + sp + "]:", e2.message, "— browser fallback");
+  }
+
+  // Browser speech as last resort — correct pitch/rate per speaker
+  await browserSpeak(text, sp);
 }
 
 function browserSpeak(text, speaker) {
-  // Fallback when /api/tts unreachable (local dev without Vercel, or quota exceeded)
-  // Anurag: slow, deep (rate 0.84, pitch 0.92)
-  // Deepa:  slightly faster, brighter (rate 0.90, pitch 1.15)
+  // Emergency fallback only — used when ElevenLabs fails after 2 attempts
+  // sp "A" = Anurag (male, low pitch), sp "D" = Deepa (female, higher pitch)
+  const isDepa = (speaker === "D");
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
-    // Do NOT cancel here — cancelling kills the currently playing turn
     const u = new SpeechSynthesisUtterance(text);
     u.lang   = lang === "hi" ? "hi-IN" : "en-IN";
-    u.rate   = speaker === "D" ? 0.90 : 0.84;
-    u.pitch  = speaker === "D" ? 1.15 : 0.92;
+    u.rate   = isDepa ? 0.90 : 0.84;
+    u.pitch  = isDepa ? 1.20 : 0.80;   // clearly differentiated pitch
     u.volume = 1.0;
-    // Try to pick a matching voice from the device
-    const voices = speechSynthesis.getVoices();
-    const hiVoices = voices.filter(v => v.lang.startsWith(lang === "hi" ? "hi" : "en"));
-    if (hiVoices.length > 0) {
-      // Prefer female voice for Deepa, male for Anurag if available
-      const gendered = hiVoices.filter(v =>
-        speaker === "D"
-          ? v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("woman") || v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("heera") || v.name.toLowerCase().includes("ravi") === false
-          : v.name.toLowerCase().includes("male") || v.name.toLowerCase().includes("man") || v.name.toLowerCase().includes("ravi") || v.name.toLowerCase().includes("david")
-      );
-      u.voice = gendered[0] || hiVoices[0];
+    // Pick a gendered device voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const langVoices = voices.filter(v => v.lang.startsWith(lang === "hi" ? "hi" : "en"));
+    if (langVoices.length > 0) {
+      const femaleKeywords = ["female","woman","zira","heera","neerja","lekha","veena"];
+      const maleKeywords   = ["male","man","ravi","david","hemant","kalpana" === "" && true];
+      const femaleVoices = langVoices.filter(v => femaleKeywords.some(k => v.name.toLowerCase().includes(k)));
+      const maleVoices   = langVoices.filter(v => maleKeywords.some(k => v.name.toLowerCase().includes(k)));
+      if (isDepa && femaleVoices.length > 0)        u.voice = femaleVoices[0];
+      else if (!isDepa && maleVoices.length > 0)    u.voice = maleVoices[0];
+      else                                           u.voice = langVoices[0];
     }
     u.onend = resolve; u.onerror = resolve;
-    speechSynthesis.speak(u);
+    window.speechSynthesis.speak(u);
   });
 }
 
