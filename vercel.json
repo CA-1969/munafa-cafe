@@ -7,6 +7,8 @@
     "api/tts.js":               { "maxDuration": 60 },
     "api/nse-proxy.js":         { "maxDuration": 30 },
     "api/angel-login.js":       { "maxDuration": 15 },
+    "api/angel-refresh.js":     { "maxDuration": 15 },
+    "api/xi-health.js":         { "maxDuration": 15 },
     "api/check-sub.js":         { "maxDuration": 10 },
     "api/verify-payment.js":    { "maxDuration": 10 },
     "api/seed-sub.js":          { "maxDuration": 10 },
@@ -15,9 +17,10 @@
     "api/sms-broadcast.js":     { "maxDuration": 120 }
   },
   "crons": [
-    { "path": "/api/generate-cache", "schedule": "30 18 * * *" },
-    { "path": "/api/generate-cache", "schedule": "30 6 * * *"  },
-    { "path": "/api/sms-broadcast",  "schedule": "30 2 * * *"  }
+    { "path": "/api/angel-refresh", "schedule": "0 3 * * *"   },
+    { "path": "/api/xi-health",     "schedule": "0 2 * * *"   },
+    { "path": "/api/sms-broadcast", "schedule": "30 2 * * *"  },
+    { "path": "/api/generate-cache","schedule": "30 18 * * *" }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
