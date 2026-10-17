@@ -920,53 +920,76 @@ Turn 14: Earnings surprise history — companies that consistently beat or miss,
 Turn 15: Results season investment strategy — portfolio positioning, which results to act on, risk management tips.
 Educational, analytical broadcast style. Use realistic company names and estimated numbers.`,
 
-    // 6 — Learn Today (FREE, random topic each time)
-    lang === "hi"
+    // 6 — Learn Today — topic fixed by day-of-year so it never repeats for 60 days
+    (() => {
+      const TOPICS_HI = [
+        "SIP (Systematic Investment Plan) क्या है","P/E Ratio समझना","Mutual Fund NAV","Index Fund vs Active Fund",
+        "Debt Fund कैसे काम करते हैं","ELSS Tax Saving Fund","Dividend vs Growth Option",
+        "Stop Loss का महत्व","Risk-Reward Ratio","Asset Allocation क्यों जरूरी है",
+        "Book Value और Market Value का अंतर","EPS (Earnings Per Share)","ROE और ROCE",
+        "Market Cap: Large, Mid, Small Cap","Sector Rotation Strategy","Gold में निवेश: सही या गलत",
+        "PPF vs ELSS: कहाँ निवेश करें","RD vs SIP: अंतर समझें","Bond और Debenture",
+        "IPO में निवेश: सही तरीका","Circuit Breaker और Upper/Lower Circuit",
+        "F&O: Futures और Options","Options Premium कैसे काम करती है","Beta क्या है",
+        "Dividend Yield","Free Cash Flow","Working Capital Management","Debt-to-Equity Ratio",
+        "Promoter Holding का महत्व","FII और DII का असर","Rupee Cost Averaging",
+        "Compounding: निवेश की जादुई शक्ति","Emergency Fund क्यों ज़रूरी","Term Insurance vs Investment",
+        "Inflation और Real Return","Credit Rating क्या होती है","SEBI की भूमिका",
+        "Demat Account कैसे काम करता है","T+1 Settlement","Corporate Actions: Bonus, Split, Buyback",
+        "Rights Issue","ESOP (Employee Stock Options)","Pledging of Shares",
+        "Technical Analysis: Support और Resistance","Moving Average","RSI Indicator",
+        "Volume Analysis","Candlestick Patterns","52-Week High/Low Strategy",
+        "Swing Trading vs Long-term Investing","Arbitrage क्या है","Liquid Fund",
+        "Overnight Fund","Gilt Fund","International Fund में निवेश","ETF vs Index Fund",
+        "Gold ETF","REITs: Real Estate Investment Trusts","SGBs (Sovereign Gold Bonds)"
+      ];
+      const TOPICS_EN = [
+        "What is SIP and Why It Works","Understanding P/E Ratio","How Mutual Fund NAV Works",
+        "Index Fund vs Active Fund","How Debt Funds Work","ELSS Tax Saving Funds",
+        "Dividend vs Growth Option","Importance of Stop Loss","Risk-Reward Ratio Explained",
+        "Why Asset Allocation Matters","Book Value vs Market Value","Understanding EPS",
+        "ROE and ROCE for Stock Analysis","Market Cap Categories Explained","Sector Rotation Strategy",
+        "Gold as an Investment","PPF vs ELSS: Where to Invest","RD vs SIP: Key Differences",
+        "Bonds and Debentures Explained","How to Apply for an IPO","Circuit Breakers Explained",
+        "Futures and Options Basics","How Options Premium Works","What is Beta",
+        "Dividend Yield Analysis","Understanding Free Cash Flow","Working Capital Management",
+        "Debt-to-Equity Ratio","Why Promoter Holding Matters","Impact of FII and DII",
+        "Rupee Cost Averaging","Power of Compounding","Why Emergency Fund is Essential",
+        "Term Insurance vs ULIP","Inflation and Real Return","Credit Ratings Explained",
+        "Role of SEBI","How Demat Account Works","T+1 Settlement System",
+        "Corporate Actions: Bonus, Split, Buyback","Rights Issue Explained","ESOPs Explained",
+        "Share Pledging by Promoters","Support and Resistance in Technical Analysis",
+        "Moving Average Strategy","RSI Indicator","Volume Analysis","Candlestick Patterns",
+        "52-Week High/Low Investing","Swing Trading vs Long-term Investing","What is Arbitrage",
+        "Liquid Funds","Overnight Funds","Gilt Funds","International Funds",
+        "ETF vs Index Fund","Gold ETF","REITs Explained","Sovereign Gold Bonds"
+      ];
+      const now = new Date();
+      const doy = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+      const idx = doy % TOPICS_HI.length;
+      const todayHI = TOPICS_HI[idx];
+      const todayEN = TOPICS_EN[idx];
+      const tomorHI = TOPICS_HI[(idx+1) % TOPICS_HI.length];
+      const tomorEN = TOPICS_EN[(idx+1) % TOPICS_EN.length];
+      return lang === "hi"
     ? `आप MunaFa Café FM के Anurag हैं। स्क्रिप्ट में अपना नाम केवल "Anurag" कहें। आज की तारीख ${d} है।
-आज का विषय: शेयर बाज़ार से संबंधित कोई एक महत्वपूर्ण अवधारणा — जैसे कि एक नई शब्दावली, ट्रेडिंग तकनीक, निवेश रणनीति, या बाज़ार का कोई नियम।
-विषय स्वयं यादृच्छिक रूप से चुनें — हर बार नया और रोचक। उदाहरण: P/E अनुपात, ऑप्शन ग्रीक्स, डेट-टू-इक्विटी, स्टॉप लॉस, कैंडलस्टिक पैटर्न, SEBI नियम, म्यूचुअल फंड NAV, FII/DII प्रवाह, Circuit Breaker, T+1 सेटलमेंट, Futures rollover आदि।
+आज का FIXED विषय: "${todayHI}" — यही पढ़ाएँ, कोई दूसरा विषय नहीं। कल का विषय "${tomorHI}" होगा।
 
-IMPORTANT: केवल raw JSON दें। कोई markdown fences, कोई \`\`\`json नहीं, JSON के बाहर कोई टेक्स्ट नहीं।
+IMPORTANT: केवल raw JSON दें। कोई markdown fences, कोई \`\`\`json नहीं।
 12 टर्न का शैक्षिक पाठ तैयार करें। प्रत्येक टर्न 40-55 शब्दों का हो।
-"topic" में असली विषय का नाम और "t" field में असली बोली जाने वाली script होनी चाहिए — placeholder नहीं।
 केवल इस JSON format में उत्तर दें (12 turns, n=1 से n=12 तक):
-{"topic":"[असली विषय नाम]","turns":[{"n":1,"s":"A","t":"[असली script]"},{"n":2,"s":"A","t":"[असली script]"},{"n":3,"s":"A","t":"[असली script]"},{"n":4,"s":"A","t":"[असली script]"},{"n":5,"s":"A","t":"[असली script]"},{"n":6,"s":"A","t":"[असली script]"},{"n":7,"s":"A","t":"[असली script]"},{"n":8,"s":"A","t":"[असली script]"},{"n":9,"s":"A","t":"[असली script]"},{"n":10,"s":"A","t":"[असली script]"},{"n":11,"s":"A","t":"[असली script]"},{"n":12,"s":"A","t":"[असली script]"}]}
+{"topic":"${todayHI}","turns":[{"n":1,"s":"A","t":"[असली script]"},{"n":2,"s":"A","t":"[असली script]"},{"n":3,"s":"A","t":"[असली script]"},{"n":4,"s":"A","t":"[असली script]"},{"n":5,"s":"A","t":"[असली script]"},{"n":6,"s":"A","t":"[असली script]"},{"n":7,"s":"A","t":"[असली script]"},{"n":8,"s":"A","t":"[असली script]"},{"n":9,"s":"A","t":"[असली script]"},{"n":10,"s":"A","t":"[असली script]"},{"n":11,"s":"A","t":"[असली script]"},{"n":12,"s":"A","t":"[असली script]"}]}
 भाषा नियम: शुद्ध हिंदी वाक्य संरचना। केवल प्रचलित वित्तीय अंग्रेज़ी शब्द जैसे Nifty, SEBI, NAV, P/E, EBITDA, RSI, SIP, F&O आदि अनुमत।
-मुद्रा नियम: "Rs" या "₹" का उपयोग न करें। सभी राशियाँ शब्दों में — "पाँच हज़ार रुपये", "दस लाख करोड़ रुपये" आदि।
-पाठ क्रम:
-टर्न 1: विषय की रोचक भूमिका — "आज हम सीखेंगे…" — श्रोताओं को उत्साहित करें।
-टर्न 2: सरल परिभाषा — बिल्कुल आसान भाषा में, जैसे किसी नए निवेशक को समझाना हो।
-टर्न 3: वास्तविक जीवन का उदाहरण — भारतीय बाज़ार से।
-टर्न 4: यह क्यों महत्वपूर्ण है — निवेशक के नज़रिए से।
-टर्न 5: यह कैसे काम करता है — थोड़ा गहरा विवरण।
-टर्न 6: सामान्य गलतियाँ — नए निवेशक क्या गलतियाँ करते हैं।
-टर्न 7: विशेषज्ञ इसे कैसे उपयोग करते हैं — पेशेवर दृष्टिकोण।
-टर्न 8: संबंधित अवधारणाएँ — इससे जुड़े 2-3 अन्य शब्द या विचार।
-टर्न 9: भारतीय बाज़ार में इसकी प्रासंगिकता — NSE/BSE/SEBI संदर्भ।
-टर्न 10: व्यावहारिक सुझाव — इसे अपने पोर्टफोलियो में कैसे लागू करें।
-टर्न 11: एक त्वरित प्रश्नोत्तरी — श्रोताओं से एक प्रश्न और उसका उत्तर।
-टर्न 12: आज का सारांश और कल की झलक — "आज हमने सीखा…"`
-    : `You are Anurag on MunaFa Café FM, an AI investor radio show. Today is ${d}.
-IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json, no explanation outside the JSON.
-Pick ONE interesting stock market topic to teach today — randomly chosen, fresh each time. Examples: P/E ratio, Options Greeks, Debt-to-Equity, Stop Loss mechanics, Candlestick patterns, SEBI regulations, Mutual Fund NAV, FII/DII flows, Circuit Breakers, T+1 settlement, Futures rollover, Bid-Ask spread, Short Selling, Dividend Yield, Book Value vs Market Value, ROCE vs ROE, etc.
-
-Generate a 12-turn educational lesson. Each turn must be 40-55 words of ACTUAL spoken script. The "topic" field must be the REAL topic name and "t" fields must contain REAL broadcast words, never placeholder text.
-Reply ONLY with this JSON format (12 turns, n=1 through n=12):
-{"topic":"[real topic name]","turns":[{"n":1,"s":"A","t":"[actual script]"},{"n":2,"s":"A","t":"[actual script]"},{"n":3,"s":"A","t":"[actual script]"},{"n":4,"s":"A","t":"[actual script]"},{"n":5,"s":"A","t":"[actual script]"},{"n":6,"s":"A","t":"[actual script]"},{"n":7,"s":"A","t":"[actual script]"},{"n":8,"s":"A","t":"[actual script]"},{"n":9,"s":"A","t":"[actual script]"},{"n":10,"s":"A","t":"[actual script]"},{"n":11,"s":"A","t":"[actual script]"},{"n":12,"s":"A","t":"[actual script]"}]}
-Language rule: Pure English only. No Hindi words.
-LESSON SEQUENCE:
-Turn 1: Exciting topic intro — "Today we're learning about…" — hook the listener.
-Turn 2: Simple definition — as if explaining to a brand-new investor.
-Turn 3: Real-world Indian market example — NSE/BSE context.
-Turn 4: Why it matters — from an investor's perspective, what changes when you know this.
-Turn 5: How it works — slightly deeper, with a simple formula or mechanism.
-Turn 6: Common mistakes — what beginners get wrong about this concept.
-Turn 7: How experts use it — professional investor perspective.
-Turn 8: Related concepts — 2-3 connected terms worth knowing.
-Turn 9: Indian market relevance — how SEBI, NSE, BSE, or Indian companies make this unique.
-Turn 10: Practical tip — how to apply this in your own portfolio right now.
-Turn 11: Quick quiz — one question for the listener with the answer revealed.
-Turn 12: Today's summary and tomorrow's teaser — "Today we learned… tomorrow we'll explore…"`
+मुद्रा शब्दों में लिखें।
+पाठ क्रम: टर्न 1: विषय की भूमिका। टर्न 2: सरल परिभाषा। टर्न 3: भारतीय बाज़ार का उदाहरण। टर्न 4: यह क्यों महत्वपूर्ण है। टर्न 5: यह कैसे काम करता है। टर्न 6: सामान्य गलतियाँ। टर्न 7: विशेषज्ञ उपयोग। टर्न 8: संबंधित अवधारणाएँ। टर्न 9: भारतीय बाज़ार में प्रासंगिकता। टर्न 10: व्यावहारिक सुझाव। टर्न 11: त्वरित प्रश्नोत्तरी। टर्न 12: सारांश।`
+    : `You are Anurag on MunaFa Café FM. Today is ${d}.
+Today's FIXED topic: "${todayEN}" — teach ONLY this topic. Tomorrow's topic will be "${tomorEN}".
+IMPORTANT: Reply with ONLY raw JSON. No markdown fences, no \`\`\`json.
+Generate a 12-turn educational lesson, each turn 40-55 words of actual spoken script.
+Reply ONLY with JSON:
+{"topic":"${todayEN}","turns":[{"n":1,"s":"A","t":"[actual script]"},{"n":2,"s":"A","t":"[actual script]"},{"n":3,"s":"A","t":"[actual script]"},{"n":4,"s":"A","t":"[actual script]"},{"n":5,"s":"A","t":"[actual script]"},{"n":6,"s":"A","t":"[actual script]"},{"n":7,"s":"A","t":"[actual script]"},{"n":8,"s":"A","t":"[actual script]"},{"n":9,"s":"A","t":"[actual script]"},{"n":10,"s":"A","t":"[actual script]"},{"n":11,"s":"A","t":"[actual script]"},{"n":12,"s":"A","t":"[actual script]"}]}
+Language: Pure English only. Lesson: Turn 1: intro. Turn 2: definition. Turn 3: Indian example. Turn 4: why it matters. Turn 5: how it works. Turn 6: common mistakes. Turn 7: expert use. Turn 8: related concepts. Turn 9: Indian market context. Turn 10: practical tip. Turn 11: quick quiz. Turn 12: summary.`;
+    })()
   ];
 
   return prompts[mi];
@@ -1206,17 +1229,28 @@ async function generate(mi) {
 // RENDER MODULE OUTPUT — shared by generate() and cache path
 // ────────────────────────────────────────────────────────
 function cleanAndParseJSON(text) {
+  if (!text) throw new Error("Empty input");
   // 1. Strip ALL markdown fences globally (```json, ```, etc.)
-  let s = text.replace(/```(?:json)?/gi, "").trim();
-  // 2. Extract from first { to last }
+  let s = text.replace(/```(?:json)?\s*/gi, "").trim();
+  // 2. Normalize common Unicode chars that break JSON.parse:
+  //    en-dash (–), em-dash (—) → hyphen; smart quotes → straight quotes
+  s = s
+    .replace(/–/g, "-")   // en-dash
+    .replace(/—/g, "-")   // em-dash
+    .replace(/‘|’/g, "'")  // smart single quotes
+    .replace(/“|”/g, '"')  // smart double quotes — outside strings only; handled below
+    .replace(/…/g, "...")  // ellipsis
+    .replace(/ /g, " ");  // non-breaking space
+  // 3. Extract from first { to last }
   const start = s.indexOf("{");
   const end   = s.lastIndexOf("}");
   if (start === -1 || end === -1) throw new Error("No JSON object found");
   s = s.slice(start, end + 1);
-  // 3. Try direct parse first
+  // 4. Try direct parse first
   try { return JSON.parse(s); } catch(_) {}
-  // 4. Fix common AI JSON issues: unescaped newlines inside strings
-  // Replace literal newlines/tabs inside string values only
+  // 5. Fix common AI JSON issues char-by-char:
+  //    - unescaped newlines/tabs inside strings → space
+  //    - unescaped double quotes inside string values → escaped
   let fixed = "";
   let inStr = false, escape = false;
   for (let i = 0; i < s.length; i++) {
@@ -1228,7 +1262,10 @@ function cleanAndParseJSON(text) {
     if (inStr && c === "\t") { fixed += " "; continue; }
     fixed += c;
   }
-  return JSON.parse(fixed);
+  // 6. Try parsed; if still fails try removing trailing commas before } or ]
+  try { return JSON.parse(fixed); } catch(_) {}
+  const noTrailing = fixed.replace(/,(\s*[}\]])/g, "$1");
+  return JSON.parse(noTrailing);
 }
 
 function renderModuleOutput(mi, text, badge, cls, out, scr, bdg, aud, gb, rawText) {
@@ -1385,12 +1422,78 @@ const XI_SETTINGS = {
 // Seeds lock each voice to a consistent sound across all calls
 const XI_SEEDS = { A: 17, D: 42 };
 
-async function speakTurn(text, speaker) {
+// ── TTS TEXT SANITIZER ───────────────────────────────────────────────────────
+// Fixes symbols and punctuation that ElevenLabs misreads before sending to TTS
+function sanitizeForTTS(text, speaker) {
+  let s = text || "";
+
+  // ── Currency ──────────────────────────────────────────────────────────────
+  // Rs / RS / rs / R.s. → "rupees"  (must be before general symbol cleanup)
+  s = s.replace(/\bR\.?s\.?\s*/gi, "rupees ");
+  // ₹ sign → "rupees"
+  s = s.replace(/₹\s*/g, "rupees ");
+  // $, USD → "dollars"
+  s = s.replace(/\$\s*/g, "dollars ");
+
+  // ── Percentage ranges: "12-14%" or "12–14%" or "12—14%" → "12 to 14 percent"
+  // Must run BEFORE general dash/hyphen handling
+  s = s.replace(/(\d+)\s*[-–—]\s*(\d+)\s*%/g, "$1 to $2 percent");
+  // Single percentage: "15%" → "15 percent"
+  s = s.replace(/(\d+\.?\d*)\s*%/g, "$1 percent");
+
+  // ── Number ranges with dash: "10-20" → "10 to 20" (only when both sides are digits)
+  s = s.replace(/(\d+)\s*[-–—]\s*(\d+)/g, "$1 to $2");
+
+  // ── Ratios and multiples ──────────────────────────────────────────────────
+  // P/E, P/B, ROE etc. — slash reads as silence or "slash"; expand common ones
+  s = s.replace(/\bP\/E\b/g, "P E ratio");
+  s = s.replace(/\bP\/B\b/g, "P B ratio");
+  s = s.replace(/\bEV\/EBITDA\b/gi, "EV to EBITDA");
+  s = s.replace(/\bDebt\/Equity\b/gi, "Debt to Equity");
+  s = s.replace(/\bDebt-to-Equity\b/gi, "Debt to Equity");
+  s = s.replace(/\bF&O\b/gi, "F and O");
+  s = s.replace(/\bYoY\b/gi, "year on year");
+  s = s.replace(/\bQoQ\b/gi, "quarter on quarter");
+  s = s.replace(/\bMoM\b/gi, "month on month");
+
+  // ── Large Indian number suffixes ──────────────────────────────────────────
+  // "5L" / "5 L" → "5 lakh"; "10Cr" / "10 Cr" → "10 crore"
+  s = s.replace(/(\d+\.?\d*)\s*Cr\.?\b/gi,  "$1 crore");
+  s = s.replace(/(\d+\.?\d*)\s*L\.?\b/g,    "$1 lakh");
+  s = s.replace(/(\d+\.?\d*)\s*Lakh/gi,     "$1 lakh");
+  s = s.replace(/(\d+\.?\d*)\s*Crore/gi,    "$1 crore");
+
+  // ── Ampersand ─────────────────────────────────────────────────────────────
+  // Keep known acronyms that use & naturally (F&O handled above)
+  // General & → "and" (but NOT inside words like M&M — leave those)
+  s = s.replace(/\s&\s/g, " and ");
+
+  // ── Hyphens used as em-dashes for pause: "word — word" → ", word"
+  // (only multi-space-surrounded dashes, not part of compound words)
+  s = s.replace(/\s[-–—]{1,2}\s/g, ", ");
+
+  // ── Ellipsis → short pause via comma
+  s = s.replace(/\.{2,}/g, ", ");
+  s = s.replace(/…/g, ", ");
+
+  // ── Remove markdown bold/italic that slipped into script text
+  s = s.replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1");
+
+  // ── Collapse extra whitespace
+  s = s.replace(/\s{2,}/g, " ").trim();
+
+  return s;
+}
+
+async function speakTurn(rawText, speaker) {
   // Resolve speaker strictly: only "D" maps to Deepa, everything else is Anurag
   const sp      = (speaker === "D") ? "D" : "A";
   const voiceId = XI_VOICES[sp];      // always resolves to the correct ID
   const settings = XI_SETTINGS[sp];
   const seed     = XI_SEEDS[sp];
+
+  // Sanitize text for clean TTS reading (fix Rs, %, ranges, dashes etc.)
+  const text    = sanitizeForTTS(rawText, sp);
   const cacheKey = sp + "|" + text.slice(0, 80);
 
   // Serve from cache if already fetched this session
@@ -1442,10 +1545,11 @@ async function speakTurn(text, speaker) {
   await browserSpeak(text, sp);
 }
 
-function browserSpeak(text, speaker) {
+function browserSpeak(rawText, speaker) {
   // Emergency fallback only — used when ElevenLabs fails after 2 attempts
   // sp "A" = Anurag (male, low pitch), sp "D" = Deepa (female, higher pitch)
   const isDepa = (speaker === "D");
+  const text = sanitizeForTTS(rawText, speaker);   // clean symbols before device TTS too
   return new Promise(resolve => {
     if (!window.speechSynthesis) { resolve(); return; }
     const u = new SpeechSynthesisUtterance(text);
