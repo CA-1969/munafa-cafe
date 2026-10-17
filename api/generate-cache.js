@@ -113,6 +113,44 @@ function fmtPct(val) {
   return (val >= 0 ? "+" : "") + fmt(val) + "%";
 }
 
+// ── Stooq direct fetch (used as second fallback when nse-proxy returns nulls) ──
+const STOOQ_IDX = [
+  { sym: "^nsei",      name: "NIFTY 50"         },
+  { sym: "^bsesn",     name: "S&P BSE SENSEX"   },
+  { sym: "^nsebank",   name: "NIFTY BANK"       },
+  { sym: "^cnxmc",     name: "NIFTY MIDCAP 100" },
+  { sym: "^cnxit",     name: "NIFTY IT"         },
+  { sym: "^cnxauto",   name: "NIFTY AUTO"       },
+  { sym: "^cnxfmcg",   name: "NIFTY FMCG"      },
+  { sym: "^cnxpharma", name: "NIFTY PHARMA"    },
+  { sym: "^indiavix",  name: "INDIA VIX"        }
+];
+async function stooqOne(sym) {
+  const url = `https://stooq.com/q/l/?s=${sym}&f=sd2t2ohlcv&h&e=csv`;
+  const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(5000) });
+  if (!r.ok) return null;
+  const text = await r.text();
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) return null;
+  const [,, , , high, low, close] = lines[1].split(",");
+  // line[1] fields: sym,date,time,open,high,low,close,volume
+  const parts = lines[1].split(",");
+  const o = parseFloat(parts[3]), h = parseFloat(parts[4]), l = parseFloat(parts[5]), c = parseFloat(parts[6]);
+  if (!c || isNaN(c)) return null;
+  const chg = c - o;
+  const pct = o ? (chg/o)*100 : 0;
+  return { last: c, change: chg, pct, open: o, high: h, low: l, prev: o };
+}
+async function fetchStooqDirect() {
+  const results = await Promise.allSettled(STOOQ_IDX.map(i => stooqOne(i.sym)));
+  const indices = STOOQ_IDX.map(({ name }, idx) => {
+    const r = results[idx].status === "fulfilled" ? results[idx].value : null;
+    if (!r) return { name, last: null, change: null, pct: null, open: null, high: null, low: null, prev: null };
+    return { name, ...r };
+  });
+  return { indices };
+}
+
 async function fetchMarketData() {
   // Call our own nse-proxy endpoint — same domain, always allowed
   const base = process.env.VERCEL_URL
@@ -123,15 +161,29 @@ async function fetchMarketData() {
 
   try {
     const [ri, rg, rl] = await Promise.all([
-      fetch(`${base}/api/nse-proxy?type=indices`),
-      fetch(`${base}/api/nse-proxy?type=gainers`),
-      fetch(`${base}/api/nse-proxy?type=losers`)
+      fetch(`${base}/api/nse-proxy?type=indices`,  { signal: AbortSignal.timeout(8000) }),
+      fetch(`${base}/api/nse-proxy?type=gainers`,  { signal: AbortSignal.timeout(8000) }),
+      fetch(`${base}/api/nse-proxy?type=losers`,   { signal: AbortSignal.timeout(8000) })
     ]);
     if (ri.ok) indicesData = await ri.json();
     if (rg.ok) gainersData = await rg.json();
     if (rl.ok) losersData  = await rl.json();
+    console.log("nse-proxy ok — Nifty:",
+      indicesData?.indices?.find(i=>i.name==="NIFTY 50")?.last ?? "null");
   } catch(e) {
     console.warn("nse-proxy fetch failed:", e.message);
+  }
+
+  // If nse-proxy returned no index data (all nulls), try Stooq directly
+  const niftyCheck = indicesData?.indices?.find(i => i.name === "NIFTY 50");
+  if (!niftyCheck?.last) {
+    console.warn("nse-proxy returned no index data — trying Stooq directly");
+    try {
+      indicesData = await fetchStooqDirect();
+      console.log("Stooq direct ok — Nifty:", indicesData?.indices?.find(i=>i.name==="NIFTY 50")?.last ?? "null");
+    } catch(e2) {
+      console.warn("Stooq direct also failed:", e2.message);
+    }
   }
 
   // Parse indices
@@ -260,12 +312,65 @@ function buildPrompts(d, mkt) {
   });
 
   // ── MODULE 6 — Learn Today (no market data needed) ────────────────────────
+  // Pick today's topic deterministically from a 60-topic list using day-of-year as seed
+  // This ensures a DIFFERENT topic every day, with no random repeats
+  const LEARN_TOPICS_HI = [
+    "SIP (Systematic Investment Plan) क्या है","P/E Ratio समझना","Mutual Fund NAV","Index Fund vs Active Fund",
+    "Debt Fund कैसे काम करते हैं","ELSS Tax Saving Fund","Dividend vs Growth Option",
+    "Stop Loss का महत्व","Risk-Reward Ratio","Asset Allocation क्यों जरूरी है",
+    "Book Value और Market Value का अंतर","EPS (Earnings Per Share)","ROE और ROCE",
+    "Market Cap: Large, Mid, Small Cap","Sector Rotation Strategy","Gold में निवेश: सही या गलत",
+    "PPF vs ELSS: कहाँ निवेश करें","RD vs SIP: अंतर समझें","Bond और Debenture",
+    "IPO में निवेश: सही तरीका","Circuit Breaker और Upper/Lower Circuit",
+    "F&O: Futures और Options","Options Premium कैसे काम करती है","Beta क्या है",
+    "Dividend Yield","Free Cash Flow","Working Capital Management","Debt-to-Equity Ratio",
+    "Promoter Holding का महत्व","FII और DII का असर","Rupee Cost Averaging",
+    "Compounding: निवेश की जादुई शक्ति","Emergency Fund क्यों ज़रूरी","Term Insurance vs Investment",
+    "Inflation और Real Return","Credit Rating क्या होती है","SEBI की भूमिका",
+    "Demat Account कैसे काम करता है","T+1 Settlement","Corporate Actions: Bonus, Split, Buyback",
+    "Rights Issue","ESOP (Employee Stock Options)","Pledging of Shares",
+    "Technical Analysis: Support और Resistance","Moving Average","RSI Indicator",
+    "Volume Analysis","Candlestick Patterns","52-Week High/Low Strategy",
+    "Swing Trading vs Long-term Investing","Arbitrage क्या है","Liquid Fund",
+    "Overnight Fund","Gilt Fund","International Fund में निवेश","ETF vs Index Fund",
+    "Gold ETF","REITs: Real Estate Investment Trusts","SGBs (Sovereign Gold Bonds)"
+  ];
+  const LEARN_TOPICS_EN = [
+    "What is SIP and Why It Works","Understanding P/E Ratio","How Mutual Fund NAV Works",
+    "Index Fund vs Active Fund","How Debt Funds Work","ELSS Tax Saving Funds",
+    "Dividend vs Growth Option","Importance of Stop Loss","Risk-Reward Ratio Explained",
+    "Why Asset Allocation Matters","Book Value vs Market Value","Understanding EPS",
+    "ROE and ROCE for Stock Analysis","Market Cap Categories Explained","Sector Rotation Strategy",
+    "Gold as an Investment","PPF vs ELSS: Where to Invest","RD vs SIP: Key Differences",
+    "Bonds and Debentures Explained","How to Apply for an IPO","Circuit Breakers Explained",
+    "Futures and Options Basics","How Options Premium Works","What is Beta",
+    "Dividend Yield Analysis","Understanding Free Cash Flow","Working Capital Management",
+    "Debt-to-Equity Ratio","Why Promoter Holding Matters","Impact of FII and DII",
+    "Rupee Cost Averaging","Power of Compounding","Why Emergency Fund is Essential",
+    "Term Insurance vs ULIP","Inflation and Real Return","Credit Ratings Explained",
+    "Role of SEBI","How Demat Account Works","T+1 Settlement System",
+    "Corporate Actions: Bonus, Split, Buyback","Rights Issue Explained","ESOPs Explained",
+    "Share Pledging by Promoters","Support and Resistance in Technical Analysis",
+    "Moving Average Strategy","RSI Indicator","Volume Analysis","Candlestick Patterns",
+    "52-Week High/Low Investing","Swing Trading vs Long-term Investing","What is Arbitrage",
+    "Liquid Funds","Overnight Funds","Gilt Funds","International Funds",
+    "ETF vs Index Fund","Gold ETF","REITs Explained","Sovereign Gold Bonds"
+  ];
+  // Day-of-year index ensures a different topic every day, cycling through 60 topics
+  const ist = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  const dayOfYear = Math.floor((ist - new Date(ist.getFullYear(), 0, 0)) / 86400000);
+  const topicIdx = dayOfYear % LEARN_TOPICS_HI.length;
+  const todayTopicHI = LEARN_TOPICS_HI[topicIdx];
+  const todayTopicEN = LEARN_TOPICS_EN[topicIdx];
+  const tomorrowTopicHI = LEARN_TOPICS_HI[(topicIdx + 1) % LEARN_TOPICS_HI.length];
+  const tomorrowTopicEN = LEARN_TOPICS_EN[(topicIdx + 1) % LEARN_TOPICS_EN.length];
+
   items.push({ key: "cache:module:6:hi", prompt:
-    `आप MunaFa Café FM के Anurag हैं। नाम "Anurag" बोलें। IMPORTANT: केवल raw JSON दें, कोई markdown fences नहीं। आज की तारीख है ${d}। आज एक महत्वपूर्ण निवेश अवधारणा को सरल हिंदी में समझाएँ जो भारतीय खुदरा निवेशकों के लिए उपयोगी हो। 15 turns का Anurag का एकल monologue, हर turn 40-55 शब्द। सिर्फ JSON:\n{"topic":"आज का असली विषय","turns":[{"n":1,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":2,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":3,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":4,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":5,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":6,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":7,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":8,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":9,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":10,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":11,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":12,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":13,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":14,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":15,"s":"A","t":"[40-55 शब्दों की असली script]"}]}`
+    `आप MunaFa Café FM के Anurag हैं। नाम "Anurag" बोलें। IMPORTANT: केवल raw JSON दें, कोई markdown fences नहीं।\n\nआज की तारीख है ${d}।\nआज का FIXED विषय है: "${todayTopicHI}" — यही विषय पढ़ाएँ, कोई दूसरा नहीं।\nकल का विषय "${tomorrowTopicHI}" होगा — आज वो नहीं पढ़ाना।\n\n15 turns का Anurag का एकल monologue, हर turn 40-55 शब्द। सिर्फ JSON:\n{"topic":"${todayTopicHI}","turns":[{"n":1,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":2,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":3,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":4,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":5,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":6,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":7,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":8,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":9,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":10,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":11,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":12,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":13,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":14,"s":"A","t":"[40-55 शब्दों की असली script]"},{"n":15,"s":"A","t":"[40-55 शब्दों की असली script]"}]}`
   });
 
   items.push({ key: "cache:module:6:en", prompt:
-    `You are Anurag on MunaFa Café FM. Say "Anurag" only, never "RJ Anurag". IMPORTANT: Reply with ONLY raw JSON, no markdown fences. Today is ${d}. Explain one important investing concept useful for Indian retail investors. Write a 15-turn solo monologue, each turn 40-55 words. Reply ONLY with JSON:\n{"topic":"ACTUAL TOPIC NAME","turns":[{"n":1,"s":"A","t":"[write 40-55 word script here]"},{"n":2,"s":"A","t":"[write 40-55 word script here]"},{"n":3,"s":"A","t":"[write 40-55 word script here]"},{"n":4,"s":"A","t":"[write 40-55 word script here]"},{"n":5,"s":"A","t":"[write 40-55 word script here]"},{"n":6,"s":"A","t":"[write 40-55 word script here]"},{"n":7,"s":"A","t":"[write 40-55 word script here]"},{"n":8,"s":"A","t":"[write 40-55 word script here]"},{"n":9,"s":"A","t":"[write 40-55 word script here]"},{"n":10,"s":"A","t":"[write 40-55 word script here]"},{"n":11,"s":"A","t":"[write 40-55 word script here]"},{"n":12,"s":"A","t":"[write 40-55 word script here]"},{"n":13,"s":"A","t":"[write 40-55 word script here]"},{"n":14,"s":"A","t":"[write 40-55 word script here]"},{"n":15,"s":"A","t":"[write 40-55 word script here]"}]}`
+    `You are Anurag on MunaFa Café FM. Say "Anurag" only, never "RJ Anurag". IMPORTANT: Reply with ONLY raw JSON, no markdown fences.\n\nToday is ${d}.\nToday's FIXED topic is: "${todayTopicEN}" — teach ONLY this topic, no other.\nTomorrow's topic will be "${tomorrowTopicEN}" — do NOT teach it today.\n\nWrite a 15-turn solo monologue, each turn 40-55 words. Reply ONLY with JSON:\n{"topic":"${todayTopicEN}","turns":[{"n":1,"s":"A","t":"[write 40-55 word script here]"},{"n":2,"s":"A","t":"[write 40-55 word script here]"},{"n":3,"s":"A","t":"[write 40-55 word script here]"},{"n":4,"s":"A","t":"[write 40-55 word script here]"},{"n":5,"s":"A","t":"[write 40-55 word script here]"},{"n":6,"s":"A","t":"[write 40-55 word script here]"},{"n":7,"s":"A","t":"[write 40-55 word script here]"},{"n":8,"s":"A","t":"[write 40-55 word script here]"},{"n":9,"s":"A","t":"[write 40-55 word script here]"},{"n":10,"s":"A","t":"[write 40-55 word script here]"},{"n":11,"s":"A","t":"[write 40-55 word script here]"},{"n":12,"s":"A","t":"[write 40-55 word script here]"},{"n":13,"s":"A","t":"[write 40-55 word script here]"},{"n":14,"s":"A","t":"[write 40-55 word script here]"},{"n":15,"s":"A","t":"[write 40-55 word script here]"}]}`
   });
 
   return items;
@@ -276,15 +381,38 @@ function buildPrompts(d, mkt) {
 // ─────────────────────────────────────────────────────────────────────────────
 function cleanJSON(text) {
   if (!text) return "";
-  // Strip ALL markdown fences globally (```json, ```, etc.)
-  let s = text.replace(/```(?:json)?/gi, "").trim();
-  // Extract from first { to last } (removes any surrounding text)
+  // 1. Strip ALL markdown fences globally (```json, ```, etc.)
+  let s = text.replace(/```(?:json)?\s*/gi, "").trim();
+  // 2. Normalize problematic Unicode that breaks JSON.parse on frontend
+  s = s
+    .replace(/–/g, "-")         // en-dash
+    .replace(/—/g, "-")         // em-dash
+    .replace(/‘|’/g, "'")  // smart single quotes
+    .replace(/“|”/g, '"')  // smart double quotes
+    .replace(/…/g, "...")        // ellipsis
+    .replace(/ /g, " ");        // non-breaking space
+  // 3. Extract from first { to last } (removes any surrounding text)
   const start = s.indexOf("{");
   const end   = s.lastIndexOf("}");
   if (start !== -1 && end !== -1 && end > start) {
     s = s.slice(start, end + 1);
   }
-  return s;
+  // 4. Quick validity check — if it parses, great; if not, do char-by-char repair
+  try { JSON.parse(s); return s; } catch(_) {}
+  // 5. Char-by-char: fix unescaped newlines/tabs inside string values
+  let fixed = ""; let inStr = false, esc = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (esc) { fixed += c; esc = false; continue; }
+    if (c === "\\") { esc = true; fixed += c; continue; }
+    if (c === '"') { inStr = !inStr; fixed += c; continue; }
+    if (inStr && (c === "\n" || c === "\r")) { fixed += " "; continue; }
+    if (inStr && c === "\t") { fixed += " "; continue; }
+    fixed += c;
+  }
+  // 6. Remove trailing commas before } or ] (common GPT mistake)
+  fixed = fixed.replace(/,(\s*[}\]])/g, "$1");
+  return fixed;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
